@@ -7,26 +7,29 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="card">
-                    <div class="card-header pb-0">
-                        <div class="d-flex align-items-center">
-                            <p class="mb-0">Division</p>
-                            <button class="btn btn-primary btn-sm ms-auto">Save</button>
+                    <form method="POST" action="{{ route('division.store') }}">
+                        @csrf
+                        <div class="card-header pb-0">
+                            <div class="d-flex align-items-center">
+                                <p class="mb-0">Division</p>
+                                <button class="btn btn-primary btn-sm ms-auto" type="submit">Save</button>
+                            </div>
                         </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="example-text-input" class="form-control-label">Division Name</label>
-                                    <input class="form-control" type="text" value="">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="example-text-input" class="form-control-label">Division Name</label>
+                                        <input class="form-control" type="text" id="division_name" name="name">
+                                    </div>
                                 </div>
                             </div>
                         </div>
-
-                    </div>
+                    </form>
+                      
                 </div>
             </div>
-            <!-- <div class="col-md-4">
+            <div class="col-md-4">
                 <div class="card card-profile">
                     <img src="/img/bg-profile.jpg" alt="Image placeholder" class="card-img-top">
                     <div class="row justify-content-center">
@@ -85,7 +88,7 @@
                         </div>
                     </div>
                 </div>
-            </div> -->
+            </div>
         </div>
         @include('layouts.footers.auth.footer')
     </div>

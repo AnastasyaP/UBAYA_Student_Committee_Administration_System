@@ -37,7 +37,8 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::get('/committees', [CommitteeController::class, 'index'])->name('committees');
 	Route::get('/add-committees', [CommitteeController::class, 'create'])->name('add-committees');
 	Route::get('/divisions', [DivisionController::class, 'index'])->name('divisions');
-	Route::get('/add-divisions', [DivisionController::class, 'create'])->name('add-divisions');
+	Route::get('/add-divisions', [DivisionController::class, 'create'])->name('divisions.add');
+	Route::post('/store-division', [DivisionController::class, 'store'])->name('division.store');
 	Route::get('/{page}', [PageController::class, 'index'])->name('page');
 	Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 });

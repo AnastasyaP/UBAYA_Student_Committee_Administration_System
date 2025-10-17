@@ -30,7 +30,9 @@ class DivisionController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $input = $request->all();
+        Division::create($input);
+        return redirect()->route('divisions')->with('success', 'Division added Successfully!');
     }
 
     /**
