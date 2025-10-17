@@ -4,18 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Committee;
+use App\Models\Division;
 
-
-class CommitteeController extends Controller
+class DivisionController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $committees = Committee::all();
-        return view('pages.committees', compact('committees'));
+        $divisions = Division::all();
+        return view('pages.division.divisions', compact('divisions'));
     }
 
     /**
@@ -23,7 +22,7 @@ class CommitteeController extends Controller
      */
     public function create()
     {
-        return view('pages.add-committees');
+        return view('pages.division.add-divisions');
     }
 
     /**

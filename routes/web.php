@@ -14,7 +14,7 @@ use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\ResetPassword;
 use App\Http\Controllers\ChangePassword;            
 use App\Http\Controllers\CommitteeController;            
-            
+use App\Http\Controllers\DivisionController;   
 
 Route::get('/', function () {return redirect('/dashboard');})->middleware('auth');
 	Route::get('/register', [RegisterController::class, 'create'])->middleware('guest')->name('register');
@@ -35,6 +35,9 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::get('/sign-in-static', [PageController::class, 'signin'])->name('sign-in-static');
 	Route::get('/sign-up-static', [PageController::class, 'signup'])->name('sign-up-static'); 
 	Route::get('/committees', [CommitteeController::class, 'index'])->name('committees');
+	Route::get('/add-committees', [CommitteeController::class, 'create'])->name('add-committees');
+	Route::get('/divisions', [DivisionController::class, 'index'])->name('divisions');
+	Route::get('/add-divisions', [DivisionController::class, 'create'])->name('add-divisions');
 	Route::get('/{page}', [PageController::class, 'index'])->name('page');
 	Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 });

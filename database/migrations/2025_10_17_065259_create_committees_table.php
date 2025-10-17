@@ -25,6 +25,7 @@ return new class extends Migration
             $table->date('end_regis')->nullable();
             $table->text('evaluation')->nullable();            
             $table->timestamps();
+
         });
     }
 

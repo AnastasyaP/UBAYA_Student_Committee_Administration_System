@@ -20,7 +20,11 @@ class DatabaseSeeder extends Seeder
             'firstname' => 'Admin',
             'lastname' => 'Admin',
             'email' => 'admin@argon.com',
-            'password' => bcrypt('secret')
+            'password' => '123',
+            // 'password' => bcrypt('secret')
         ]);
+
+        $this->call(CommitteesSeeder::class);
+        $this->call(DivisionsSeeder::class);
     }
 }
