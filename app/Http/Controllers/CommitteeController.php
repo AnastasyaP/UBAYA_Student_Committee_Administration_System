@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Committee;
+use Illuminate\Support\Facades\Auth;
 
 
 class CommitteeController extends Controller
@@ -14,7 +15,13 @@ class CommitteeController extends Controller
      */
     public function index()
     {
-        $committees = Committee::all();
+        $admin = Auth::user(); // ngambil admin yg login
+        if($admin->is_superAdmin === 1){
+            $committees = Committee::all();
+        }else{
+            $committees = $admin->committees()->get();
+        }
+        
         return view('pages.committees', compact('committees'));
     }
 

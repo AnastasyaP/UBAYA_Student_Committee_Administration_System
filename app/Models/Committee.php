@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Admin;
 
 class Committee extends Model
 {
@@ -24,4 +25,8 @@ class Committee extends Model
         'end_regis',
         'evaluation',
     ];
+
+    public function admins(){
+        return $this->belongsTo(Admin::class, 'idAdmins', 'idAdmins');
+    }
 }

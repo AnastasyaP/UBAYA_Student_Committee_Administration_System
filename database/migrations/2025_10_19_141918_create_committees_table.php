@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('tCommittees', function (Blueprint $table) {
             $table->id('idCommittees');
-            $table->string('emailAdmins', 100);
+            $table->unsignedBigInteger('idAdmins');
             $table->string('name', 45);
             $table->date('start_period')->nullable();
             $table->date('end_period')->nullable();
@@ -26,6 +26,7 @@ return new class extends Migration
             $table->text('evaluation')->nullable();            
             $table->timestamps();
 
+            $table->foreign('idAdmins')->references('idAdmins')->on('tAdmins')->onDelete('cascade');
         });
     }
 

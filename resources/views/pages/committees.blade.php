@@ -1,13 +1,17 @@
+@php
+use Illuminate\Support\Str;
+@endphp
+
 @extends('layouts.app', ['class' => 'g-sidenav-show bg-gray-100'])
 
 @section('content')
-    @include('layouts.navbars.auth.topnav', ['title' => 'Committee'])
+    @include('layouts.navbars.auth.topnav', ['title' => 'Committee History'])
     <div class="container-fluid py-4">
         <div class="row">
             <div class="col-12">
                 <div class="card mb-4">
                     <div class="card-header pb-0 d-flex justify-content-between align-items-center" >
-                        <h6>Committees List</h6>
+                        <h6>Committees History</h6>
                         <a href="{{ route('add-committees') }}" target=""
                             class="btn btn-dark btn-add w-15 mb-3">Add Committee</a>
                     </div>
@@ -51,7 +55,7 @@
                                             </div>
                                         </td>
                                         <td>
-                                            <p class="text-xs text-secondary mb-0">{{ $committee->description }}</p>
+                                            <p class="text-xs text-secondary mb-0">{{ Str::words($committee->description, 4, '...') }}</p>
                                         </td>
                              
                                         <td class="align-middle text-center">
@@ -69,7 +73,7 @@
                                         <td class="align-middle">
                                             <a href="javascript:;" class="text-secondary font-weight-bold text-xs"
                                                 data-toggle="tooltip" data-original-title="Edit user">
-                                                Edit
+                                                See Evaluation
                                             </a>
                                         </td>
                                     </tr>

@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
+use App\Models\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Hash;
 
 class LoginController extends Controller
 {
@@ -27,14 +28,25 @@ class LoginController extends Controller
             'password' => ['required'],
         ]);
 
-        $user = User::where('email',$request->email)->first();
-        if($user){
-            if($user->password === $request->password){
-                Auth::login($user);
-                $request->session()->regenerate();
-                return redirect()->intended('dashboard');
-            }
+        $user = Admin::where('emailAdmins',$request->email)->first();
+        // dd($user);
+
+        if($user && Hash::check($request->password, $user->password)){
+            // dd($user, Hash::check($request->password, $user->password));
+            Auth::login($user);
+            $request->session()->regenerate();
+            return redirect()->intended('dashboard');
         }
+        // tanpa hashing 
+        // if($user){
+        //     if($user->password === $request->password){
+        //         Auth::login($user);
+        //         $request->session()->regenerate();
+        //         return redirect()->intended('dashboard');
+        //     }
+        // }
+
+        // bawaan template argon
         // if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
         //     $request->session()->regenerate();
 
