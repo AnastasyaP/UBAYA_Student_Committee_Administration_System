@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Division;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+
 
 class DivisionController extends Controller
 {
@@ -13,7 +16,16 @@ class DivisionController extends Controller
      */
     public function index()
     {
-        $divisions = Division::all();
+        $admin = Auth::user();
+        
+        $divisions = DB::table('tDivisions as d')
+        ->join('tListDivisions as ld', 'd.idDivisions', '=', 'ld.idDivisions')
+        ->join('tCommittees as c', 'ld.idCommittees', '=', 'c.idCommittees')
+        ->where('c.idAdmins', $admin->idAdmins,)
+        ->where('c.is_active', 1)
+        ->select('d.name as name', 'ld.is_open as status', 'ld.description as description', 'ld.picture as picture')
+        ->get();
+
         return view('pages.division.divisions', compact('divisions'));
     }
 

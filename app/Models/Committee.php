@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Admin;
+use App\Models\ListDivision;
 
 class Committee extends Model
 {
@@ -28,5 +29,9 @@ class Committee extends Model
 
     public function admins(){
         return $this->belongsTo(Admin::class, 'idAdmins', 'idAdmins');
+    }
+
+    public function listDivision(){
+        return $this->hasMany(ListDivision::class, 'idCommittees', 'idCommittees');
     }
 }

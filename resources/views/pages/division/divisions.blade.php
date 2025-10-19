@@ -1,3 +1,7 @@
+@php
+use Illuminate\Support\Str;
+@endphp
+
 @extends('layouts.app', ['class' => 'g-sidenav-show bg-gray-100'])
 
 @section('content')
@@ -18,6 +22,10 @@
                                     <tr>
                                         <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
                                             Name</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                            Description</th>
+                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                            Status</th>
                                         <th class="text-secondary opacity-7"></th>
                                     </tr>
                                 </thead>
@@ -34,6 +42,16 @@
                                                     <h6 class="mb-0 text-sm">{{ $division->name }}</h6>
                                                 </div>
                                             </div>
+                                        </td>
+                                        <td>
+                                            <h6 class="mb-0 text-sm">{{ Str::words($division->description, 4, '..') }}</h6>
+                                        </td>
+                                        <td>
+                                            @if ($division->status == 1)
+                                                <span class="badge bg-success">Open</span>
+                                            @else
+                                                <span class="badge bg-danger">Close</span>
+                                            @endif
                                         </td>
                                         <td class="align-middle">
                                             <a href="javascript:;" class="text-secondary font-weight-bold text-xs"

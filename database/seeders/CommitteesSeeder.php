@@ -26,6 +26,7 @@ class CommitteesSeeder extends Seeder
                 'start_regis' => '2022-01-10',
                 'end_regis' => '2022-01-31',
                 'evaluation' => null,
+                'is_active' => 0,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],            [
@@ -40,6 +41,7 @@ class CommitteesSeeder extends Seeder
                 'start_regis' => '2023-01-10',
                 'end_regis' => '2023-01-31',
                 'evaluation' => null,
+                'is_active' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -55,6 +57,7 @@ class CommitteesSeeder extends Seeder
                 'start_regis' => '2021-02-01',
                 'end_regis' => '2021-02-15',
                 'evaluation' => null,
+                'is_active' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]

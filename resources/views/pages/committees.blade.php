@@ -36,6 +36,9 @@ use Illuminate\Support\Str;
                                         <th
                                             class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
                                             End Regis</th>
+                                        <th
+                                            class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                            Status</th>
                                         <th class="text-secondary opacity-7"></th>
                                     </tr>
                                 </thead>
@@ -55,7 +58,7 @@ use Illuminate\Support\Str;
                                             </div>
                                         </td>
                                         <td>
-                                            <p class="text-xs text-secondary mb-0">{{ Str::words($committee->description, 4, '...') }}</p>
+                                            <p class="text-xs text-secondary mb-0">{{ Str::words($committee->description, 4, '..') }}</p>
                                         </td>
                              
                                         <td class="align-middle text-center">
@@ -69,6 +72,13 @@ use Illuminate\Support\Str;
                                         </td>
                                            <td class="align-middle text-center">
                                             <span class="text-secondary text-xs font-weight-bold">{{ $committee->end_regis }}</span>
+                                        </td>
+                                        <td>
+                                            @if($committee->is_active == 1)
+                                                <span class="badge bg-success">On Going</span>
+                                            @else
+                                                <span class="badge bg-danger">Ended</span>
+                                            @endif
                                         </td>
                                         <td class="align-middle">
                                             <a href="javascript:;" class="text-secondary font-weight-bold text-xs"

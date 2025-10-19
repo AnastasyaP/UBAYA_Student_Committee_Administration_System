@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\ListDivision;
 
 
 class Division extends Model
@@ -15,4 +16,8 @@ class Division extends Model
     protected $fillable = [
         'name',
     ];
+
+    public function listDivisions(){
+        return $this->hasMany(ListDivision::class, 'idDivisions', 'idDivisions');
+    }
 }

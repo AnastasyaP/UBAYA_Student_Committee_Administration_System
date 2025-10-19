@@ -15,14 +15,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('users')->insert([
-            'username' => 'admin',
-            'firstname' => 'Admin',
-            'lastname' => 'Admin',
-            'email' => 'admin@argon.com',
-            'password' => '123',
-            // 'password' => bcrypt('secret')
-        ]);
+        // DB::table('users')->insert([
+        //     'username' => 'admin',
+        //     'firstname' => 'Admin',
+        //     'lastname' => 'Admin',
+        //     'email' => 'admin@argon.com',
+        //     'password' => '123',
+        //     // 'password' => bcrypt('secret')
+        // ]);
         
         $this->call(AdminsSeeder::class);
         $this->call(CommitteesSeeder::class);
