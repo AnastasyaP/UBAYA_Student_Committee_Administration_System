@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Committee;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 
 class CommitteeController extends Controller
@@ -44,9 +45,18 @@ class CommitteeController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show()
     {
-        //
+        $admin = Auth::user(); // ngambil admin yg login
+        
+        // $committees = Committee::all();
+        $committees = DB::table('tCommittees as c')
+        ->where('is_active', 1)
+        ->where('idAdmins', $admin->idAdmins)
+        ->select('c.*')
+        ->get();
+        
+        return view('pages.profile', compact('committees'));
     }
 
     /**
