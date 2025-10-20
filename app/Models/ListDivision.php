@@ -12,9 +12,9 @@ class ListDivision extends Model
 {
     use HasFactory;
 
-    protected $table = 'tListDivision';
+    protected $table = 'tListDivisions';
     protected $primaryKey = ['idCommittees', 'idDivisions'];
-    protected $incrementing = false;
+    public $incrementing = false;
     protected $keyType = 'array';
     protected $fillable = [
         'idCommittees',

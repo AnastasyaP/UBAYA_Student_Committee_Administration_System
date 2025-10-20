@@ -53,7 +53,7 @@ class CommitteeController extends Controller
         $committees = DB::table('tCommittees as c')
         ->where('is_active', 1)
         ->where('idAdmins', $admin->idAdmins)
-        ->select('c.*')
+        ->select('c.*', DB::raw("'". $admin->emailAdmins . "'as email") )
         ->get();
         
         return view('pages.profile', compact('committees'));

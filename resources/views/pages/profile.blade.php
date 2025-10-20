@@ -63,19 +63,19 @@
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label for="example-text-input" class="form-control-label">Name</label>
+                                    <label class="form-control-label">Name</label>
                                     <input class="form-control" type="text" value="{{ $committee->name }}">
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label for="example-text-input" class="form-control-label">Email</label>
-                                    <input class="form-control" type="text" value="United States">
+                                    <label class="form-control-label">Email</label>
+                                    <input class="form-control" type="text" value="{{ $committee->email }}">
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label for="example-text-input" class="form-control-label">Contact</label>
+                                    <label class="form-control-label">Contact</label>
                                     <input class="form-control" type="text" value="{{ $committee->contact }}">
                                 </div>
                             </div>
@@ -84,37 +84,37 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="example-text-input" class="form-control-label">Start Period</label>
+                                    <label class="form-control-label">Start Period</label>
                                     <input class="form-control" type="text" value="{{ \Carbon\Carbon::parse($committee->start_period)->format('d F Y') }}">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="example-text-input" class="form-control-label">End Period</label>
+                                    <label class="form-control-label">End Period</label>
                                     <input class="form-control" type="email" value="{{ \Carbon\Carbon::parse($committee->end_period)->format('d F Y') }}">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="example-text-input" class="form-control-label">Start Registration</label>
+                                    <label class="form-control-label">Start Registration</label>
                                     <input class="form-control" type="text" value="{{ \Carbon\Carbon::parse($committee->start_regis)->format('d F Y') }}">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="example-text-input" class="form-control-label">End Registration</label>
+                                    <label class="form-control-label">End Registration</label>
                                     <input class="form-control" type="email" value="{{ \Carbon\Carbon::parse($committee->end_regis)->format('d F Y') }}">
                                 </div>
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="example-text-input" class="form-control-label">Description</label>
+                                    <label class="form-control-label">Description</label>
                                     <textarea class="form-control" rows="5">{{ $committee->description }}</textarea>
                                 </div>
                             </div>
                               <div class="col-md-12">
                                 <div class="form-group">
-                                    <label for="example-text-input" class="form-control-label">Requirements</label>
+                                    <label class="form-control-label">Requirements</label>
                                     <textarea class="form-control" rows="5">{{ $committee->requirements }}</textarea>
                                 </div>
                             </div>

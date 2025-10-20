@@ -5,8 +5,13 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Division;
+use App\Models\ListDivision;
+use App\Models\Committee;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Validator;
 
 
 class DivisionController extends Controller
@@ -23,7 +28,7 @@ class DivisionController extends Controller
         ->join('tCommittees as c', 'ld.idCommittees', '=', 'c.idCommittees')
         ->where('c.idAdmins', $admin->idAdmins,)
         ->where('c.is_active', 1)
-        ->select('d.name as name', 'ld.is_open as status', 'ld.description as description', 'ld.picture as picture')
+        ->select('ld.idDivisions as idDivisions', 'ld.idCommittees as idCommittees', 'd.name as name', 'ld.is_open as status', 'ld.description as description', 'ld.picture as picture')
         ->get();
 
         return view('pages.division.divisions', compact('divisions'));
@@ -34,7 +39,8 @@ class DivisionController extends Controller
      */
     public function create()
     {
-        return view('pages.division.add-divisions');
+        $masterDivisions = Division::all();
+        return view('pages.division.add-divisions', compact('masterDivisions'));
     }
 
     /**
@@ -42,8 +48,72 @@ class DivisionController extends Controller
      */
     public function store(Request $request)
     {
-        $input = $request->all();
-        Division::create($input);
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'picture' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'description' => 'nullable|string|max:600',
+            'is_open' => 'required'
+        ]);
+
+        $filepath = null;
+        if($request->hasFile('picture')){
+            $file = $request->file('picture');
+            $fileName = Str::uuid() . '.' . $file->getClientOriginalExtension(); //biar namanya unik pas disimpan pakai uuid
+            $filePath = $file->storeAs('img/division', $fileName, 'public');
+        }
+
+        // ambil id committee dr admin yg login
+        $admin = Auth::user();
+        $committeeId = DB::table('tCommittees as c')
+        ->join('tAdmins as a', 'c.idAdmins', '=', 'a.idAdmins')
+        ->where('a.idAdmins', $admin->idAdmins)
+        ->where('c.is_active', 1)
+        ->value('c.idCommittees');
+        
+        $name = $request->name; // ambil nama dari text input
+        $master_division = $request->master_division; //ambil nama dari combobox
+
+
+        // klo comboboxnya ada valuenya pake yg dr combobox klo nga buat divisi baru (tapi di cek dulu ada yg sama nga namanya)
+        if ($master_division) {
+            $divisionId = $master_division;
+        } else {
+            $existingDivision = Division::where('name', $name)->first();
+            if ($existingDivision) { 
+                $divisionId = $existingDivision->idDivisions;
+            } else {
+                $division = Division::create([
+                    'name' => $request->name
+                ]);
+                $divisionId = $division->idDivisions;
+            }
+        }
+        // if(!$masterDivisions){
+        //     $division = Division::create([
+        //         'name' => $name
+        //     ]);
+        //     $divisionId = $division->idDivisions;
+        // } else{
+        //     $division = Division::find($masterDivisions);
+        //     $divisionId = $division->idDivisions;
+        // }
+
+        // pengecekan klo committee itu uda punya divisi yg mau ditambah or belom
+        $exists = ListDivision::where('idDivisions', $divisionId)
+                ->where('idCommittees', $committeeId)
+                ->exists();
+
+        if ($exists) {
+            return redirect()->back()->with('warning', 'Division already exsist for this committee!');
+        }
+
+        ListDivision::create([
+            'idDivisions' => $divisionId,
+            'idCommittees' => $committeeId,
+            'is_open' => $request->is_open,
+            'description' => $request->description,
+            'picture' => $filePath
+        ]);
         return redirect()->route('divisions')->with('success', 'Division added Successfully!');
     }
 
@@ -74,8 +144,28 @@ class DivisionController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($idDivisions, $idCommittees)
     {
-        //
+        $listDivision = DB::table('tListDivisions')
+                        ->where('idDivisions','=', $idDivisions)
+                        ->where('idCommittees','=', $idCommittees)
+                        ->first();
+
+        // dd($listDivision);
+        if(!$listDivision){
+            return redirect()->back()->with('warning', 'Division not found!');
+        }
+
+        if($listDivision->picture && Storage::disk('public')->exists($listDivision->picture)){
+            Storage::disk('public')->delete($listDivision->picture);
+        }
+
+        // ngabisa pake Elloquent soalnya pknya nga ai dan lebih dari 1
+        DB::table('tListDivisions')
+                        ->where('idDivisions','=', $idDivisions)
+                        ->where('idCommittees','=', $idCommittees)
+                        ->delete();
+
+        return redirect()->route('divisions')->with('success', 'Division deleted successfully!');
     }
 }
