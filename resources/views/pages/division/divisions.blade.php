@@ -16,6 +16,13 @@ use Illuminate\Support\Str;
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     </div>
+                @elseif(session('warning'))
+                    <div>
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            <strong>Warning!</strong> {{ session('warning') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    </div>
                 @endif
                 <div class="card mb-4">
                     <div class="card-header pb-0 d-flex justify-content-between align-items-center" >
@@ -62,7 +69,7 @@ use Illuminate\Support\Str;
                                             @endif
                                         </td>
                                         <td class="align-middle">
-                                            <form action="">
+                                            <form action="{{ route('division.edit', ['idDivisions'=> $division->idDivisions, 'idCommittees' => $division->idCommittees]) }}" method="GET">
                                                 <button type="submit" class="btn btn-warning btn-sm">Edit</button>                                                
                                             </form>                                         
                                         </td>
@@ -84,4 +91,13 @@ use Illuminate\Support\Str;
         </div>
         @include('layouts.footers.auth.footer')
     </div>
+    <script>
+        setTimeout(()=>{
+            const alert = document.querySelector('.alert');
+            if(alert){
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }
+        }, 3000); // auto close 3 detik
+    </script>
 @endsection

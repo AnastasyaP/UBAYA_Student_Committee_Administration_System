@@ -128,17 +128,64 @@ class DivisionController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit($idDivisions, $idCommittees)
     {
-        //
+        $masterDivisions = Division::all();
+
+        $division = DB::table('tCommittees as c')
+                    ->join('tListDivisions as ld', 'c.idCommittees', 'ld.idCommittees')
+                    ->join('tDivisions as d', 'ld.idDivisions', 'd.idDivisions')
+                    ->where('ld.idCommittees', $idCommittees)
+                    ->where('ld.idDivisions', $idDivisions)
+                    ->select('ld.idCommittees as idCommittees', 'ld.idDivisions as idDivisions', 'ld.is_open as is_open', 'ld.description as description', 'ld.picture as picture', 'd.name as name')
+                    ->first();
+        return view('pages.division.edit-divisions', compact('division', 'masterDivisions'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $idDivisions, $idCommittees)
     {
-        //
+        // validasi data2 yg masuk (dia membaca dari name yang ada di masing2 widget)
+        $request->validate([
+            'picture' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'description' => 'nullable|string',
+            'is_open' => 'required|boolean'
+        ]);
+
+        // mengambil data divisi lama
+        $oldData = DB::table('tListDivisions')
+                    ->where('idCommittees', $idCommittees)
+                    ->where('idDivisions', $idDivisions)
+                    ->first();
+
+        if (!$oldData) {
+            return redirect()->back()->with('warning', 'Division not found!');
+        }
+
+        //menyimpan gambar klo ada
+        $filePath = $oldData->picture ?? null;
+        if($request->hasFile('picture')){
+            // hapus file lama
+            if ($filePath && Storage::disk('public')->exists($filePath)) {
+                Storage::disk('public')->delete($filePath);
+            }
+            $file = $request->picture;
+            $fileName = Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $filePath = $file->storeAs('img/division', $fileName, 'public');
+        }
+        // update ke tabel list divisi
+        DB::table('tListDivisions')
+                    ->where('idCommittees', $idCommittees)
+                    ->where('idDivisions', $idDivisions)
+                    ->update([
+                        'is_open' => $request->is_open,
+                        'description' => $request->description,
+                        'picture' => $filePath,
+                    ]);
+        // return kembali ke division blade dengan kode sukses
+        return redirect()->route('divisions')->with('success', 'Division updated successfully!');
     }
 
     /**
