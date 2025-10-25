@@ -31,7 +31,14 @@ class DivisionController extends Controller
         ->select('ld.idDivisions as idDivisions', 'ld.idCommittees as idCommittees', 'd.name as name', 'ld.is_open as status', 'ld.description as description', 'ld.picture as picture')
         ->get();
 
-        return view('pages.division.divisions', compact('divisions'));
+        $activeCommittee = false;
+        $exists = Committee::where('idAdmins', $admin->idAdmins)
+                        ->where('is_active', 1)
+                        ->exists();
+        if($exists){
+            $activeCommittee = true;
+        }
+        return view('pages.division.divisions', compact('divisions', 'activeCommittee'));
     }
 
     /**

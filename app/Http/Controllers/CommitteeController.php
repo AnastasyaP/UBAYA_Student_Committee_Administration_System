@@ -27,9 +27,17 @@ class CommitteeController extends Controller
                 ->where('idAdmins', $admin->idAdmins)
                 ->select('c.*', DB::raw("'". $admin->emailAdmins . "'as email"), 'co.idOrganizerUnits as idOrganizerUnits', 'o.name as organizerName')
                 ->get();
+            
+            $activeCommittee = false;
+            $exists = Committee::where('idAdmins', $admin->idAdmins)
+                        ->where('is_active', 1)
+                        ->exists();
+            if($exists){
+                $activeCommittee = true;
+            }
         }
         
-        return view('pages.committees', compact('committees'));
+        return view('pages.committees', compact('committees', 'activeCommittee'));
     }
 
     /**

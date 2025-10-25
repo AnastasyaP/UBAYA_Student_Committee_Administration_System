@@ -12,8 +12,10 @@ use Illuminate\Support\Str;
                 <div class="card mb-4">
                     <div class="card-header pb-0 d-flex justify-content-between align-items-center" >
                         <h6>Committees History</h6>
+                        @if(!$activeCommittee)
                         <a href="{{ route('committees.add') }}" target=""
                             class="btn btn-dark btn-add w-15 mb-3">Add Committee</a>
+                        @endif
                     </div>
                     <div class="card-body px-0 pt-0 pb-2">
                         <div class="table-responsive p-0">
