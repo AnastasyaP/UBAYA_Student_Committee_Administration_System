@@ -79,7 +79,33 @@
                                     <input class="form-control" type="text" value="{{ $committee->contact }}">
                                 </div>
                             </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="form-control-label">Organizer Unit</label>
+                                    <select class="form-control" id="master_organizer" name="master_organizer">
+                                        <option value="">-- Choose Existing Organiser Units --</option>
+                                        @foreach($masterOrganizer as $master)
+                                        <option value="{{ $master->idOrganizerUnits }}" {{ $committee->idOrganizerUnits == $master->idOrganizerUnits ? 'selected' : ''}}>
+                                            {{ $master->name }}
+                                        </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <!-- <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="form-control-label">Organizer Unit</label>
+                                    <select name="form-control" id="master_organizer">
+                                        @foreach($masterOrganizer as $master)
+                                        <option value="{{ $master->idOrganizerUnits }}" {{ $committee->idOrganizerUnits == $master->idOrganizerUnits ? 'selected' : '' }}>
+                                            {{ $master->name }}
+                                        </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div> -->
                         </div>
+                        
                         <hr class="horizontal dark">
                         <div class="row">
                             <div class="col-md-6">

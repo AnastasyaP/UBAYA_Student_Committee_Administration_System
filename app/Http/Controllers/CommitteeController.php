@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Committee;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Models\OrganizerUnit;
 
 
 class CommitteeController extends Controller
@@ -20,7 +21,12 @@ class CommitteeController extends Controller
         if($admin->is_superAdmin === 1){
             $committees = Committee::all();
         }else{
-            $committees = $admin->committees()->get();
+            $committees = DB::table('tCommittees as c')
+                ->join('tCommitteeOrganizers as co', 'c.idCommittees', 'co.idCommittees')
+                ->join('tOrganizerUnits as o', 'co.idOrganizerUnits', 'o.idOrganizerUnits')
+                ->where('idAdmins', $admin->idAdmins)
+                ->select('c.*', DB::raw("'". $admin->emailAdmins . "'as email"), 'co.idOrganizerUnits as idOrganizerUnits', 'o.name as organizerName')
+                ->get();
         }
         
         return view('pages.committees', compact('committees'));
@@ -51,12 +57,16 @@ class CommitteeController extends Controller
         
         // $committees = Committee::all();
         $committees = DB::table('tCommittees as c')
+        ->join('tCommitteeOrganizers as co', 'c.idCommittees', 'co.idCommittees')
+        ->join('tOrganizerUnits as o', 'co.idOrganizerUnits', 'o.idOrganizerUnits')
         ->where('is_active', 1)
         ->where('idAdmins', $admin->idAdmins)
-        ->select('c.*', DB::raw("'". $admin->emailAdmins . "'as email") )
+        ->select('c.*', DB::raw("'". $admin->emailAdmins . "'as email"), 'co.idOrganizerUnits as idOrganizerUnits', 'o.name as organizerName')
         ->get();
         
-        return view('pages.profile', compact('committees'));
+        $masterOrganizer = OrganizerUnit::all();
+
+        return view('pages.profile', compact('committees', 'masterOrganizer'));
     }
 
     /**

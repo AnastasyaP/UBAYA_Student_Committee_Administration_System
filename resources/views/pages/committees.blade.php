@@ -53,12 +53,12 @@ use Illuminate\Support\Str;
                                                 </div>
                                                 <div class="d-flex flex-column justify-content-center">
                                                     <h6 class="mb-0 text-sm">{{ $committee->name }}</h6>
-                                                    <p class="text-xs text-secondary mb-0">{{ $committee->emailAdmins }}</p>
+                                                    <p class="text-xs text-secondary mb-0">{{ $committee->organizerName }}</p>
                                                 </div>
                                             </div>
                                         </td>
                                         <td>
-                                            <p class="text-xs text-secondary mb-0">{{ Str::words($committee->description, 4, '..') }}</p>
+                                            <p class="text-xs text-secondary mb-0">{{ Str::limit($committee->description, 30, '..') }}</p>
                                         </td>
                              
                                         <td class="align-middle text-center">
