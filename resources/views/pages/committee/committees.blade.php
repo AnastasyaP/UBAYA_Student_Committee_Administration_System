@@ -9,6 +9,21 @@ use Illuminate\Support\Str;
     <div class="container-fluid py-4">
         <div class="row">
             <div class="col-12">
+               @if(session('success'))
+                    <div>
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <strong>Success!</strong> {{ session('success') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    </div>
+                @elseif(session('warning'))
+                    <div>
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            <strong>Warning!</strong> {{ session('warning') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    </div>
+                @endif
                 <div class="card mb-4">
                     <div class="card-header pb-0 d-flex justify-content-between align-items-center" >
                         <h6>Committees History</h6>
@@ -50,8 +65,8 @@ use Illuminate\Support\Str;
                                         <td>
                                             <div class="d-flex px-2 py-1">
                                                 <div>
-                                                    <img src="/img/team-2.jpg" class="avatar avatar-sm me-3"
-                                                        alt="user1">
+                                                    <img src="{{ asset('storage/' . $committee->picture) }}" class="avatar avatar-sm me-3"
+                                                        alt="committee picture">
                                                 </div>
                                                 <div class="d-flex flex-column justify-content-center">
                                                     <h6 class="mb-0 text-sm">{{ $committee->name }}</h6>
@@ -99,4 +114,13 @@ use Illuminate\Support\Str;
         </div>
         @include('layouts.footers.auth.footer')
     </div>
+    <script>
+        setTimeout(()=>{
+            const alert = document.querySelector('.alert');
+            if(alert){
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }
+        }, 3000);
+    </script>
 @endsection

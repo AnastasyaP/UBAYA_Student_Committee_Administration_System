@@ -20,18 +20,21 @@ class AdminsSeeder extends Seeder
                 'emailAdmins' => 'adminilpc@gmail.com',
                 'password'=> Hash::make('ilpc123'),
                 'is_superAdmin'=>0,
+                'idOrganizerUnits' => 8,
                 'created_at' => now(),
                 'updated_at' => now(),
             ], [
                 'emailAdmins' => 'adminceg@gmail.com',
                 'password'=> Hash::make('ceg123'),
                 'is_superAdmin'=>0,
+                'idOrganizerUnits' => 9,
                 'created_at' => now(),
                 'updated_at' => now(),
             ], [
                 'emailAdmins' => 'admin@argon.com',
                 'password'=> Hash::make('123'),
                 'is_superAdmin'=>1,
+                'idOrganizerUnits' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]

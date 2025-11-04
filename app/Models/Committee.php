@@ -14,7 +14,7 @@ class Committee extends Model
     protected $table = 'tCommittees';
     protected $primaryKey = 'idCommittees';
     protected $fillable = [
-        'emailAdmins',
+        'idAdmins',
         'name',
         'start_period',
         'end_period',
@@ -25,6 +25,7 @@ class Committee extends Model
         'start_regis',
         'end_regis',
         'evaluation',
+        'is_active',
     ];
 
     public function admins(){

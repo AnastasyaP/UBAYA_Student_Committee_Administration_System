@@ -15,7 +15,11 @@ class OrganizerUnit extends Model
     protected $primaryKey = 'idOrganizerUnits';
     protected $fillable = ['name'];
 
-    public function committeeOrganizers(){
-        return $this->hasMany(CommitteeOrganizer::class, 'idOrganizerUnits', 'idOrganizerUnits');
+    // public function committeeOrganizers(){
+    //     return $this->hasMany(CommitteeOrganizer::class, 'idOrganizerUnits', 'idOrganizerUnits');
+    // }
+
+    public function admins(){
+        return $this->hasMany(OrganizerUnit::class, 'idOrganizerUnits', 'idOrganizerUnits');
     }
 }

@@ -4,10 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Committee;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Models\Committee;
 use App\Models\OrganizerUnit;
+use Illuminate\Support\Str;
 
 
 class CommitteeController extends Controller
@@ -22,10 +23,10 @@ class CommitteeController extends Controller
             $committees = Committee::all();
         }else{
             $committees = DB::table('tCommittees as c')
-                ->join('tCommitteeOrganizers as co', 'c.idCommittees', 'co.idCommittees')
-                ->join('tOrganizerUnits as o', 'co.idOrganizerUnits', 'o.idOrganizerUnits')
-                ->where('idAdmins', $admin->idAdmins)
-                ->select('c.*', DB::raw("'". $admin->emailAdmins . "'as email"), 'co.idOrganizerUnits as idOrganizerUnits', 'o.name as organizerName')
+                ->join('tAdmins as a', 'c.idAdmins', 'a.idAdmins')
+                ->join('tOrganizerUnits as o', 'a.idOrganizerUnits', 'o.idOrganizerUnits')
+                ->where('c.idAdmins', $admin->idAdmins)
+                ->select('c.*', DB::raw("'". $admin->emailAdmins . "'as email"),  'a.idOrganizerUnits as idOrganizerUnits', 'o.name as organizerName')
                 ->get();
             
             $activeCommittee = false;
@@ -37,7 +38,7 @@ class CommitteeController extends Controller
             }
         }
         
-        return view('pages.committees', compact('committees', 'activeCommittee'));
+        return view('pages.committee.committees', compact('committees', 'activeCommittee'));
     }
 
     /**
@@ -45,7 +46,15 @@ class CommitteeController extends Controller
      */
     public function create()
     {
-        return view('pages.add-committees');
+        $admin = Auth::user();
+        $committee = DB::table('tCommittees as c')
+                        ->join('tAdmins as a', 'c.idAdmins', 'a.idAdmins')
+                        ->join('tOrganizerUnits as o', 'a.idOrganizerUnits', 'o.idOrganizerUnits')
+                        ->where('c.idAdmins', $admin->idAdmins)
+                        ->select('a.emailAdmins as email', 'o.name as organizerName')
+                        ->first();
+        
+        return view('pages.committee.add-committees', compact('committee'));
     }
 
     /**
@@ -53,7 +62,47 @@ class CommitteeController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // dd($request);
+        $request->validate([
+            'name' => 'required|string|max:45',
+            'picture' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'contact' => 'required|string|max:45',
+            'start_period' => 'required|date',
+            'end_period' => 'required|date',
+            'start_regis' => 'required|date',
+            'end_regis' => 'required|date',
+            'description' => 'required|string|max:600',
+            'requirement' => 'required|string|max:500',
+            'is_active' => 'required',
+        ], [
+            'required' => 'Bagian :attribute wajib diisi.',
+            'max' => 'Bagian :attribute maksimal :max karakter.',            'after_or_equal' => 'Tanggal :attribute harus setelah atau sama dengan tanggal sebelumnya.',
+            'image' => 'File harus berupa gambar (jpg, jpeg, png).',
+            'mimes' => 'Format file harus jpg, jpeg, atau png.',
+        ]);
+
+        $filePath = null;
+        if($request->hasFile('picture')){
+            $file = $request->file('picture');
+            $fileName = Str::uuid() . '.' . $file->getClientOriginalExtension(); //biar namanya unik pas disimpan pakai uuid
+            $filePath = $file->storeAs('img/committee', $fileName, 'public');
+        }
+
+        $admin = Auth::user();
+        Committee::create([
+            'idAdmins' => $admin->idAdmins,
+            'name' => $request->name,
+            'start_period' => $request->start_period,
+            'end_period' => $request->end_period,
+            'start_regis' => $request->start_regis,
+            'end_regis' => $request->end_regis,
+            'description' => $request->description,
+            'requirements' => $request->requirement,
+            'contact' => $request->contact,
+            'picture' => $filePath ,
+            'is_active' => $request->is_active,
+        ]);
+        return redirect()->route('committees')->with('success', 'Division added Successfully!');
     }
 
     /**
@@ -65,11 +114,11 @@ class CommitteeController extends Controller
         
         // $committees = Committee::all();
         $committees = DB::table('tCommittees as c')
-        ->join('tCommitteeOrganizers as co', 'c.idCommittees', 'co.idCommittees')
-        ->join('tOrganizerUnits as o', 'co.idOrganizerUnits', 'o.idOrganizerUnits')
-        ->where('is_active', 1)
-        ->where('idAdmins', $admin->idAdmins)
-        ->select('c.*', DB::raw("'". $admin->emailAdmins . "'as email"), 'co.idOrganizerUnits as idOrganizerUnits', 'o.name as organizerName')
+        ->join('tAdmins as a', 'c.idAdmins', 'a.idAdmins')
+        ->join('tOrganizerUnits as o', 'a.idOrganizerUnits', 'o.idOrganizerUnits')
+        ->where('c.is_active', 1)
+        ->where('c.idAdmins', $admin->idAdmins)
+        ->select('c.*', DB::raw("'". $admin->emailAdmins . "'as email"), 'a.idOrganizerUnits as idOrganizerUnits', 'o.name as organizerName')
         ->get();
         
         $masterOrganizer = OrganizerUnit::all();
@@ -88,9 +137,57 @@ class CommitteeController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $idCommittee)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:45',
+            'contact' => 'required|string|max:45',
+            'start_period' => 'required|date',
+            'end_period' => 'required|date',
+            'start_regis' => 'required|date',
+            'end_regis' => 'required|date',
+            'description' => 'required|string|max:600',
+            'requirement' => 'required|string|max:500',
+            'is_active' => 'nullable',
+            'evaluation' => 'nullable',
+        ], [
+            'required' => 'Bagian :attribute wajib diisi.',
+            'max' => 'Bagian :attribute maksimal :max karakter.',            'after_or_equal' => 'Tanggal :attribute harus setelah atau sama dengan tanggal sebelumnya.',
+            'image' => 'File harus berupa gambar (jpg, jpeg, png).',
+            'mimes' => 'Format file harus jpg, jpeg, atau png.',
+        ]);
+
+        // $oldData = DB::table('tCommittees')
+        // ->where('idCommittees', $idCommittee)
+        // ->first();
+
+        // $filePath = $oldData->picture;
+        // if($request->hasFile('picture')){
+        //     if($filePath && Storage::disk('public')->exists($filePath)){
+        //         Storage::disk('public')->delete($filePath);
+        //     }
+
+        //     $file = $request->picture;
+        //     $fileName = Str::uuid() . '.' . $file->getClientOriginalExtension();
+        //     $filePath = $file->storeAs('img/committee/', $fileName, 'public');
+        // }
+
+        DB::table('tCommittees')
+        ->where('idCommittees', $idCommittee)
+        ->update([
+            'name' => $request->name,
+            'contact' => $request->contact,
+            'start_period' => $request->start_period,
+            'end_period' => $request->end_period,
+            'start_regis' => $request->start_regis,
+            'end_regis' => $request->end_regis,
+            'description' => $request->description,
+            'requirements' => $request->requirement,
+            'is_active' => $request->is_active,
+            'evaluation' => $request->evaluation,
+        ]);
+
+        return redirect()->route('committees.profile')->with('success', 'Committee updated successfully!');
     }
 
     /**

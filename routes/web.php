@@ -37,9 +37,11 @@ Route::group(['middleware' => 'auth'], function () {
 	Route::get('/committees', [CommitteeController::class, 'index'])->name('committees');
 	Route::get('/profile', [CommitteeController::class, 'show'])->name('committees.profile');
 	Route::get('/add-committees', [CommitteeController::class, 'create'])->name('committees.add');
+	Route::post('/store-committees', [CommitteeController::class, 'store'])->name('committees.store');
+	Route::put('/committees/{idCommittees}', [CommitteeController::class, 'update'])->name('committees.update');
 	Route::get('/divisions', [DivisionController::class, 'index'])->name('divisions');
 	Route::get('/add-divisions', [DivisionController::class, 'create'])->name('divisions.add');
-	Route::post('/store-division', [DivisionController::class, 'store'])->name('division.store');
+	Route::post('/store-divisions', [DivisionController::class, 'store'])->name('division.store');
 	Route::delete('/divisions/{idDivisions}/committees/{idCommittees}', [DivisionController::class, 'destroy'])->name('division.destroy');
 	Route::get('/edit-divisions/{idDivisions}/{idCommittees}', [DivisionController::class, 'edit'])->name('division.edit');
 	Route::put('/divisions/{idDivisions}/{idCommittees}', [DivisionController::class, 'update'])->name('division.update');

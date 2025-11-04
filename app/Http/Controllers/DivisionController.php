@@ -60,9 +60,14 @@ class DivisionController extends Controller
             'picture' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'description' => 'nullable|string|max:600',
             'is_open' => 'required'
+        ], [
+            'required' => 'Bagian :attribute wajib diisi.',
+            'max' => 'Bagian :attribute maksimal :max karakter.',            'after_or_equal' => 'Tanggal :attribute harus setelah atau sama dengan tanggal sebelumnya.',
+            'image' => 'File harus berupa gambar (jpg, jpeg, png).',
+            'mimes' => 'Format file harus jpg, jpeg, atau png.',
         ]);
 
-        $filepath = null;
+        $filePath = null;
         if($request->hasFile('picture')){
             $file = $request->file('picture');
             $fileName = Str::uuid() . '.' . $file->getClientOriginalExtension(); //biar namanya unik pas disimpan pakai uuid

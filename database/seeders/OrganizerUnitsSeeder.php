@@ -37,26 +37,5 @@ class OrganizerUnitsSeeder extends Seeder
             ['name' => 'BEM Teknobiologi', 'created_at' => now(), 'updated_at' => now()],
         ]);
 
-        // === tCommitteeOrganizers ===
-        DB::table('tCommitteeOrganizers')->insert([
-            [
-                'idCommittees' => 1, 
-                'idOrganizerUnits' => 8,  
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'idCommittees' => 2, 
-                'idOrganizerUnits' => 8,  
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'idCommittees' => 3, 
-                'idOrganizerUnits' => 9,  
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-        ]);
     }
 }

@@ -41,6 +41,9 @@
                                           <label class="form-control-label">Or Add New Division Name</label>
                                             <input class="form-control" type="text" id="division_name" name="name"
                                            placeholder="Enter new division name">
+                                           @error('name')
+                                           <div class="text-danger small">{{ $message }}</div>
+                                           @enderror
                                     </div>
                                 </div>
                                 <div class="col-md-12">
@@ -51,6 +54,9 @@
                                         </div>
                                         <input type="file" class="form-control" name="picture" id="picture" accept="image/*">
                                         <small class="text-muted">Format: JPG, JPEG, PNG</small>
+                                        @error('picture')
+                                        <div class="text-danger small">{{ $message }}</div>
+                                        @enderror
                                         
                                     </div>
                                 </div>
@@ -58,6 +64,9 @@
                                     <div class="form-group">
                                         <label class="form-control-label">Description</label>
                                         <textarea class="form-control" rows="5" name="description"></textarea>
+                                        @error('description')
+                                        <div class="text-danger small">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                 </div>
                                 <div class="col-md-12">
@@ -67,7 +76,9 @@
                                             <option value=0>No</option>
                                             <option value=1>Yes</option>
                                         </select>
-
+                                        @error('is_open')
+                                        <div class="text-danger small">{{ $message }}</div>
+                                        @enderror
                                     </div>
                                 </div>
                             </div>

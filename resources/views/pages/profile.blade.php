@@ -8,7 +8,7 @@
             <div class="row gx-4">
                 <div class="col-auto">
                     <div class="avatar avatar-xl position-relative">
-                        <img src="/img/team-1.jpg" alt="profile_image" class="w-100 border-radius-lg shadow-sm">
+                        <img src="{{ asset('storage/' . $committee->picture) }}" alt="profile_image" class="w-100 border-radius-lg shadow-sm">
                     </div>
                 </div>
                 <div class="col-auto my-auto">
@@ -51,7 +51,25 @@
     <div class="container-fluid py-4">
         <div class="row">
             <div class="col-md-8">
+                @if(session('warning'))
+                    <div>
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            <strong>Warning!</strong> {{ session('warning') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    </div>
+                @elseif(session('success'))
+                    <div>
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <strong>Success!</strong> {{ session('success') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    </div>
+                @endif
                 <div class="card">
+                    <form action="{{ route('committees.update', ['idCommittees' => $committee->idCommittees]) }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        @method('PUT')
                     <div class="card-header pb-0">
                         <div class="d-flex align-items-center">
                             <p class="mb-0">Committee Profile</p>
@@ -64,25 +82,25 @@
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label class="form-control-label">Name</label>
-                                    <input class="form-control" type="text" value="{{ $committee->name }}">
+                                    <input class="form-control" type="text" name="name" value="{{ $committee->name }}">
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label class="form-control-label">Email</label>
-                                    <input class="form-control" type="text" value="{{ $committee->email }}">
+                                    <input class="form-control" type="text" name="email" value="{{ $committee->email }}" disabled>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label class="form-control-label">Contact</label>
-                                    <input class="form-control" type="text" value="{{ $committee->contact }}">
+                                    <input class="form-control" type="text" name="contact" value="{{ $committee->contact }}">
                                 </div>
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label class="form-control-label">Organizer Unit</label>
-                                    <select class="form-control" id="master_organizer" name="master_organizer">
+                                    <select class="form-control" id="master_organizer" name="master_organizer" disabled>
                                         <option value="">-- Choose Existing Organiser Units --</option>
                                         @foreach($masterOrganizer as $master)
                                         <option value="{{ $master->idOrganizerUnits }}" {{ $committee->idOrganizerUnits == $master->idOrganizerUnits ? 'selected' : ''}}>
@@ -107,41 +125,68 @@
                         </div>
                         
                         <hr class="horizontal dark">
+                        <p class="text-uppercase text-sm">Committee Details</p>
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-control-label">Start Period</label>
-                                    <input class="form-control" type="text" value="{{ \Carbon\Carbon::parse($committee->start_period)->format('d F Y') }}">
+                                    <!-- <input class="form-control" type="text" value="{{ \Carbon\Carbon::parse($committee->start_period)->format('d F Y') }}"> -->
+                                    <input class="form-control" type="date" name="start_period" value="{{ $committee->start_period }}">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-control-label">End Period</label>
-                                    <input class="form-control" type="email" value="{{ \Carbon\Carbon::parse($committee->end_period)->format('d F Y') }}">
+                                    <!-- <input class="form-control" type="text" value="{{ \Carbon\Carbon::parse($committee->end_period)->format('d F Y') }}"> -->
+                                    <input class="form-control" type="date" name="end_period" value="{{ $committee->end_period }}">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-control-label">Start Registration</label>
-                                    <input class="form-control" type="text" value="{{ \Carbon\Carbon::parse($committee->start_regis)->format('d F Y') }}">
+                                    <!-- <input class="form-control" type="text" value="{{ \Carbon\Carbon::parse($committee->start_regis)->format('d F Y') }}"> -->
+                                    <input class="form-control" type="date" name="start_regis" value="{{ $committee->start_regis }}">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-control-label">End Registration</label>
-                                    <input class="form-control" type="email" value="{{ \Carbon\Carbon::parse($committee->end_regis)->format('d F Y') }}">
+                                    <!-- <input class="form-control" type="text" value="{{ \Carbon\Carbon::parse($committee->end_regis)->format('d F Y') }}"> -->
+                                    <input class="form-control" type="date" name="end_regis" value="{{ $committee->end_regis }}">
                                 </div>
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label class="form-control-label">Description</label>
-                                    <textarea class="form-control" rows="5">{{ $committee->description }}</textarea>
+                                    <textarea class="form-control" rows="5" name="description">{{ $committee->description }}</textarea>
                                 </div>
                             </div>
                               <div class="col-md-12">
                                 <div class="form-group">
                                     <label class="form-control-label">Requirements</label>
-                                    <textarea class="form-control" rows="5">{{ $committee->requirements }}</textarea>
+                                    <textarea class="form-control" rows="5" name="requirement">{{ $committee->requirements }}</textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Is Committee Active?</label>
+                                        <select name="is_active" id="is_active" class="form-control">
+                                            <option value="1" {{ $committee->is_active == 1 ? 'selected' : '' }}>Active</option>
+                                            <option value="0" {{ $committee->is_active == 0 ? 'selected' : '' }}>Not Active</option>
+                                        </select>
+                                        @error('is_active')
+                                            <div class="text-danger small">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                        </div>
+                        <hr class="horizontal dark">
+                        <p class="text-uppercase text-sm">Evaluation</p>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="form-control-label">Evaluation</label>
+                                    <textarea class="form-control" rows="5" name="evaluation">{{ $committee->evaluation }}</textarea>
                                 </div>
                             </div>
                         </div>
@@ -156,8 +201,9 @@
                                         value="A beautiful Dashboard for Bootstrap 5. It is Free and Open Source.">
                                 </div>
                             </div>
-                        </div>
-                    </div> -->
+                        </div>-->
+                    </form>
+                    
                 </div>
             </div>
             <!-- <div class="col-md-4">
@@ -224,4 +270,13 @@
     @endforeach
         @include('layouts.footers.auth.footer')
     </div>
+        <script>
+        setTimeout(()=>{
+            const alert = document.querySelector('.alert');
+            if(alert){
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }
+        }, 3000);
+    </script>
 @endsection

@@ -16,7 +16,7 @@ class Admin extends Authenticatable
     protected $primaryKey = 'idAdmins';
 
 
-    protected $fillable = ['emailAdmins', 'password', 'is_superAdmin'];
+    protected $fillable = ['emailAdmins', 'password', 'is_superAdmin', 'idOrganizerUnits'];
 
     protected $hidden = ['password']; // di hidden biar nga bisa ditampilkan (harus array)
 
@@ -35,5 +35,9 @@ class Admin extends Authenticatable
 
     public function committees(){
         return $this->hasMany(Committee::class, 'idAdmins', 'idAdmins'); // idAdmin di tCommittees = idAdmin di tAdmins
+    }
+
+    public function organizerUnits(){
+        return $this->belongsTo(OrganizerUnit::class, 'idOrganizerUnits', 'idOrganizerUnits');
     }
 }
