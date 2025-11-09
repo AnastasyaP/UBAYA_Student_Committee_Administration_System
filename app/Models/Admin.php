@@ -16,7 +16,7 @@ class Admin extends Authenticatable
     protected $primaryKey = 'idAdmins';
 
 
-    protected $fillable = ['emailAdmins', 'password', 'is_superAdmin', 'idOrganizerUnits'];
+    protected $fillable = ['email', 'password', 'is_superAdmin', 'idOrganizerUnits'];
 
     protected $hidden = ['password']; // di hidden biar nga bisa ditampilkan (harus array)
 

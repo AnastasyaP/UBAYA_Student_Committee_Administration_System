@@ -29,7 +29,7 @@ use Illuminate\Support\Str;
                         <h6>Divisions List</h6>
                         @if($activeCommittee)
                         <a href="{{ route('divisions.add') }}" target=""
-                            class="btn btn-dark btn-add w-15 mb-3">Add Division</a>
+                            class="btn btn-dark btn-add ms-auto">Add Division</a>
                         @endif
                     </div>
                     <div class="card-body px-0 pt-0 pb-2">

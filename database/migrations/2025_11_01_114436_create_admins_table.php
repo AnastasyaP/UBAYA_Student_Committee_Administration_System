@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('tAdmins', function (Blueprint $table) {
             $table->id('idAdmins');
-            $table->string('emailAdmins', 100);
+            $table->string('email', 100);
             $table->string('password', 255);
             $table->tinyInteger('is_superAdmin')->default(0);
             $table->unsignedBigInteger('idOrganizerUnits');

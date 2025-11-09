@@ -12,44 +12,20 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
+    protected $table = 'tUsers';
+    protected $primaryKey = 'idUsers';
     protected $fillable = [
-        'username',
+        'email', 
+        'nrp',
+        'password',
         'firstname',
         'lastname',
-        'email',
-        'password',
-        'address',
-        'city',
-        'country',
-        'postal',
-        'about'
+        'cv',
+        'portofolio'
     ];
+    protected $hidden = ['password']; // di hidden biar nga bisa ditampilkan (harus array)
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
-    protected $hidden = [
-        'password',
-        'remember_token',
-    ];
-
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
-
-    /**
+        /**
      * Always encrypt the password when it is updated.
      *
      * @param $value
@@ -57,6 +33,54 @@ class User extends Authenticatable
     */
     public function setPasswordAttribute($value)
     {
-        $this->attributes['password'] = bcrypt($value);
+        $this->attributes['password'] = Hash::make($value);
     }
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    // protected $fillable = [
+    //     'username',
+    //     'firstname',
+    //     'lastname',
+    //     'email',
+    //     'password',
+    //     'address',
+    //     'city',
+    //     'country',
+    //     'postal',
+    //     'about'
+    // ];
+
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
+     */
+    // protected $hidden = [
+    //     'password',
+    //     'remember_token',
+    // ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    // protected $casts = [
+    //     'email_verified_at' => 'datetime',
+    // ];
+
+    /**
+     * Always encrypt the password when it is updated.
+     *
+     * @param $value
+    * @return string
+    */
+    // public function setPasswordAttribute($value)
+    // {
+    //     $this->attributes['password'] = bcrypt($value);
+    // }
 }
