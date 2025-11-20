@@ -18,19 +18,32 @@ class CommitteeController extends Controller
      */
     public function index()
     {
-        $admin = Auth::user(); // ngambil admin yg login
-        if($admin->is_superAdmin === 1){
+        $user = Auth::user(); // ngambil user yg login
+        $isSuper = false;
+        if($user->role === "admin"){
+            $admin = DB::table('tUsers as u')
+                ->join('tAdmins as a', 'u.idUsers', 'a.idUsers')
+                ->where('a.idUsers', $user->idUsers)
+                ->select('a.is_superAdmin')
+                ->get();
+            if($admin === 1){
+                $isSuper = true;
+            }
+        }
+
+        if($isSuper === true){
             $committees = Committee::all();
         }else{
             $committees = DB::table('tCommittees as c')
-                ->join('tAdmins as a', 'c.idAdmins', 'a.idAdmins')
+                ->join('tUsers as u', 'c.admin', 'u.idUsers')
+                ->join('tAdmins as a', 'u.idUsers', 'a.idUsers')
                 ->join('tOrganizerUnits as o', 'a.idOrganizerUnits', 'o.idOrganizerUnits')
-                ->where('c.idAdmins', $admin->idAdmins)
-                ->select('c.*', DB::raw("'". $admin->emailAdmins . "'as email"),  'a.idOrganizerUnits as idOrganizerUnits', 'o.name as organizerName')
+                ->where('c.admin', $user->idUsers)
+                ->select('c.*', DB::raw("'". $user->email . "'as email"),  'a.idOrganizerUnits as idOrganizerUnits', 'o.name as organizerName')
                 ->get();
             
             $activeCommittee = false;
-            $exists = Committee::where('idAdmins', $admin->idAdmins)
+            $exists = Committee::where('admin', $user->idUsers)
                         ->where('is_active', 1)
                         ->exists();
             if($exists){
@@ -48,10 +61,11 @@ class CommitteeController extends Controller
     {
         $admin = Auth::user();
         $committee = DB::table('tCommittees as c')
-                        ->join('tAdmins as a', 'c.idAdmins', 'a.idAdmins')
+                        ->join('tUsers as u', 'c.admin', 'u.idUsers')
+                        ->join('tAdmins as a', 'u.idUsers', 'a.idUsers')
                         ->join('tOrganizerUnits as o', 'a.idOrganizerUnits', 'o.idOrganizerUnits')
-                        ->where('c.idAdmins', $admin->idAdmins)
-                        ->select('a.emailAdmins as email', 'o.name as organizerName')
+                        ->where('c.admin', $admin->idUsers)
+                        ->select('a.email as email', 'o.name as organizerName')
                         ->first();
         
         return view('pages.committee.add-committees', compact('committee'));
@@ -76,7 +90,8 @@ class CommitteeController extends Controller
             'is_active' => 'required',
         ], [
             'required' => 'Bagian :attribute wajib diisi.',
-            'max' => 'Bagian :attribute maksimal :max karakter.',            'after_or_equal' => 'Tanggal :attribute harus setelah atau sama dengan tanggal sebelumnya.',
+            'max' => 'Bagian :attribute maksimal :max karakter.',            
+            'after_or_equal' => 'Tanggal :attribute harus setelah atau sama dengan tanggal sebelumnya.',
             'image' => 'File harus berupa gambar (jpg, jpeg, png).',
             'mimes' => 'Format file harus jpg, jpeg, atau png.',
         ]);
@@ -90,7 +105,7 @@ class CommitteeController extends Controller
 
         $admin = Auth::user();
         Committee::create([
-            'idAdmins' => $admin->idAdmins,
+            'admin' => $admin->idUsers,
             'name' => $request->name,
             'start_period' => $request->start_period,
             'end_period' => $request->end_period,
@@ -114,11 +129,12 @@ class CommitteeController extends Controller
         
         // $committees = Committee::all();
         $committees = DB::table('tCommittees as c')
-        ->join('tAdmins as a', 'c.idAdmins', 'a.idAdmins')
+        ->join('tUsers as u', 'c.admin', 'u.idUsers')
+        ->join('tAdmins as a', 'u.idUsers', 'a.idUsers')
         ->join('tOrganizerUnits as o', 'a.idOrganizerUnits', 'o.idOrganizerUnits')
         ->where('c.is_active', 1)
-        ->where('c.idAdmins', $admin->idAdmins)
-        ->select('c.*', DB::raw("'". $admin->emailAdmins . "'as email"), 'a.idOrganizerUnits as idOrganizerUnits', 'o.name as organizerName')
+        ->where('c.admin', $admin->idUsers)
+        ->select('c.*', DB::raw("'". $admin->email . "'as email"), 'a.idOrganizerUnits as idOrganizerUnits', 'o.name as organizerName')
         ->get();
         
         $masterOrganizer = OrganizerUnit::all();
@@ -152,7 +168,8 @@ class CommitteeController extends Controller
             'evaluation' => 'nullable',
         ], [
             'required' => 'Bagian :attribute wajib diisi.',
-            'max' => 'Bagian :attribute maksimal :max karakter.',            'after_or_equal' => 'Tanggal :attribute harus setelah atau sama dengan tanggal sebelumnya.',
+            'max' => 'Bagian :attribute maksimal :max karakter.',            
+            'after_or_equal' => 'Tanggal :attribute harus setelah atau sama dengan tanggal sebelumnya.',
             'image' => 'File harus berupa gambar (jpg, jpeg, png).',
             'mimes' => 'Format file harus jpg, jpeg, atau png.',
         ]);

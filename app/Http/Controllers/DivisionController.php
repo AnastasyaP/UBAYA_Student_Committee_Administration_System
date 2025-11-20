@@ -26,18 +26,19 @@ class DivisionController extends Controller
         $divisions = DB::table('tDivisions as d')
         ->join('tListDivisions as ld', 'd.idDivisions', '=', 'ld.idDivisions')
         ->join('tCommittees as c', 'ld.idCommittees', '=', 'c.idCommittees')
-        ->where('c.idAdmins', $admin->idAdmins,)
+        ->where('c.admin', $admin->idUsers,)
         ->where('c.is_active', 1)
         ->select('ld.idDivisions as idDivisions', 'ld.idCommittees as idCommittees', 'd.name as name', 'ld.is_open as status', 'ld.description as description', 'ld.picture as picture')
         ->get();
 
         $activeCommittee = false;
-        $exists = Committee::where('idAdmins', $admin->idAdmins)
+        $exists = Committee::where('admin', $admin->idUsers)
                         ->where('is_active', 1)
                         ->exists();
         if($exists){
             $activeCommittee = true;
         }
+        // dd($exists);
         return view('pages.division.divisions', compact('divisions', 'activeCommittee'));
     }
 
@@ -62,7 +63,8 @@ class DivisionController extends Controller
             'is_open' => 'required'
         ], [
             'required' => 'Bagian :attribute wajib diisi.',
-            'max' => 'Bagian :attribute maksimal :max karakter.',            'after_or_equal' => 'Tanggal :attribute harus setelah atau sama dengan tanggal sebelumnya.',
+            'max' => 'Bagian :attribute maksimal :max karakter.',            
+            'after_or_equal' => 'Tanggal :attribute harus setelah atau sama dengan tanggal sebelumnya.',
             'image' => 'File harus berupa gambar (jpg, jpeg, png).',
             'mimes' => 'Format file harus jpg, jpeg, atau png.',
         ]);
@@ -77,8 +79,7 @@ class DivisionController extends Controller
         // ambil id committee dr admin yg login
         $admin = Auth::user();
         $committeeId = DB::table('tCommittees as c')
-        ->join('tAdmins as a', 'c.idAdmins', '=', 'a.idAdmins')
-        ->where('a.idAdmins', $admin->idAdmins)
+        ->where('c.admin', $admin->idUsers)
         ->where('c.is_active', 1)
         ->value('c.idCommittees');
         

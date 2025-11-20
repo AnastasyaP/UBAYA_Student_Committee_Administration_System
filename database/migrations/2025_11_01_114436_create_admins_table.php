@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('tAdmins', function (Blueprint $table) {
             $table->id('idAdmins');
-            $table->string('email', 100);
-            $table->string('password', 255);
             $table->tinyInteger('is_superAdmin')->default(0);
             $table->unsignedBigInteger('idOrganizerUnits');
+            $table->unsignedBigInteger('idUsers');
             $table->timestamps();
 
             $table->foreign('idOrganizerUnits')->references('idOrganizerUnits')->on('tOrganizerUnits')->onDelete('cascade');
+            $table->foreign('idUsers')->references('idUsers')->on('tUsers')->conDelete('cascade');
         });
     }
 

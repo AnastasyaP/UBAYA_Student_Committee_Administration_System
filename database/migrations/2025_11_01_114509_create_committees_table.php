@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('tCommittees', function (Blueprint $table) {
             $table->id('idCommittees');
-            $table->unsignedBigInteger('idAdmins');
+            $table->unsignedBigInteger('admin');
             $table->string('name', 45);
             $table->date('start_period')->nullable();
             $table->date('end_period')->nullable();
@@ -27,7 +27,7 @@ return new class extends Migration
             $table->tinyInteger('is_active')->default(0);
             $table->timestamps();
 
-            $table->foreign('idAdmins')->references('idAdmins')->on('tAdmins')->onDelete('cascade');
+            $table->foreign('admin')->references('idUsers')->on('tUsers')->onDelete('cascade');
         });
     }
 

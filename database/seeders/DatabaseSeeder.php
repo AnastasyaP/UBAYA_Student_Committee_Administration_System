@@ -23,10 +23,11 @@ class DatabaseSeeder extends Seeder
         //     'password' => '123',
         //     // 'password' => bcrypt('secret')
         // ]);
+        
+        $this->call(UsersSeeder::class);
         $this->call(OrganizerUnitsSeeder::class);
         $this->call(AdminsSeeder::class);
         $this->call(CommitteesSeeder::class);
         $this->call(DivisionsSeeder::class);
-        $this->call(UsersSeeder::class);
     }
 }

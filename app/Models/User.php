@@ -16,14 +16,31 @@ class User extends Authenticatable
     protected $primaryKey = 'idUsers';
     protected $fillable = [
         'email', 
-        'nrp',
+        'username',
         'password',
         'firstname',
         'lastname',
-        'cv',
-        'portofolio'
+        'role',
     ];
-    protected $hidden = ['password']; // di hidden biar nga bisa ditampilkan (harus array)
+
+       /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<int, string>
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+       /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+    ];
 
         /**
      * Always encrypt the password when it is updated.
@@ -52,25 +69,6 @@ class User extends Authenticatable
     //     'country',
     //     'postal',
     //     'about'
-    // ];
-
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
-    // protected $hidden = [
-    //     'password',
-    //     'remember_token',
-    // ];
-
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    // protected $casts = [
-    //     'email_verified_at' => 'datetime',
     // ];
 
     /**

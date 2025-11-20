@@ -6,7 +6,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-use App\Http\Controllers\HomeController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\RegisterController;
@@ -16,8 +15,18 @@ use App\Http\Controllers\ResetPassword;
 use App\Http\Controllers\ChangePassword;            
 use App\Http\Controllers\CommitteeController;            
 use App\Http\Controllers\DivisionController;   
+use App\Http\Controllers\LandingPageController;   
 
-Route::get('/', function () {return redirect('/dashboard');})->middleware('auth');
+// Route::get('/', function () {
+// 	if(Auth::guard('admin')->check()){
+// 		return redirect('/dashboard');
+// 	} elseif(Auth::guard('web')->check()){
+// 		return redirect('/home');
+// 	} else{
+// 		return redirect('/login');
+// 	}
+// });
+Route::get('/', function(){ return redirect('/login'); });
 	Route::get('/register', [RegisterController::class, 'create'])->middleware('guest')->name('register');
 	Route::post('/register', [RegisterController::class, 'store'])->middleware('guest')->name('register.perform');
 	Route::get('/login', [LoginController::class, 'show'])->middleware('guest')->name('login');
@@ -28,11 +37,13 @@ Route::get('/', function () {return redirect('/dashboard');})->middleware('auth'
 	Route::post('/change-password', [ChangePassword::class, 'update'])->middleware('guest')->name('change.perform');
 	Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 
-Route::group(['middleware' => 'auth'], function (){
-	Route::get('/home', [HomeController::class, 'index'])->name('home'); 
+Route::middleware(['auth', 'role:mahasiswa'])->group(function (){
+	Route::get('/home', [LandingPageController::class, 'index'])->name('home'); 
+	// landing page
+	Route::get('/detail-committee/{idCommittee}', [LandingPageController::class, 'show'])->name('detail.committee');
 });
 
-Route::group(['middleware' => 'auth:admin'], function () {
+Route::middleware(['auth', 'role:admin'])->group( function () {
 	Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 	Route::get('/virtual-reality', [PageController::class, 'vr'])->name('virtual-reality');
 	Route::get('/rtl', [PageController::class, 'rtl'])->name('rtl');
@@ -54,6 +65,6 @@ Route::group(['middleware' => 'auth:admin'], function () {
 	Route::delete('/divisions/{idDivisions}/committees/{idCommittees}', [DivisionController::class, 'destroy'])->name('division.destroy');
 	Route::get('/edit-divisions/{idDivisions}/{idCommittees}', [DivisionController::class, 'edit'])->name('division.edit');
 	Route::put('/divisions/{idDivisions}/{idCommittees}', [DivisionController::class, 'update'])->name('division.update');
-	
+
 	Route::get('/{page}', [PageController::class, 'index'])->name('page');
 });

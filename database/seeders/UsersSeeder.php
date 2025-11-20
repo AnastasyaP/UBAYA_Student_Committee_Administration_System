@@ -14,27 +14,29 @@ class UsersSeeder extends Seeder
      */
     public function run(): void
     {
+
+        // seeder tabel user dan mahasiswa
+
+
         DB::table('tUsers')->insert([
              // Fakultas Teknik
             [
                 'email' => 's160422001@student.ubaya.ac.id',
-                'nrp' => '160422001',
+                'username' => 'ansos',
                 'password' => Hash::make('ansos123'),
                 'firstname' => 'Andi',
                 'lastname' => 'Santoso',
-                'cv' => 'cv_andi.pdf',
-                'portofolio' => 'portofolio_andi.pdf',
+                'role' => 'mahasiswa',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
                 'email' => 's160122002@student.ubaya.ac.id',
-                'nrp' => '160122002',
+                'username' => 'budwi',
                 'password' => Hash::make('budwi123'),
                 'firstname' => 'Budi',
                 'lastname' => 'Wijaya',
-                'cv' => 'cv_budi.pdf',
-                'portofolio' => 'portofolio_budi.pdf',
+                'role' => 'mahasiswa',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -42,23 +44,21 @@ class UsersSeeder extends Seeder
             // Fakultas Bisnis & Ekonomi - Manajemen
             [
                 'email' => 's130122001@student.ubaya.ac.id',
-                'nrp' => '130122001',
+                'username' => 'ciles',
                 'password' => Hash::make('ciles123'),
                 'firstname' => 'Citra',
                 'lastname' => 'Lestari',
-                'cv' => 'cv_citra.pdf',
-                'portofolio' => 'portofolio_citra.pdf',
+                'role' => 'mahasiswa',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
                 'email' => 's130122002@student.ubaya.ac.id',
-                'nrp' => '130122002',
+                'username' => 'dehar',
                 'password' => Hash::make('dehar123'),
                 'firstname' => 'Dedi',
                 'lastname' => 'Hartono',
-                'cv' => 'cv_dedi.pdf',
-                'portofolio' => 'portofolio_dedi.pdf',
+                'role' => 'mahasiswa',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -66,23 +66,21 @@ class UsersSeeder extends Seeder
             // Fakultas Psikologi - Psikologi
             [
                 'email' => 's14022201@student.ubaya.ac.id',
-                'nrp' => '140222001',
+                'username' => 'ekput',
                 'password' => Hash::make('ekput123'),
                 'firstname' => 'Eka',
                 'lastname' => 'Putri',
-                'cv' => 'cv_eka.pdf',
-                'portofolio' => 'portofolio_eka.pdf',
+                'role' => 'mahasiswa',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
                 'email' => 's140222002@student.ubaya.ac.id',
-                'nrp' => '140222002',
+                'username' => 'finan',
                 'password' => Hash::make('finan123'),
                 'firstname' => 'Fitri',
                 'lastname' => 'Ananda',
-                'cv' => 'cv_fitri.pdf',
-                'portofolio' => 'portofolio_fitri.pdf',
+                'role' => 'mahasiswa',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -90,23 +88,21 @@ class UsersSeeder extends Seeder
             // Fakultas Hukum - Ilmu Hukum
             [
                 'email' => 's150322001@student.ubaya.ac.id',
-                'nrp' => '150322001',
+                'username' => 'gaprat',
                 'password' => Hash::make('gapra123'),
                 'firstname' => 'Galih',
                 'lastname' => 'Pratama',
-                'cv' => 'cv_galih.pdf',
-                'portofolio' => 'portofolio_galih.pdf',
+                'role' => 'mahasiswa',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
                 'email' => 's150322002@student.ubaya.ac.id',
-                'nrp' => '150322002',
+                'username' => 'henwi',
                 'password' => Hash::make('henwi123'),
                 'firstname' => 'Hendra',
                 'lastname' => 'Wijaya',
-                'cv' => 'cv_hendra.pdf',
-                'portofolio' => 'portofolio_hendra.pdf',
+                'role' => 'mahasiswa',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -114,23 +110,144 @@ class UsersSeeder extends Seeder
             // Fakultas Industri Kreatif - Desain Komunikasi Visual
             [
                 'email' => 's170522001@student.ubaya.ac.id',
-                'nrp' => '170522001',
+                'username' => 'insap',
                 'password' => Hash::make('insap123'),
                 'firstname' => 'Indra',
                 'lastname' => 'Saputra',
-                'cv' => 'cv_indra.pdf',
-                'portofolio' => 'portofolio_indra.pdf',
+                'role' => 'mahasiswa',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
                 'email' => 's170522002@student.ubaya.ac.id',
-                'nrp' => '170522002',
+                'username' => 'jenat',
                 'password' => Hash::make('jenat123'),
                 'firstname' => 'Jessica',
                 'lastname' => 'Natalia',
+                'role' => 'mahasiswa',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            // Admins
+            [
+                'email' => 'adminilpc@gmail.com',
+                'username' => 'adminilpc',
+                'password'=> Hash::make('ilpc123'),
+                'firstname' => 'Admin',
+                'lastname' => 'ILPC',
+                'role' => 'admin',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ], 
+            [
+                'email' => 'adminceg@gmail.com',
+                'username' => 'adminceg',
+                'password'=> Hash::make('ceg123'),
+                'firstname' => 'Admin',
+                'lastname' => 'CEG',
+                'role' => 'admin',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ], 
+            [
+                'email' => 'admin@argon.com',
+                'username' => 'superadmin',
+                'password'=> Hash::make('123'),
+                'firstname' => 'Super',
+                'lastname' => 'Admin',
+                'role' => 'admin',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]
+        ]);
+
+        DB::table('tMahasiswas')->insert([
+             // Fakultas Teknik
+            [
+                'nrp' => '160422001',
+                'cv' => 'cv_andi.pdf',
+                'portofolio' => 'portofolio_andi.pdf',
+                'idUsers'=> 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'nrp' => '160122002',
+                'cv' => 'cv_budi.pdf',
+                'portofolio' => 'portofolio_budi.pdf',
+                'idUsers'=> 2,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+
+            // Fakultas Bisnis & Ekonomi - Manajemen
+            [
+                'nrp' => '130122001',
+                'cv' => 'cv_citra.pdf',
+                'portofolio' => 'portofolio_citra.pdf',
+                'idUsers'=> 3,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'nrp' => '130122002',
+                'cv' => 'cv_dedi.pdf',
+                'portofolio' => 'portofolio_dedi.pdf',
+                'idUsers'=> 4,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+
+            // Fakultas Psikologi - Psikologi
+            [
+                'nrp' => '140222001',
+                'cv' => 'cv_eka.pdf',
+                'portofolio' => 'portofolio_eka.pdf',
+                'idUsers'=> 5,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'nrp' => '140222002',
+                'cv' => 'cv_fitri.pdf',
+                'portofolio' => 'portofolio_fitri.pdf',
+                'idUsers'=> 6,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+
+            // Fakultas Hukum - Ilmu Hukum
+            [
+                'nrp' => '150322001',
+                'cv' => 'cv_galih.pdf',
+                'portofolio' => 'portofolio_galih.pdf',
+                'idUsers'=> 7,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'nrp' => '150322002',
+                'cv' => 'cv_hendra.pdf',
+                'portofolio' => 'portofolio_hendra.pdf',
+                'idUsers'=> 8,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+
+            // Fakultas Industri Kreatif - Desain Komunikasi Visual
+            [
+                'nrp' => '170522001',
+                'cv' => 'cv_indra.pdf',
+                'portofolio' => 'portofolio_indra.pdf',
+                'idUsers'=> 9,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'nrp' => '170522002',
                 'cv' => 'cv_jessica.pdf',   
                 'portofolio' => 'portofolio_jessica.pdf',
+                'idUsers'=> 10,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],

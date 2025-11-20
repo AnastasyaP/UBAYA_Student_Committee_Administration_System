@@ -16,22 +16,7 @@ class Admin extends Authenticatable
     protected $primaryKey = 'idAdmins';
 
 
-    protected $fillable = ['email', 'password', 'is_superAdmin', 'idOrganizerUnits'];
-
-    protected $hidden = ['password']; // di hidden biar nga bisa ditampilkan (harus array)
-
-    
-
-        /**
-     * Always encrypt the password when it is updated.
-     *
-     * @param $value
-    * @return string
-    */
-    public function setPasswordAttribute($value)
-    {
-        $this->attributes['password'] = Hash::make($value);
-    }
+    protected $fillable = ['is_superAdmin', 'idOrganizerUnits', 'idUsers'];
 
     public function committees(){
         return $this->hasMany(Committee::class, 'idAdmins', 'idAdmins'); // idAdmin di tCommittees = idAdmin di tAdmins

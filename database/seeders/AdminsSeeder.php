@@ -17,24 +17,21 @@ class AdminsSeeder extends Seeder
     {
         DB::table('tAdmins')->insert([
             [
-                'email' => 'adminilpc@gmail.com',
-                'password'=> Hash::make('ilpc123'),
                 'is_superAdmin'=>0,
                 'idOrganizerUnits' => 8,
+                'idUsers' => 11,
                 'created_at' => now(),
                 'updated_at' => now(),
             ], [
-                'email' => 'adminceg@gmail.com',
-                'password'=> Hash::make('ceg123'),
                 'is_superAdmin'=>0,
                 'idOrganizerUnits' => 9,
+                'idUsers' => 12,
                 'created_at' => now(),
                 'updated_at' => now(),
             ], [
-                'email' => 'admin@argon.com',
-                'password'=> Hash::make('123'),
                 'is_superAdmin'=>1,
                 'idOrganizerUnits' => 1,
+                'idUsers' => 13,
                 'created_at' => now(),
                 'updated_at' => now(),
             ]

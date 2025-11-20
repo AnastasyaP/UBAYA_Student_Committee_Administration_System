@@ -28,12 +28,20 @@ class LoginController extends Controller
             'password' => ['required'],
         ]);
 
-        if(Auth::guard('admin')->attempt($credentials)){
-            return redirect()->intended('/dashboard');
+        if(Auth::attempt($credentials)){
+            $request->session()->regenerate();
+            
+            $role = Auth::user()->role;
+
+            if($role === 'admin'){
+                return redirect()->intended('dashboard');
+            } 
+            
+            if($role === "mahasiswa"){
+                return redirect()->intended('home');
+            }
         }
-        if(Auth::guard('web')->attempt($credentials)){
-            return redirect()->intended('/home');
-        }
+
         // $user = Admin::where('emailAdmins',$request->email)->first();
         // dd($user);
 
@@ -66,12 +74,12 @@ class LoginController extends Controller
 
     public function logout(Request $request)
     {
-        // Auth::logout();
-        if(Auth::guard('admin')->check()){
-            Auth::guard('admin')->logout();
-        } elseif(Auth::guard('web')->check()){
-            Auth::guard('web')->logout();
-        }
+        Auth::logout();
+        // if(Auth::guard('admin')->check()){
+        //     Auth::guard('admin')->logout();
+        // } elseif(Auth::guard('web')->check()){
+        //     Auth::guard('web')->logout();
+        // }
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
