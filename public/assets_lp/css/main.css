@@ -1625,6 +1625,9 @@ section,
 
 .team .member img {
   margin: -1px -1px 30px -1px;
+   width: 100%;       /* Lebar mengikuti card */
+    height: 250px;     /* Tinggi tetap sama untuk semua card */
+    object-fit: cover; /* Memastikan gambar menutupi area tanpa melar/mengecil */
 }
 
 .team .member .member-content {

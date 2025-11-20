@@ -65,9 +65,8 @@ class CommitteeController extends Controller
                         ->join('tAdmins as a', 'u.idUsers', 'a.idUsers')
                         ->join('tOrganizerUnits as o', 'a.idOrganizerUnits', 'o.idOrganizerUnits')
                         ->where('c.admin', $admin->idUsers)
-                        ->select('a.email as email', 'o.name as organizerName')
-                        ->first();
-        
+                        ->select('u.email as email', 'o.name as organizerName')
+                        ->first();        
         return view('pages.committee.add-committees', compact('committee'));
     }
 
@@ -104,6 +103,7 @@ class CommitteeController extends Controller
         }
 
         $admin = Auth::user();
+        // dd($admin->idUsers);
         Committee::create([
             'admin' => $admin->idUsers,
             'name' => $request->name,

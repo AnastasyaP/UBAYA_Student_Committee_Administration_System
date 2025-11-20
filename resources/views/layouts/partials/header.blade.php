@@ -1,7 +1,7 @@
 <header id="header" class="header d-flex align-items-center fixed-top">
     <div class="container-fluid container-xl position-relative d-flex align-items-center">
 
-      <a href="index.html" class="logo d-flex align-items-center me-auto">
+      <a href="{{ route('home') }}" class="logo d-flex align-items-center me-auto">
         <!-- Uncomment the line below if you also wish to use an image logo -->
         <!-- <img src="assets_lp/img/logo.png" alt=""> -->
         <h1 class="sitename">Student Committees</h1>
@@ -9,9 +9,9 @@
 
       <nav id="navmenu" class="navmenu">
         <ul>
-          <li><a href="index.html" class="active">Home<br></a></li>
-          <li><a href="profile.html">Profile</a></li>
-          <li><a href="committees.html">Committees</a></li>
+          <li><a href="{{ route('home') }}" class="active">Home<br></a></li>
+          <li><a href="profile">Profile</a></li>
+          <li><a href="list-committees">Committees</a></li>
           <!-- <li><a href="pricing.html">Pricing</a></li>
           <li class="dropdown"><a href="#"><span>Dropdown</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
             <ul>

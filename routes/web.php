@@ -17,15 +17,6 @@ use App\Http\Controllers\CommitteeController;
 use App\Http\Controllers\DivisionController;   
 use App\Http\Controllers\LandingPageController;   
 
-// Route::get('/', function () {
-// 	if(Auth::guard('admin')->check()){
-// 		return redirect('/dashboard');
-// 	} elseif(Auth::guard('web')->check()){
-// 		return redirect('/home');
-// 	} else{
-// 		return redirect('/login');
-// 	}
-// });
 Route::get('/', function(){ return redirect('/login'); });
 	Route::get('/register', [RegisterController::class, 'create'])->middleware('guest')->name('register');
 	Route::post('/register', [RegisterController::class, 'store'])->middleware('guest')->name('register.perform');

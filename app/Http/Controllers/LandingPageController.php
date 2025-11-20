@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 
 class LandingPageController extends Controller
@@ -14,11 +15,13 @@ class LandingPageController extends Controller
      */
     public function index()
     {
+        $user = Auth::user()->username;
+
         $committees = DB::table('tCommittees')
                     ->where('is_active', 1)
                     ->get();
 
-        return view('pages.landingpage.index', compact('committees'));
+        return view('pages.landingpage.index', compact('committees', 'user'));
     }
 
     /**
@@ -48,7 +51,13 @@ class LandingPageController extends Controller
                     ->select('*')
                     ->first();
 
-        return view('pages.landingpage.detail-committee', compact('committee'));
+        $divisions = DB::table('tListDivisions as ld')
+                    ->join('tDivisions as d', 'ld.idDivisions', 'd.idDivisions')
+                    ->where('ld.idCommittees', $idCommittee)
+                    ->where('ld.is_open', 1)
+                    ->select('d.name as name', 'ld.description as description', 'ld.picture as picture')
+                    ->get();
+        return view('pages.landingpage.detail-committee', compact('committee', 'divisions'));
     }
 
     /**

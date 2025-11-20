@@ -14,7 +14,7 @@ class Committee extends Model
     protected $table = 'tCommittees';
     protected $primaryKey = 'idCommittees';
     protected $fillable = [
-        'idAdmins',
+        'admin',
         'name',
         'start_period',
         'end_period',
@@ -28,9 +28,9 @@ class Committee extends Model
         'is_active',
     ];
 
-    public function admins(){
-        return $this->belongsTo(Admin::class, 'idAdmins', 'idAdmins');
-    }
+    // public function admins(){
+    //     return $this->belongsTo(Admin::class, 'idAdmins', 'idAdmins');
+    // }
 
     public function listDivision(){
         return $this->hasMany(ListDivision::class, 'idCommittees', 'idCommittees');
