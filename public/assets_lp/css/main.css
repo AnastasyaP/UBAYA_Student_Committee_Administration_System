@@ -1102,6 +1102,24 @@ section,
   transition: 0.3s ease-in-out;
 }
 
+.committee-card {
+  padding: 0 !important; 
+}
+
+.committee-img-wrapper {
+  height: 220px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.committee-img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  object-position: center;
+}
+
 .services .card h3 {
   font-weight: 700;
   font-size: 18px;
@@ -1621,11 +1639,12 @@ section,
   border: 1px solid color-mix(in srgb, var(--default-color), transparent 90%);
   text-align: center;
   margin-bottom: 20px;
+  height: 100%; 
 }
 
 .team .member img {
-  margin: -1px -1px 30px -1px;
-   width: 100%;       /* Lebar mengikuti card */
+    margin: -1px -1px 30px -1px;
+    width: 100%;       /* Lebar mengikuti card */
     height: 250px;     /* Tinggi tetap sama untuk semua card */
     object-fit: cover; /* Memastikan gambar menutupi area tanpa melar/mengecil */
 }

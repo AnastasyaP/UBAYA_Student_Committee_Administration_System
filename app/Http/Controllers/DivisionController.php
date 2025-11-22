@@ -26,9 +26,15 @@ class DivisionController extends Controller
         $divisions = DB::table('tDivisions as d')
         ->join('tListDivisions as ld', 'd.idDivisions', '=', 'ld.idDivisions')
         ->join('tCommittees as c', 'ld.idCommittees', '=', 'c.idCommittees')
-        ->where('c.admin', $admin->idUsers,)
+        ->where('c.admin', $admin->idUsers)
         ->where('c.is_active', 1)
-        ->select('ld.idDivisions as idDivisions', 'ld.idCommittees as idCommittees', 'd.name as name', 'ld.is_open as status', 'ld.description as description', 'ld.picture as picture')
+        ->select(
+            'ld.idDivisions as idDivisions', 
+            'ld.idCommittees as idCommittees', 
+            'd.name as name', 
+            'ld.is_open as status', 
+            'ld.description as description', 
+            'ld.picture as picture')
         ->get();
 
         $activeCommittee = false;
@@ -101,15 +107,6 @@ class DivisionController extends Controller
                 $divisionId = $division->idDivisions;
             }
         }
-        // if(!$masterDivisions){
-        //     $division = Division::create([
-        //         'name' => $name
-        //     ]);
-        //     $divisionId = $division->idDivisions;
-        // } else{
-        //     $division = Division::find($masterDivisions);
-        //     $divisionId = $division->idDivisions;
-        // }
 
         // pengecekan klo committee itu uda punya divisi yg mau ditambah or belom
         $exists = ListDivision::where('idDivisions', $divisionId)

@@ -14,7 +14,7 @@ use Illuminate\Support\Str;
         <!-- <p>Esse dolorum voluptatum ullam est sint nemo et est ipsa porro placeat quibusdam quia assumenda numquam molestias.</p> -->
         <nav class="breadcrumbs">
           <ol>
-            <li><a href="index.html">Home</a></li>
+            <li><a href="{{ route('home')}}">Home</a></li>
             <li class="current">Detail</li>
           </ol>
         </nav>
@@ -60,7 +60,10 @@ use Illuminate\Support\Str;
               </li> -->
             </ul>
             <div class="d-grip gap-2">
-              <button type="button" class="btn btn-primary btn-lg mt-4">Register</button>
+              <form action="{{ route('regis.committee', ['idCommittee' => $committee->idCommittees]) }}" method="POST">
+                @csrf
+                <button type="submit" class="btn btn-primary btn-lg mt-4">Register</button>
+              </form>
             </div>
           </div>
 
@@ -125,7 +128,7 @@ use Illuminate\Support\Str;
         <div class="row">
           @foreach($divisions as $division)
           <div class="col-lg-4 col-md-6 d-flex" data-aos="fade-up" data-aos-delay="100">
-            <div class="member">
+            <div class="member flex-fill">
               <img src="{{ asset('storage/' . $division->picture) }}" class="img-fluid" alt="">
               <div class="member-content">
                 <h4>{{ $division->name }}</h4>

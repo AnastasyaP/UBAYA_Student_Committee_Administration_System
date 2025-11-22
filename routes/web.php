@@ -16,6 +16,8 @@ use App\Http\Controllers\ChangePassword;
 use App\Http\Controllers\CommitteeController;            
 use App\Http\Controllers\DivisionController;   
 use App\Http\Controllers\LandingPageController;   
+use App\Http\Controllers\RegistrationController;   
+
 
 Route::get('/', function(){ return redirect('/login'); });
 	Route::get('/register', [RegisterController::class, 'create'])->middleware('guest')->name('register');
@@ -30,8 +32,8 @@ Route::get('/', function(){ return redirect('/login'); });
 
 Route::middleware(['auth', 'role:mahasiswa'])->group(function (){
 	Route::get('/home', [LandingPageController::class, 'index'])->name('home'); 
-	// landing page
 	Route::get('/detail-committee/{idCommittee}', [LandingPageController::class, 'show'])->name('detail.committee');
+	Route::post('/regis-committee/{idCommittee}', [LandingPageController::class, 'create'])->name('regis.committee');
 });
 
 Route::middleware(['auth', 'role:admin'])->group( function () {
@@ -56,6 +58,9 @@ Route::middleware(['auth', 'role:admin'])->group( function () {
 	Route::delete('/divisions/{idDivisions}/committees/{idCommittees}', [DivisionController::class, 'destroy'])->name('division.destroy');
 	Route::get('/edit-divisions/{idDivisions}/{idCommittees}', [DivisionController::class, 'edit'])->name('division.edit');
 	Route::put('/divisions/{idDivisions}/{idCommittees}', [DivisionController::class, 'update'])->name('division.update');
+	// regis
+	Route::get('registrations', [RegistrationController::class, 'index'])->name('registration');
+	Route::get('/view-registrations/{idRegis}', [RegistrationController::class, 'show'])->name('view.regis');
 
 	Route::get('/{page}', [PageController::class, 'index'])->name('page');
 });

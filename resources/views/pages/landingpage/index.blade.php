@@ -229,23 +229,24 @@ use Illuminate\Support\Str;
       </div><!-- End Section Title -->
 
       <div class="container">
-
         <div class="row gy-4">
-        @foreach($committees as $committee)
-          <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
-            <a href="{{ route('detail.committee', ['idCommittee' => $committee->idCommittees]) }}" >
-              <div class="card">
-                <div class="card-img">
-                  <img src="{{ asset('storage/' . $committee->picture) }}" alt="" class="img-fluid">
-                </div>
-                <h3>{{ $committee->name }}</h3>
-                <p>{{ Str::limit($committee->description, 150, '..') }}</p>
-              </div>
-            </a>
-          </div><!-- End Card Item -->
-        @endforeach
-        </div>
+          @foreach($committees as $committee)
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+              <a href="{{ route('detail.committee', ['idCommittee' => $committee->idCommittees]) }}">
+                
+                <div class="card committee-card">
+                  <div class="committee-img-wrapper">
+                    <img src="{{ asset('storage/' . $committee->picture) }}" class="committee-img">
+                  </div>
 
+                  <h3>{{ $committee->name }}</h3>
+                  <p>{{ Str::limit($committee->description, 150, '..') }}</p>
+                </div>
+
+              </a>
+            </div>
+          @endforeach
+        </div>
       </div>
 
     </section><!-- /Services Section -->
