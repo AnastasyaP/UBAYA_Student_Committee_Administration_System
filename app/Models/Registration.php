@@ -4,7 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-
+use App\Models\interviewschedule;
+use App\Models\User;
 
 class Registration extends Model
 {
@@ -21,4 +22,12 @@ class Registration extends Model
         'position',
         'idInterviewSchedules',
     ];
+
+    public function interviewschedule(){
+        return $this->belongsTo(InterviewSchedule::class, 'idInterviewSchedules','idInterviewSchedules');
+    }
+
+    public function user(){
+        return $this->belongsTo(User::class, 'idUsers', 'idUsers');
+    }
 }

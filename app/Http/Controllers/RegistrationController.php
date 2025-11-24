@@ -33,6 +33,7 @@ class RegistrationController extends Controller
         ->join('tDivisions as d', 'ld.idDivisions', 'd.idDivisions')
         ->where('c.admin', $admin->idUsers)
         ->whereColumn('r.idCommittees', 'c.idCommittees')
+        ->where('c.is_active', 1)
         ->select(
             DB::raw("concat(u.firstname, ' ', u.lastname) as name"),
             'u.email as email',
@@ -43,6 +44,7 @@ class RegistrationController extends Controller
             'r.idDivisions as idDivision',
             'd.name as division',
             'r.idRegistrations as idRegis',
+            'r.idUsers as idMahasiswa',
         )
         ->get();
 
@@ -104,6 +106,40 @@ class RegistrationController extends Controller
         ->first();
 
         return view('pages.registration.view-registrations', compact('registration'));
+    }
+
+    public function accept($idRegis){
+        $mhs = DB::table('tRegistrations')
+                ->where('idRegistrations', $idRegis)
+                ->select('*')
+                ->first();
+        if($mhs->status === "pending"){
+            DB::table('tRegistrations')
+                ->where('idRegistrations', $idRegis)
+                ->update(['status'=> 'accepted']);
+        } elseif($mhs->status === "accepted"){
+            return redirect()->back()->with('warning', 'This user is already accepted');
+        } else{
+            return redirect()->back()->with('warning', 'This user is already rejected');
+        }
+        return redirect()->route('registration')->with('success', 'Status updated!');
+    }
+
+        public function reject($idRegis){
+        $mhs = DB::table('tRegistrations')
+                ->where('idRegistrations', $idRegis)
+                ->select('*')
+                ->first();
+        if($mhs->status === "pending"){
+            DB::table('tRegistrations')
+                ->where('idRegistrations', $idRegis)
+                ->update(['status'=> 'rejected']);
+        } elseif($mhs->status === "accepted"){
+            return redirect()->back()->with('warning', 'This user is already accepted');
+        } else{
+            return redirect()->back()->with('warning', 'This user is already rejected');
+        }
+        return redirect()->route('registration')->with('success', 'Status updated!');
     }
 
     /**

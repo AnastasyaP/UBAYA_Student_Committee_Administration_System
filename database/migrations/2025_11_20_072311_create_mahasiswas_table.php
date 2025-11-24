@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('nrp', 45);
             $table->string('cv', 255);
             $table->string('portofolio', 255);
+            $table->string('picture', 255);
             $table->unsignedBigInteger('idUsers');
             $table->timestamps();
 

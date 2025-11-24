@@ -23,7 +23,8 @@ return new class extends Migration
             $table->string('contact', 45)->nullable();
             $table->date('start_regis')->nullable();
             $table->date('end_regis')->nullable();
-            $table->text('evaluation')->nullable();    
+            $table->text('evaluation')->nullable();  
+            $table->string('poster', 500)->nullable();  
             $table->tinyInteger('is_active')->default(0);
             $table->timestamps();
 

@@ -17,7 +17,7 @@ use App\Http\Controllers\CommitteeController;
 use App\Http\Controllers\DivisionController;   
 use App\Http\Controllers\LandingPageController;   
 use App\Http\Controllers\RegistrationController;   
-
+use App\Http\Controllers\InterviewScheduleController;
 
 Route::get('/', function(){ return redirect('/login'); });
 	Route::get('/register', [RegisterController::class, 'create'])->middleware('guest')->name('register');
@@ -61,6 +61,11 @@ Route::middleware(['auth', 'role:admin'])->group( function () {
 	// regis
 	Route::get('registrations', [RegistrationController::class, 'index'])->name('registration');
 	Route::get('/view-registrations/{idRegis}', [RegistrationController::class, 'show'])->name('view.regis');
+	Route::put('/registrations/accepted/{idRegis}', [RegistrationController::class, 'accept'])->name('accept.regis');
+	Route::put('/registrations/rejected/{idRegis}', [RegistrationController::class, 'reject'])->name('reject.regis');
+	// interview schedule
+	// Route::get('schedule-interviews',[InterviewScheduleController::class, 'index'])->name('intv');
+	Route::get('/schedule',[InterviewScheduleController::class, 'calendar'])->name('calendar.intv');
 
 	Route::get('/{page}', [PageController::class, 'index'])->name('page');
 });

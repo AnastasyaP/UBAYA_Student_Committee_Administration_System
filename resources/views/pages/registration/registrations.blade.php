@@ -25,6 +25,9 @@ use Illuminate\Support\Str;
                     </div>
                 @endif
                 <div class="card mb-4">
+                    <div class="card-header pb-0 d-flex justify-content-between align-items-center" >
+                        <h6>Registrations List</h6>
+                    </div>
                     <div class="card-body px-0 pt-0 pb-2">
                         <div class="table-responsive p-0">
                             <table class="table align-items-center mb-0">
@@ -78,13 +81,17 @@ use Illuminate\Support\Str;
                                         </td>
                                         @if($regis->status == 'pending')
                                         <td class="align-middle">
-                                            <form action="#" method="POST" onsubmit="return confirm('Are you sure want to Accept {{ $regis->name }}?');">
-                                                <button type="submit" class="btn btn-success btn-sm">Accept</button>                                                
+                                            <form action="{{ route('accept.regis', ['idRegis' => $regis->idRegis]) }}" method="POST" onsubmit="return confirm('Are you sure want to Accept {{ $regis->name }}?');">
+                                                @csrf
+                                                @method('PUT')
+                                                <button type="submit" class="btn btn-success btn-sm" value="accepted">Accept</button>                                                
                                             </form>                                         
                                         </td>
                                         <td class="align-middle">
-                                            <form action="#" method="POST" onsubmit="return confirm('Are you sure want to Reject {{ $regis->name }}?');">
-                                                <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                                            <form action="{{ route('reject.regis', ['idRegis' => $regis->idRegis]) }}" method="POST" onsubmit="return confirm('Are you sure want to Reject {{ $regis->name }}?');">
+                                                @csrf
+                                                @method('PUT')
+                                                <button type="submit" class="btn btn-danger btn-sm" value="rejected">Reject</button>
                                             </form>
                                         </td>
                                         @endif

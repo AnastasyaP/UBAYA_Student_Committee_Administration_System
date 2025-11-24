@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('tInterviewSchedules', function (Blueprint $table) {
             $table->id('idInterviewSchedules');
             $table->date('date');
-            $table->time('time');
+            $table->time('start_time');
+            $table->time('end_time');
             $table->string('place', 255);
             $table->string('link', 500);
 
