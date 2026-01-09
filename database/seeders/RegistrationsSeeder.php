@@ -20,7 +20,7 @@ class RegistrationsSeeder extends Seeder
                 'idDivisions' => 3,            // pastikan ID division ada
                 'idCommittees' => 2,           // pastikan ID committee ada
                 'status' => 'pending',
-                'percentage' => 0,
+                'percentage' => '0',
                 'position' => 'anggota',
                 'idInterviewSchedules' => 2,   // pastikan ID schedule ada
                 'created_at' =>  now(),
@@ -31,7 +31,7 @@ class RegistrationsSeeder extends Seeder
                 'idDivisions' => 2,
                 'idCommittees' => 1,
                 'status' => 'accepted',
-                'percentage' => 87,
+                'percentage' => '70',
                 'position' => 'koor',
                 'idInterviewSchedules' => 1,
                 'created_at' =>  now(),
@@ -42,7 +42,7 @@ class RegistrationsSeeder extends Seeder
                 'idDivisions' => 4,
                 'idCommittees' => 2,
                 'status' => 'rejected',
-                'percentage' => 45,
+                'percentage' => '40',
                 'position' => 'anggota',
                 'idInterviewSchedules' => 3,
                 'created_at' => now(),

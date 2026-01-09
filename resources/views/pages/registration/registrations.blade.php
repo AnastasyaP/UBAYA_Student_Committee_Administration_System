@@ -9,21 +9,22 @@ use Illuminate\Support\Str;
     <div class="container-fluid py-4">
         <div class="row">
             <div class="col-12">
-                @if(session('success'))
-                    <div>
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            <strong>Success!</strong> {{ session('success') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    @if(session('success'))
+                        <div>
+                            <div class="alert alert-success auto-close-alert alert-dismissible fade show" role="alert">
+                                <strong>Success!</strong> {{ session('success') }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
                         </div>
-                    </div>
-                @elseif(session('warning'))
-                    <div>
-                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                            <strong>Warning!</strong> {{ session('warning') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    @elseif(session('warning'))
+                        <div>
+                            <div class="alert alert-warning auto-close-alert alert-dismissible fade show" role="alert">
+                                <strong>Warning!</strong> {{ session('warning') }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
                         </div>
-                    </div>
-                @endif
+                    @endif
+                
                 <div class="card mb-4">
                     <div class="card-header pb-0 d-flex justify-content-between align-items-center" >
                         <h6>Registrations List</h6>
@@ -81,17 +82,42 @@ use Illuminate\Support\Str;
                                         </td>
                                         @if($regis->status == 'pending')
                                         <td class="align-middle">
-                                            <form action="{{ route('accept.regis', ['idRegis' => $regis->idRegis]) }}" method="POST" onsubmit="return confirm('Are you sure want to Accept {{ $regis->name }}?');">
+                                            <form id="acceptForm-{{ $regis->idRegis }}" action="{{ route('accept.regis', ['idRegis' => $regis->idRegis]) }}" method="POST">
                                                 @csrf
                                                 @method('PUT')
-                                                <button type="submit" class="btn btn-success btn-sm" value="accepted">Accept</button>                                                
+                                                <button 
+                                                    type="button" 
+                                                    class="btn btn-success btn-sm" 
+                                                    value="accepted" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#confirmModal" 
+                                                    data-name="{{ $regis->name }}"
+                                                    data-form="acceptForm-{{ $regis->idRegis }}" 
+                                                    data-action="accept"
+                                                    data-color="btn-success"
+                                                    data-title="Confirm Accept"
+                                                    data-message="Are you sure you want to accept"
+                                                >Accept</button>                                                
                                             </form>                                         
                                         </td>
+                                        
                                         <td class="align-middle">
-                                            <form action="{{ route('reject.regis', ['idRegis' => $regis->idRegis]) }}" method="POST" onsubmit="return confirm('Are you sure want to Reject {{ $regis->name }}?');">
+                                            <form id="rejectForm-{{ $regis->idRegis }}" action="{{ route('reject.regis', ['idRegis' => $regis->idRegis]) }}" method="POST">
                                                 @csrf
                                                 @method('PUT')
-                                                <button type="submit" class="btn btn-danger btn-sm" value="rejected">Reject</button>
+                                                <button 
+                                                    type="submit" 
+                                                    class="btn btn-danger btn-sm" 
+                                                    value="rejected" 
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target= "#confirmModal" 
+                                                    data-name="{{ $regis->name }}"
+                                                    data-form="rejectForm-{{ $regis->idRegis }}"
+                                                    data-action="reject"
+                                                    data-color="btn-danger"
+                                                    data-title="Confirm Reject"
+                                                    data-message="Are you sure you want to reject"
+                                                >Reject</button>
                                             </form>
                                         </td>
                                         @endif
@@ -99,7 +125,28 @@ use Illuminate\Support\Str;
                                    @endforeach
                                 </tbody>
                             </table>
-                        </div>
+                            <!-- confirm modal  -->
+                            <div class="modal fade" id="confirmModal" tabindex="-1">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="modalTitle">Confirm Action</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+
+                                        <div class="modal-body">
+                                            <span id="modalMessage">Are you sure?</span>    
+                                            <strong id="modalName"></strong>?
+                                        </div>
+
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <button type="button" class="btn" id="confirmBtn">Yes</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>    
                     </div>
                 </div>
             </div>
@@ -108,11 +155,36 @@ use Illuminate\Support\Str;
     </div>
     <script>
         setTimeout(()=>{
-            const alert = document.querySelector('.alert');
-            if(alert){
-                const bsAlert = new bootstrap.Alert(alert);
-                bsAlert.close();
-            }
+            document.querySelectorAll('.auto-close-alert').forEach(a => {
+                new bootstrap.Alert(a).close();
+            });
         }, 3000); // auto close 3 detik
+
+
+        // confirm modal
+        document.addEventListener('DOMContentLoaded', function () {
+            const modal = document.getElementById('confirmModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalMessage = document.getElementById('modalMessage');
+            const modalName = document.getElementById('modalName');
+            const modalMessage = document.getElementById('modalMessage');
+
+            let formToSubmit = null;
+
+            modal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                const name = button.getAttribute('data-name');
+                const formId = button.getAttribute('data-form');
+
+                formToSubmit = document.getElementById(formId);
+                namePlaceholder.textContent = name;
+            });
+
+            confirmBtn.addEventListener('click', function () {
+                if (formToSubmit) {
+                    formToSubmit.submit();
+                }
+            });
+        });
     </script>
 @endsection

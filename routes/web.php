@@ -34,6 +34,7 @@ Route::middleware(['auth', 'role:mahasiswa'])->group(function (){
 	Route::get('/home', [LandingPageController::class, 'index'])->name('home'); 
 	Route::get('/detail-committee/{idCommittee}', [LandingPageController::class, 'show'])->name('detail.committee');
 	Route::post('/regis-committee/{idCommittee}', [LandingPageController::class, 'create'])->name('regis.committee');
+	Route::get('/intv-schedule/{idCommittee}/{idDivision}', [LandingPageController::class, 'intv'])->name('view.scheduleintv');
 });
 
 Route::middleware(['auth', 'role:admin'])->group( function () {
@@ -65,7 +66,10 @@ Route::middleware(['auth', 'role:admin'])->group( function () {
 	Route::put('/registrations/rejected/{idRegis}', [RegistrationController::class, 'reject'])->name('reject.regis');
 	// interview schedule
 	// Route::get('schedule-interviews',[InterviewScheduleController::class, 'index'])->name('intv');
-	Route::get('/schedule',[InterviewScheduleController::class, 'calendar'])->name('calendar.intv');
+	Route::get('/schedule',[InterviewScheduleController::class, 'calendar'])->name('intv.calendar');
+	Route::get('/add-schedule', [InterviewScheduleController::class, 'create'])->name('intv.add');
+	Route::post('/store-schedule',[InterviewScheduleController::class, 'store'])->name('intv.store');
+	Route::put('/update-schedule/{idSchedule}', [InterviewScheduleController::class, 'update'])->name('intv.update');
 
 	Route::get('/{page}', [PageController::class, 'index'])->name('page');
 });

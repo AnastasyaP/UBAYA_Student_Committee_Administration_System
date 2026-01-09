@@ -137,9 +137,7 @@ class CommitteeController extends Controller
         ->select('c.*', DB::raw("'". $admin->email . "'as email"), 'a.idOrganizerUnits as idOrganizerUnits', 'o.name as organizerName')
         ->get();
         
-        $masterOrganizer = OrganizerUnit::all();
-
-        return view('pages.profile', compact('committees', 'masterOrganizer'));
+        return view('pages.profile', compact('committees'));
     }
 
     /**

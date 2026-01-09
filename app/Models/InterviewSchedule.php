@@ -17,7 +17,8 @@ class InterviewSchedule extends Model
     protected $primaryKey = 'idInterviewSchedules';
     protected $fillable = [
         'date',
-        'time',
+        'start_time',
+        'end_time',
         'place',
         'link',
         'idDivisions',

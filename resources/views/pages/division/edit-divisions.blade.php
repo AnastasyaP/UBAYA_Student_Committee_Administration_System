@@ -38,7 +38,7 @@
                                         <select class="form-control" id="master_division" name="master_division" disabled>
                                             <option value="">-- Choose Existing Division --</option>
                                             @foreach($masterDivisions as $master)
-                                            <option value="{{ $master->idDivisions }}" {{ $division->idDivisions == $master->idDivisions ? 'selected' : ''}}>
+                                            <option value="{{ $master->idDivisions }}" @selected($division->idDivisions == $master->idDivisions)>
                                                 {{ $master->name }}
                                             </option>
                                             @endforeach
@@ -73,8 +73,8 @@
                                     <div class="form-group">
                                         <label class="form-control-label">Open for Recruitment?</label>
                                         <select name="is_open" id="is_open" class="form-control">
-                                            <option value=0 {{ $division->is_open == 0 ? 'selected' : '' }}>No</option>
-                                            <option value=1 {{$division->is_open == 1 ? 'selected' : ''}}>Yes</option>
+                                            <option value=0 @selected($division->is_open == 0)>No</option>
+                                            <option value=1 @selected($division->is_open == 1)>Yes</option>
                                         </select>
                                     </div>
                                 </div>

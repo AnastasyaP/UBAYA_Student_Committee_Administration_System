@@ -32,6 +32,11 @@ use Illuminate\Support\Str;
   <!-- Main CSS File -->
   <link href="{{ asset('assets_lp/css/main.css') }}" rel="stylesheet">
 
+  <!-- CSS FullCalendar -->
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fullcalendar/timegrid@5.11.3/main.min.css">
+
+
   <!-- =======================================================
   * Template Name: Logis
   * Template URL: https://bootstrapmade.com/logis-bootstrap-logistics-website-template/
@@ -67,7 +72,7 @@ use Illuminate\Support\Str;
 
   <!-- Main JS File -->
   <script src="{{ asset('assets_lp/js/main.js') }}"></script>
-
+  @stack('js')
 </body>
 
 </html>

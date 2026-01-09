@@ -39,9 +39,16 @@ class LandingPageController extends Controller
                             'd.name as dname', 
                             'ld.description as description', 
                             'ld.picture as picture',
+                            'ld.idCommittees as idCommittee',
+                            'ld.idDivisions as idDivision',
                             )
                         ->get();
-
+                        
+        $intvSchedules = DB::table('tInterviewSchedules')
+                            ->where('idCommittees', $idCommittee)
+                            ->get()
+                            ->groupby('idDivisions');
+        
         // user yg lg login (mhs)
         $user = Auth::user();
         $mhs = null;
@@ -63,7 +70,85 @@ class LandingPageController extends Controller
                     )
                     ->first();
 
-        return view('pages.landingpage.regis-committee', compact('divisions', 'profil'));
+        return view('pages.landingpage.regis-committee', compact('divisions', 'profil', 'intvSchedules'));
+    }
+
+    public function intv($idCommittee, $idDivision){
+        $events = [];
+        
+        $committee = DB::table('tCommittees')
+                    ->where('idCommittees', $idCommittee)
+                    ->first();
+
+        $intvs = DB::table('tInterviewSchedules as i')
+                    ->select(
+                        'i.idInterviewSchedules as idSchedule',
+                        'i.date as date',
+                        'i.start_time as start_time',
+                        'i.end_time as end_time',
+                        'i.place as place',
+                        'i.link as link',
+                        DB::raw("CONCAT(u.firstname, ' ', u.lastname) as username"),
+                        'd.name as division_name',
+                        'ld.idDivisions as division_id',
+                        'r.idCommittees',
+                        'r.idUsers as mahasiswa'
+                    )
+                    ->leftJoin('tRegistrations as r', 'i.idInterviewSchedules', '=', 'r.idInterviewSchedules')
+                    ->leftJoin('tUsers as u', 'u.idUsers', '=', 'r.idUsers')
+                    ->join('tListDivisions as ld', function ($join) {
+                        $join->on('i.idDivisions', '=', 'ld.idDivisions')
+                            ->on('i.idCommittees', '=', 'ld.idCommittees');
+                    })
+                    ->join('tDivisions as d', 'ld.idDivisions', 'd.idDivisions')
+                    ->where('i.idCommittees', $idCommittee)
+                    ->where('i.idDivisions', $idDivision)
+                    ->get();
+        
+        foreach ($intvs as $intv) {
+            if($intv->mahasiswa == null){
+                $events[] = [
+                    'id' => $intv->idSchedule,
+                    'title' => $intv->division_name . ' - ' . $intv->username,
+                    'description' => 'Place: ' . ($intv->place),
+                    'start' => $intv->date . 'T' . $intv->start_time,
+                    'end' => $intv->date . 'T' . $intv->end_time,
+                    'url' => $intv->link ?? '#',
+                    'extendedProps' => [
+                        'division' => $intv->division_name,
+                        'idDivision' => $intv->division_id,
+                        'date' => $intv->date,
+                        'start_time' => $intv->start_time,
+                        'end_time' => $intv->end_time,
+                        'place' => $intv->place,
+                        'link' => $intv->link,
+                    ]
+                ];
+            } else{
+                $events[] = [
+                    'id' => $intv->idSchedule,
+                    'title' => $intv->division_name . ' - ' . $intv->username,
+                    'description' => 'Place: ' . ($intv->place),
+                    'start' => $intv->date . 'T' . $intv->start_time,
+                    'end' => $intv->date . 'T' . $intv->end_time,
+                    'url' => $intv->link ?? '#',
+                    'backgroundColor' => '#fd7e14',
+                    'borderColor' => '#fd7e14',
+                    'extendedProps' => [
+                        'division' => $intv->division_name,
+                        'idDivision' => $intv->division_id,
+                        'date' => $intv->date,
+                        'start_time' => $intv->start_time,
+                        'end_time' => $intv->end_time,
+                        'place' => $intv->place,
+                        'link' => $intv->link,
+                        'idSchedule' => $intv->idSchedule,
+                    ]
+                ];
+            }
+
+        }
+        return view('pages.landingpage.intv-schedule', compact('events', 'committee'));
     }
 
     /**

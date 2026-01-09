@@ -100,28 +100,9 @@
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label class="form-control-label">Organizer Unit</label>
-                                    <select class="form-control" id="master_organizer" name="master_organizer" disabled>
-                                        <option value="">-- Choose Existing Organiser Units --</option>
-                                        @foreach($masterOrganizer as $master)
-                                        <option value="{{ $master->idOrganizerUnits }}" {{ $committee->idOrganizerUnits == $master->idOrganizerUnits ? 'selected' : ''}}>
-                                            {{ $master->name }}
-                                        </option>
-                                        @endforeach
-                                    </select>
+                                    <input class="form-control" type="text" name="contact" value="{{ $committee->organizerName }}" disabled>
                                 </div>
                             </div>
-                            <!-- <div class="col-md-12">
-                                <div class="form-group">
-                                    <label class="form-control-label">Organizer Unit</label>
-                                    <select name="form-control" id="master_organizer">
-                                        @foreach($masterOrganizer as $master)
-                                        <option value="{{ $master->idOrganizerUnits }}" {{ $committee->idOrganizerUnits == $master->idOrganizerUnits ? 'selected' : '' }}>
-                                            {{ $master->name }}
-                                        </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div> -->
                         </div>
                         
                         <hr class="horizontal dark">
@@ -171,8 +152,8 @@
                                     <div class="form-group">
                                         <label class="form-control-label">Is Committee Active?</label>
                                         <select name="is_active" id="is_active" class="form-control">
-                                            <option value="1" {{ $committee->is_active == 1 ? 'selected' : '' }}>Active</option>
-                                            <option value="0" {{ $committee->is_active == 0 ? 'selected' : '' }}>Not Active</option>
+                                            <option value="1" @selected($committee->is_active == 1)>Active</option>
+                                            <option value="0" @selected($committee->is_active == 0)>Not Active</option>
                                         </select>
                                         @error('is_active')
                                             <div class="text-danger small">{{ $message }}</div>

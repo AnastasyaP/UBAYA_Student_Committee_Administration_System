@@ -165,8 +165,8 @@ class UsersSeeder extends Seeder
              // Fakultas Teknik
             [
                 'nrp' => '160422001',
-                'cv' => 'cv_andi.pdf',
-                'portofolio' => 'portofolio_andi.pdf',
+                'cv' => 'cv/297-617-1-PB.pdf',
+                'portofolio' => 'portofolio/286-1269-2-PB.pdf',
                 'picture' => 'img/mahasiswa/ae8714d6-4623-4189-9b90-7512d27c23a7.jpeg',
                 'idUsers'=> 1,
                 'created_at' => now(),
@@ -174,7 +174,7 @@ class UsersSeeder extends Seeder
             ],
             [
                 'nrp' => '160122002',
-                'cv' => 'cv_budi.pdf',
+                'cv' => 'cv/297-617-1-PB.pdf',
                 'portofolio' => 'portofolio_budi.pdf',
                 'picture' => 'img/mahasiswa/ae8714d6-4623-4189-9b90-7512d27c23a7.jpeg',
                 'idUsers'=> 2,
@@ -185,8 +185,8 @@ class UsersSeeder extends Seeder
             // Fakultas Bisnis & Ekonomi - Manajemen
             [
                 'nrp' => '130122001',
-                'cv' => 'cv_citra.pdf',
-                'portofolio' => 'portofolio_citra.pdf',
+                'cv' => 'cv/297-617-1-PB.pdf',
+                'portofolio' => 'portofolio/286-1269-2-PB.pdf',
                 'picture' => 'img/mahasiswa/ae8714d6-4623-4189-9b90-7512d27c23a7.jpeg',
                 'idUsers'=> 3,
                 'created_at' => now(),
@@ -194,8 +194,8 @@ class UsersSeeder extends Seeder
             ],
             [
                 'nrp' => '130122002',
-                'cv' => 'cv_dedi.pdf',
-                'portofolio' => 'portofolio_dedi.pdf',
+                'cv' => 'cv/297-617-1-PB.pdf',
+                'portofolio' => 'portofolio/286-1269-2-PB.pdf',
                 'picture' => 'img/mahasiswa/ae8714d6-4623-4189-9b90-7512d27c23a7.jpeg',
                 'idUsers'=> 4,
                 'created_at' => now(),
@@ -205,8 +205,8 @@ class UsersSeeder extends Seeder
             // Fakultas Psikologi - Psikologi
             [
                 'nrp' => '140222001',
-                'cv' => 'cv_eka.pdf',
-                'portofolio' => 'portofolio_eka.pdf',
+                'cv' => 'cv/297-617-1-PB.pdf',
+                'portofolio' => 'portofolio/286-1269-2-PB.pdf',
                 'picture' => 'img/mahasiswa/ae8714d6-4623-4189-9b90-7512d27c23a7.jpeg',
                 'idUsers'=> 5,
                 'created_at' => now(),
@@ -214,8 +214,8 @@ class UsersSeeder extends Seeder
             ],
             [
                 'nrp' => '140222002',
-                'cv' => 'cv_fitri.pdf',
-                'portofolio' => 'portofolio_fitri.pdf',
+                'cv' => 'cv/297-617-1-PB.pdf',
+                'portofolio' => 'portofolio/286-1269-2-PB.pdf',
                 'picture' => 'img/mahasiswa/ae8714d6-4623-4189-9b90-7512d27c23a7.jpeg',
                 'idUsers'=> 6,
                 'created_at' => now(),
@@ -225,8 +225,8 @@ class UsersSeeder extends Seeder
             // Fakultas Hukum - Ilmu Hukum
             [
                 'nrp' => '150322001',
-                'cv' => 'cv_galih.pdf',
-                'portofolio' => 'portofolio_galih.pdf',
+                'cv' => 'cv/297-617-1-PB.pdf',
+                'portofolio' => 'portofolio/286-1269-2-PB.pdf',
                 'picture' => 'img/mahasiswa/ae8714d6-4623-4189-9b90-7512d27c23a7.jpeg',
                 'idUsers'=> 7,
                 'created_at' => now(),
@@ -234,8 +234,8 @@ class UsersSeeder extends Seeder
             ],
             [
                 'nrp' => '150322002',
-                'cv' => 'cv_hendra.pdf',
-                'portofolio' => 'portofolio_hendra.pdf',
+                'cv' => 'cv/297-617-1-PB.pdf',
+                'portofolio' => 'portofolio/286-1269-2-PB.pdf',
                 'picture' => 'img/mahasiswa/ae8714d6-4623-4189-9b90-7512d27c23a7.jpeg',
                 'idUsers'=> 8,
                 'created_at' => now(),
@@ -245,8 +245,8 @@ class UsersSeeder extends Seeder
             // Fakultas Industri Kreatif - Desain Komunikasi Visual
             [
                 'nrp' => '170522001',
-                'cv' => 'cv_indra.pdf',
-                'portofolio' => 'portofolio_indra.pdf',
+                'cv' => 'cv/297-617-1-PB.pdf',
+                'portofolio' => 'portofolio/286-1269-2-PB.pdf',
                 'picture' => 'img/mahasiswa/ae8714d6-4623-4189-9b90-7512d27c23a7.jpeg',
                 'idUsers'=> 9,
                 'created_at' => now(),
@@ -254,8 +254,8 @@ class UsersSeeder extends Seeder
             ],
             [
                 'nrp' => '170522002',
-                'cv' => 'cv_jessica.pdf',   
-                'portofolio' => 'portofolio_jessica.pdf',
+                'cv' => 'cv/297-617-1-PB.pdf',  
+                'portofolio' => 'portofolio/286-1269-2-PB.pdf',
                 'picture' => 'img/mahasiswa/ae8714d6-4623-4189-9b90-7512d27c23a7.jpeg',
                 'idUsers'=> 10,
                 'created_at' => now(),
