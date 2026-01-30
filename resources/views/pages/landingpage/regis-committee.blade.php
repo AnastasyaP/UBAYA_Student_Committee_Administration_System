@@ -2,6 +2,24 @@
 
 @section('title', 'Registration Form')
 @section('content')
+    @if(session('success'))
+      <div class="flash-message success">
+        {{ session('success') }}
+      </div>
+    @endif
+
+    @if(session('warning'))
+      <div class="flash-message warning">
+        {{ session('warning') }}
+      </div>
+    @endif
+
+    @if(session('error'))
+      <div class="flash-message error">
+        {{ session('error') }}
+      </div>
+    @endif
+
     <!-- Page Title -->
     <div class="page-title dark-background" data-aos="fade" style="background-image: url(assets/img/page-title-bg.jpg);">
       <div class="container position-relative">
@@ -22,7 +40,8 @@
       <div class="container" data-aos="fade-up" data-aos-delay="100">
         <div class="row gy-4">
           <div class="col-lg-12">
-            <form action="forms/contact.php" method="post" class="php-email-form" data-aos="fade-up" data-aos-delay="200">
+            <form id="registration" action="{{ route('regis.store') }}" method="POST" class="php-email-form" data-aos="fade-up" data-aos-delay="200">
+              @csrf
               <div class="row gy-4">
 
                 <div class="col-md-6">
@@ -80,13 +99,13 @@
                               <a href="{{ route('view.scheduleintv', ['idCommittee' => $division->idCommittee, 'idDivision' => $division->idDivision]) }}" class="btn btn-secondary">
                                 See Interview Schedule</a>
                             </div>
-                            <input type="hidden" value="{{ $division->idCommittee }}">
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
                   @endforeach
+                  <input type="hidden" name="idCommittee" value="{{ $division->idCommittee }}">
                 </div>
                 <!-- <div class="col-md-12">
                   <div class="form-group">
@@ -136,7 +155,7 @@
               name: name,
               percentage: '',
               intv_id: '',
-              intv: intvSchedules[id],
+              intv: intvSchedules[id] ?? [],
             });
           }else{
             alert('Maximum Division Choice is 2!');
@@ -155,7 +174,7 @@
 
           let percentageSelect = `<option value="">-- Choose the Percentage --</option>`;
           let scheduleSelect = `<option value="">-- Choose the Interview Schedule --</option>`;
-          const percentageOptions = ['0','30','40','50','60','70','100'];
+          const percentageOptions = [0,30,40,50,60,70,100];
 
           percentageOptions.forEach(p => {
             percentageSelect += `<option value="${p}">${p}%</option>`;
@@ -193,7 +212,7 @@
       }
 
       function updateSchedule(index, value){
-        selectSchedules[index].intv_id = value;
+        selectedDivisions[index].intv_id = value;
       }
 
       function removeDivision(index){
@@ -213,5 +232,24 @@
       function formatTime(timeStr) {
         return timeStr.substring(0, 5);
       }
+
+      document.querySelector('#registration').addEventListener('submit', function(e){
+        e.preventDefault();
+        // ini nge hapus input yg lama dulu biar nga ke double
+        document.querySelectorAll('.division-input').forEach(e => e.remove());
+
+        selectedDivisions.forEach((div, index) => {
+          this.insertAdjacentHTML(
+            'beforeend', 
+            `
+              <input type="hidden" class="division-input" name="divisions[${index}][idDivision]" value="${div.id}">
+              <input type="hidden" class="division-input" name="divisions[${index}][percentage]" value="${div.percentage}">
+              <input type="hidden" class="division-input" name="divisions[${index}][idInterviewSchedule]" value="${div.intv_id}">
+            `
+          )
+        });
+
+        this.submit();
+      });
     </script>
 @endsection

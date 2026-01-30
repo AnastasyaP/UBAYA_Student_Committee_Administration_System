@@ -7,6 +7,23 @@ use Illuminate\Support\Str;
 @section('title', 'Detail Committee')
 
 @section('content')
+    @if(session('success'))
+      <div class="flash-message success">
+        {{ session('success') }}
+      </div>
+    @endif
+
+    @if(session('warning'))
+      <div class="flash-message warning">
+        {{ session('warning') }}
+      </div>
+    @endif
+
+    @if(session('error'))
+      <div class="flash-message error">
+        {{ session('error') }}
+      </div>
+    @endif
     <!-- Page Title -->
     <div class="page-title dark-background" data-aos="fade" style="background-image: url(assets/img/page-title-bg.jpg);">
       <div class="container position-relative">
@@ -60,10 +77,10 @@ use Illuminate\Support\Str;
               </li> -->
             </ul>
             <div class="d-grip gap-2">
-              <form action="{{ route('regis.committee', ['idCommittee' => $committee->idCommittees]) }}" method="POST">
-                @csrf
-                <button type="submit" class="btn btn-primary btn-lg mt-4">Register</button>
-              </form>
+              <a href="{{ route('regis.committee', ['idCommittee' => $committee->idCommittees]) }}"
+                class="btn btn-primary btn-lg mt-4">
+                Register
+              </a>
             </div>
           </div>
 

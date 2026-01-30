@@ -18,9 +18,10 @@ return new class extends Migration
             $table->unsignedBigInteger('idDivisions');
             $table->unsignedBigInteger('idCommittees');
 
-            $table->enum('status', ['pending', 'accepted', 'rejected']);
-            $table->enum('percentage', ['0','30','40','50','60','70','100']);
-            $table->enum('position', ['bph', 'koor', 'anggota']);
+            $table->enum('status', ['pending', 'accepted', 'rejected'])->default('pending');
+            $table->integer('percentage');
+            $table->enum('position', ['bph', 'koor', 'anggota'])->default('anggota');
+            $table->longText('motivation');
 
             $table->unsignedBigInteger('idInterviewSchedules');
             

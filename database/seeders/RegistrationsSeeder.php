@@ -16,13 +16,14 @@ class RegistrationsSeeder extends Seeder
         
         DB::table('tRegistrations')->insert([
             [
-                'idUsers' => 1,                 // pastikan ID user ada
-                'idDivisions' => 3,            // pastikan ID division ada
-                'idCommittees' => 2,           // pastikan ID committee ada
+                'idUsers' => 1,                 
+                'idDivisions' => 3,           
+                'idCommittees' => 2,           
                 'status' => 'pending',
-                'percentage' => '0',
+                'percentage' => 0,
                 'position' => 'anggota',
-                'idInterviewSchedules' => 2,   // pastikan ID schedule ada
+                'motivation' => 'Ingin mencoba hal baru',
+                'idInterviewSchedules' => 2,   
                 'created_at' =>  now(),
                 'updated_at' =>  now(),
             ],
@@ -31,8 +32,9 @@ class RegistrationsSeeder extends Seeder
                 'idDivisions' => 2,
                 'idCommittees' => 1,
                 'status' => 'accepted',
-                'percentage' => '70',
+                'percentage' => 70,
                 'position' => 'koor',
+                'motivation' => 'Ingin mencari dan menambah pengalaman',
                 'idInterviewSchedules' => 1,
                 'created_at' =>  now(),
                 'updated_at' =>  now(),
@@ -42,9 +44,10 @@ class RegistrationsSeeder extends Seeder
                 'idDivisions' => 4,
                 'idCommittees' => 2,
                 'status' => 'rejected',
-                'percentage' => '40',
+                'percentage' => 40,
                 'position' => 'anggota',
-                'idInterviewSchedules' => 3,
+                'motivation' => 'Ingin menambah relasi',
+                'idInterviewSchedules' => 4,
                 'created_at' => now(),
                 'updated_at' => now(),
             ],

@@ -33,8 +33,9 @@ Route::get('/', function(){ return redirect('/login'); });
 Route::middleware(['auth', 'role:mahasiswa'])->group(function (){
 	Route::get('/home', [LandingPageController::class, 'index'])->name('home'); 
 	Route::get('/detail-committee/{idCommittee}', [LandingPageController::class, 'show'])->name('detail.committee');
-	Route::post('/regis-committee/{idCommittee}', [LandingPageController::class, 'create'])->name('regis.committee');
+	Route::get('/regis-committee/{idCommittee}', [LandingPageController::class, 'create'])->name('regis.committee');
 	Route::get('/intv-schedule/{idCommittee}/{idDivision}', [LandingPageController::class, 'intv'])->name('view.scheduleintv');
+	Route::post('/submit-regis', [LandingPageController::class, 'store'])->name('regis.store');
 });
 
 Route::middleware(['auth', 'role:admin'])->group( function () {

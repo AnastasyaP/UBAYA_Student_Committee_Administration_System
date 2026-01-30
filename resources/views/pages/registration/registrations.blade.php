@@ -87,7 +87,7 @@ use Illuminate\Support\Str;
                                                 @method('PUT')
                                                 <button 
                                                     type="button" 
-                                                    class="btn btn-success btn-sm" 
+                                                    class="btn btn-action btn-success btn-sm" 
                                                     value="accepted" 
                                                     data-bs-toggle="modal" 
                                                     data-bs-target="#confirmModal" 
@@ -106,8 +106,8 @@ use Illuminate\Support\Str;
                                                 @csrf
                                                 @method('PUT')
                                                 <button 
-                                                    type="submit" 
-                                                    class="btn btn-danger btn-sm" 
+                                                    type="button" 
+                                                    class="btn btn-action btn-danger btn-sm" 
                                                     value="rejected" 
                                                     data-bs-toggle="modal" 
                                                     data-bs-target= "#confirmModal" 
@@ -163,28 +163,37 @@ use Illuminate\Support\Str;
 
         // confirm modal
         document.addEventListener('DOMContentLoaded', function () {
-            const modal = document.getElementById('confirmModal');
+            const modalEl = document.getElementById('confirmModal');
+            const modal = new bootstrap.Modal(modalEl);
             const modalTitle = document.getElementById('modalTitle');
             const modalMessage = document.getElementById('modalMessage');
             const modalName = document.getElementById('modalName');
-            const modalMessage = document.getElementById('modalMessage');
+            const confirmBtn = document.getElementById('confirmBtn');
 
-            let formToSubmit = null;
+            let activeForm = null;
 
-            modal.addEventListener('show.bs.modal', function (event) {
-                const button = event.relatedTarget;
-                const name = button.getAttribute('data-name');
-                const formId = button.getAttribute('data-form');
+    
 
-                formToSubmit = document.getElementById(formId);
-                namePlaceholder.textContent = name;
+            document.querySelectorAll('.btn.btn-action').forEach(btn =>{
+                btn.addEventListener('click', function(){
+                    const name = this.dataset.name;
+                    const formId = this.dataset.form;
+                    const title = this.dataset.title;
+                    const message = this.dataset.message;
+                    const color = this.dataset.color;
+                    
+                    activeForm = document.getElementById(formId);
+
+                    modalTitle.textContent = title;
+                    modalMessage.textContent = message;
+                    modalName.textContent = name;
+                    
+                    confirmBtn.className = 'btn '  + color;
+                    modal.show();
+                });   
             });
 
-            confirmBtn.addEventListener('click', function () {
-                if (formToSubmit) {
-                    formToSubmit.submit();
-                }
-            });
+            confirmBtn.onclick = ()=> activeForm.submit();
         });
     </script>
 @endsection

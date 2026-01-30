@@ -44,8 +44,11 @@ class LandingPageController extends Controller
                             )
                         ->get();
                         
-        $intvSchedules = DB::table('tInterviewSchedules')
-                            ->where('idCommittees', $idCommittee)
+        $intvSchedules = DB::table('tInterviewSchedules as i')
+                            ->select('i.*')
+                            ->leftJoin('tRegistrations as r', 'i.idInterviewSchedules', '=','r.idInterviewSchedules')
+                            ->where('i.idCommittees', $idCommittee)
+                            ->whereNull('r.idInterviewSchedules')
                             ->get()
                             ->groupby('idDivisions');
         
@@ -156,11 +159,15 @@ class LandingPageController extends Controller
      */
     public function store(Request $request)
     {
+
+        // dd($request->all());
         $request->validate([
-            'idUsers' => 'required',
-            'idDivisions' => 'required',
-            'idCommittees' => 'required',
-            'idInterviewSchedules' => 'required',
+            'idCommittee' => 'required|exists:tCommittees,idCommittees',
+            'divisions' => 'required|array|min:1|max:2',
+            'divisions.*.idDivision' => 'required|exists:tDivisions,idDivisions',
+            'divisions.*.percentage' => 'required|integer',
+            'divisions.*.idInterviewSchedule' => 'required|exists:tInterviewSchedules,idInterviewSchedules',
+            'motivation' => 'required'
         ], [
             'required' => 'Bagian :attribute wajib diisi.',
             'max' => 'Bagian :attribute maksimal :max karakter.',            
@@ -178,11 +185,63 @@ class LandingPageController extends Controller
             return redirect()->back()->with('warning', 'authentication failed!');
         }
 
-        // ambil committee yg di apply
-        $committee = $request->idCommittee;
-        // ambil divisi yg di apply
-        // nge cek apakah dia uda perna daftar di committee dan divisi itu atao belom
-        // max boleh apply 2 divisi!
+        $uniqueDivisions = collect($request->divisions)
+        ->unique('idDivision')
+        ->values()
+        ->all();
+
+        $dataToInput = [];
+        $dataSkipped = [];
+
+        foreach ($uniqueDivisions as $division) {
+            $exist = DB::table('tRegistrations')
+                ->where('idUsers', $mhs->idUsers)
+                ->where('idCommittees', $request->idCommittee)
+                ->where('idDivisions', $division['idDivision'])
+                ->exists();
+
+            if (!$exist) {
+                $dataToInput[] = [
+                    'idUsers' => $mhs->idUsers,
+                    'idDivisions' => $division['idDivision'],
+                    'idCommittees' => $request->idCommittee,
+                    'percentage' => $division['percentage'],
+                    'idInterviewSchedules' => $division['idInterviewSchedule'],
+                    'motivation' => $request->motivation,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            }else{
+                $dataSkipped[] = $division['idDivision'];   
+            }
+
+        }
+        //         dd([
+        //     'dataToInput' => $dataToInput,
+        //     'is_empty' => empty($dataToInput),
+        //     'count' => count($dataToInput),
+        //     'skipped' => $dataSkipped
+        // ]);
+        if (empty($dataToInput)) {
+                // dd($exist);
+                return back()
+                    ->withInput()
+                    ->with('error', 'All selected divisions already registered.');
+        }
+
+        // pake transaction biar kalo satu insert gagal ntik semua di rollback
+        DB::transaction(function () use ($dataToInput){
+            DB::table('tRegistrations')->insert($dataToInput);
+        });
+
+        if (!empty($dataSkipped)) {
+        return redirect()
+            ->route('detail.committee', ['idCommittee' => $request->idCommittee])
+            ->with('success', 'Registration successful. Some divisions were skipped because they were already registered.');
+        }
+        
+        return redirect()->route('detail.committee', ['idCommittee' => $request->idCommittee])->with('success', 'registration form successfully submitted!');
+ 
     }
 
     /**
@@ -195,6 +254,10 @@ class LandingPageController extends Controller
                     ->where('idCommittees', $idCommittee)
                     ->select('*')
                     ->first();
+
+        if(!$committee){
+            abort(404);
+        }
 
         $divisions = DB::table('tListDivisions as ld')
                     ->join('tDivisions as d', 'ld.idDivisions', 'd.idDivisions')
