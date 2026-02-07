@@ -24874,3 +24874,47 @@ pre[class*=language-] {
   font-size: 0.75rem;
   border-radius: 0.5rem;
 }
+
+/* dropdown positions member */
+.badge-select-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.badge-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+
+    border: none;
+    border-radius: 8px;
+    padding: 6px 30px 6px 14px; 
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+
+    background: #fd7e14;
+    color: #fff;
+
+    min-width: 90px;
+
+    /* pointer */
+    background-image: url("data:image/svg+xml,%3Csvg ... %3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+}
+
+/* arrow icon */
+.badge-select-wrapper::after {
+    content: "▾"; 
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+
+    color: #fff;
+    font-size: 12px;
+    font-weight: bold;
+}
+

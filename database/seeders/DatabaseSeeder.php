@@ -31,5 +31,7 @@ class DatabaseSeeder extends Seeder
         $this->call(DivisionsSeeder::class);
         $this->call(InterviewSchedulesSeeder::class);
         $this->call(RegistrationsSeeder::class);
+        $this->call(AHPCriteriasSeeder::class);
+        $this->call(InterviewCriteriasSeeder::class);
     }
 }

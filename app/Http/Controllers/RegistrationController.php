@@ -113,6 +113,17 @@ class RegistrationController extends Controller
                 ->where('idRegistrations', $idRegis)
                 ->select('*')
                 ->first();
+
+        $exist = DB::table('tRegistrations')
+                ->where('idUsers', '=', $mhs->idUsers)
+                ->where('status','=', 'accepted')
+                ->where('idDivisions', '!=', $mhs->idDivisions)
+                ->first();
+        
+        if($exist){
+            return redirect()->back()->with('warning', "This Applicant is already accepted in another division!");
+        }
+
         if($mhs->status === "pending"){
             DB::table('tRegistrations')
                 ->where('idRegistrations', $idRegis)
@@ -125,7 +136,7 @@ class RegistrationController extends Controller
         return redirect()->route('registration')->with('success', 'Status updated!');
     }
 
-        public function reject($idRegis){
+    public function reject($idRegis){
         $mhs = DB::table('tRegistrations')
                 ->where('idRegistrations', $idRegis)
                 ->select('*')
@@ -140,6 +151,78 @@ class RegistrationController extends Controller
             return redirect()->back()->with('warning', 'This user is already rejected');
         }
         return redirect()->route('registration')->with('success', 'Status updated!');
+    }
+
+    public function members(){
+        $user = Auth::user();
+        $admin = null;
+        if($user->role == 'admin'){
+            $admin = $user;
+        } else{
+            return redirect()->back()->with('warning', "This user doesn't have authority!");
+        }
+        $committee = DB::table('tUsers as u')
+                        ->join('tCommittees as c', 'u.idUsers', 'c.admin')
+                        ->where('c.admin', $admin->idUsers)
+                        ->where('is_active', 1)
+                        ->first();
+
+                        // dd($committee);
+
+        $members = DB::table('tDivisions as d')
+                    ->leftJoin('tListDivisions as ld',function($join) use ($committee){
+                        $join->on( 'd.idDivisions', '=', 'ld.idDivisions');
+                        $join->where('ld.idCommittees', '=', $committee->idCommittees);
+                    })
+                    ->leftJoin('tRegistrations as r', function($join){
+                        $join->on('r.idDivisions', '=', 'ld.idDivisions');
+                        $join->on('r.idCommittees', '=', 'ld.idCommittees');
+                        $join->where('r.status', 'accepted');
+                    })
+                    ->leftJoin('tUsers as u', 'r.idUsers','u.idUsers')
+                    ->where('ld.idCommittees', $committee->idCommittees)
+                    ->select(
+                        'r.idUsers as idUser',
+                        DB::raw("concat(u.firstname, ' ', u.lastname) as name"),
+                        'u.email as email',
+                        'r.idDivisions as idDivision',
+                        'd.name as division', 
+                        'r.position as position'
+                    )
+                    ->orderby('d.idDivisions')
+                    ->get()
+                    ->groupby('division');
+
+        return view('pages.members.members', compact('members'));
+    }
+
+    public function updatePosition($memberId, $divisionId, $newPosition){
+        $user = Auth::user();
+        $admin = null;
+        if($user->role == 'admin'){
+            $admin = $user;
+        } else{
+            return response()->json([
+                'success' => false,
+                'message' => "This user doesn't have authority!"
+            ], 403);
+        }
+        $committee = DB::table('tUsers as u')
+                        ->join('tCommittees as c', 'u.idUsers', 'c.admin')
+                        ->where('c.admin', $admin->idUsers)
+                        ->where('is_active', 1)
+                        ->first();
+
+        DB::table('tRegistrations as r')
+                ->where('idCommittees', $committee->idCommittees)
+                ->where('idUsers', $memberId)
+                ->where('idDivisions', $divisionId)
+                ->update(['position' => $newPosition]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Position updated successfully'
+        ]);
     }
 
     /**

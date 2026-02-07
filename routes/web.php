@@ -67,10 +67,13 @@ Route::middleware(['auth', 'role:admin'])->group( function () {
 	Route::put('/registrations/rejected/{idRegis}', [RegistrationController::class, 'reject'])->name('reject.regis');
 	// interview schedule
 	// Route::get('schedule-interviews',[InterviewScheduleController::class, 'index'])->name('intv');
-	Route::get('/schedule',[InterviewScheduleController::class, 'calendar'])->name('intv.calendar');
+	Route::get('/schedules',[InterviewScheduleController::class, 'calendar'])->name('intv.calendar');
 	Route::get('/add-schedule', [InterviewScheduleController::class, 'create'])->name('intv.add');
 	Route::post('/store-schedule',[InterviewScheduleController::class, 'store'])->name('intv.store');
 	Route::put('/update-schedule/{idSchedule}', [InterviewScheduleController::class, 'update'])->name('intv.update');
+	//members
+	Route::get('/members', [RegistrationController::class, 'members'])->name('member');
+	Route::put('/update-position/{memberId}/{divisionId}/{newPosition}', [RegistrationController::class, 'updatePosition'])->name('position.update');
 
 	Route::get('/{page}', [PageController::class, 'index'])->name('page');
 });
