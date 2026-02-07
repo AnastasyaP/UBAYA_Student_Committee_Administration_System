@@ -18,6 +18,7 @@ use App\Http\Controllers\DivisionController;
 use App\Http\Controllers\LandingPageController;   
 use App\Http\Controllers\RegistrationController;   
 use App\Http\Controllers\InterviewScheduleController;
+use App\Http\Controllers\InterviewCriteriaController;
 
 Route::get('/', function(){ return redirect('/login'); });
 	Route::get('/register', [RegisterController::class, 'create'])->middleware('guest')->name('register');
@@ -74,6 +75,8 @@ Route::middleware(['auth', 'role:admin'])->group( function () {
 	//members
 	Route::get('/members', [RegistrationController::class, 'members'])->name('member');
 	Route::put('/update-position/{memberId}/{divisionId}/{newPosition}', [RegistrationController::class, 'updatePosition'])->name('position.update');
+	//interview criteria
+	Route::get('/intv-criteria', [InterviewCriteriaController::class, 'index'])->name('intvcriteria');
 
 	Route::get('/{page}', [PageController::class, 'index'])->name('page');
 });
