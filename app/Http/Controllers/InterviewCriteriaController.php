@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Models\AHPCriteria;
 
 class InterviewCriteriaController extends Controller
 {
@@ -53,13 +54,14 @@ class InterviewCriteriaController extends Controller
                         ->where('ld.idCommittees', $this->committee->idCommittees)
                         ->select(
                             'd.name as division',
+                            'd.idDivisions as idDivision',
                             'ic.question as question',
                             'ic.max_score as max_score',
                             'ac.name as ahpCriteria'
                         )
                         ->orderBy('d.idDivisions')
                         ->get()
-                        ->groupBy('division');
+                        ->groupBy('idDivision');
 
                         // dd($intvCriteria);
 
@@ -69,9 +71,15 @@ class InterviewCriteriaController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create($idDivision)
     {
-        //
+        $masterAHPcriteria = AHPCriteria::all();
+        $division = DB::table('tDivisions')
+                        ->where('idDivisions', $idDivision)
+                        ->first();
+
+
+        return view('pages.intvcriteria.add-intvcriteria', compact('masterAHPcriteria', 'division'));
     }
 
     /**
@@ -79,7 +87,71 @@ class InterviewCriteriaController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $user = Auth::user();
+        if($user->role === 'admin'){
+            $this->admin = $user;
+        }else{
+            return redirect()->back()->with('warning', "this account doesn't have an authority");
+        }
+
+        $this->committee = DB::table('tUsers as u')
+                        ->join('tCommittees as c', 'u.idUsers', 'c.admin')
+                        ->where('c.admin', $this->admin->idUsers)
+                        ->where('is_active', 1)
+                        ->first();
+
+        $request->validate([
+            'ahp_criteria' => 'required|string|max:45',
+            'question' => 'required|string|max:500',
+            'max_score' => 'required|integer',
+        ], [
+            'required' => 'Bagian :attribute wajib diisi.',
+            'max' => 'Bagian :attribute maksimal :max karakter.',            
+            'after_or_equal' => 'Tanggal :attribute harus setelah atau sama dengan tanggal sebelumnya.',
+            'image' => 'File harus berupa gambar (jpg, jpeg, png).',
+            'mimes' => 'Format file harus jpg, jpeg, atau png.',
+        ]);
+
+        $ahp = $request->ahp_criteria; // ambil nama dari text input
+        $master_ahp = $request->master_ahp; //ambil nama dari combobox
+
+        $ahpID = null;
+        // klo comboboxnya ada valuenya pake yg dr combobox klo nga buat divisi baru (tapi di cek dulu ada yg sama nga namanya)
+        if ($master_ahp) {
+            $ahpID = $master_ahp;
+        } else {
+            $existingAHP = AHPCriteria::where('name', $ahp)->first();
+            if ($existingAHP) { 
+                $ahpID = $existingAHP->idAHPCriterias;
+            } else {
+                $newAHP = AHPCriteria::create([
+                    'name' => $request->ahp_criteria
+                ]);
+                $ahpID = $newAHP->idAHPCriterias;
+            }
+        }
+
+        $InterviewCriteriasID = DB::table('tInterviewCriterias')
+        ->insertGetId([
+            'question' => $request->question,
+            'max_score' => $request->max_score,
+        ]);
+
+        $ListDivisionAHPCriterias = DB::table('tListDivisionAHPCriterias')
+        ->insertGetId([
+            'idDivisions' => $request->idDivision,
+            'idCommittees' => $this->committee->idCommittees,
+            'idAHPCriterias' => $ahpID,
+            'average_weight' => 0,
+        ]);
+
+        DB::table('tInterviewDivisionAHPCriterias')
+        ->insert([
+            'idInterviewCriterias' => $InterviewCriteriasID,
+            'idListDivisionAHPCriterias' => $ListDivisionAHPCriterias
+        ]);
+
+        return redirect()->route('intvcriteria')->with('success', 'Interview criteria successfully added.');
     }
 
     /**

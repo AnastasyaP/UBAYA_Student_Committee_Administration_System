@@ -25,11 +25,11 @@ use Illuminate\Support\Str;
                         </div>
                     @endif
                 
-                @foreach($intvCriteria as $divisionNames => $criterias)
+                @foreach($intvCriteria as $idDivision => $criterias)
                 <div class="card mb-4">
                     <div class="card-header pb-0 d-flex justify-content-between align-items-center" >
-                        <h6>{{ $divisionNames }}</h6>
-                        <a href="" target=""
+                        <h6>{{ $criterias->first()->division }}</h6>
+                        <a href="{{ route('intvcriteria.add', ['idDivision' => $idDivision]) }}" target=""
                             class="btn btn-dark btn-add ms-auto">Add Question</a>
                     </div>
                     <div class="card-body px-0 pt-0 pb-2">
