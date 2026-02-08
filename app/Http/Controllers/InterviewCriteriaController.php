@@ -115,7 +115,6 @@ class InterviewCriteriaController extends Controller
         $ahp = $request->ahp_criteria; // ambil nama dari text input
         $master_ahp = $request->master_ahp; //ambil nama dari combobox
 
-        $ahpID = null;
         // klo comboboxnya ada valuenya pake yg dr combobox klo nga buat divisi baru (tapi di cek dulu ada yg sama nga namanya)
         if ($master_ahp) {
             $ahpID = $master_ahp;
@@ -125,11 +124,46 @@ class InterviewCriteriaController extends Controller
                 $ahpID = $existingAHP->idAHPCriterias;
             } else {
                 $newAHP = AHPCriteria::create([
-                    'name' => $request->ahp_criteria
+                    'name' => $request->ahp_criteria,
+                    'idDivisions' => $request->idDivision
                 ]);
                 $ahpID = $newAHP->idAHPCriterias;
             }
         }
+        
+        // batesin 1 divisi di masing2 committee max 5 ahp criteria biar pairwisenya nga kebanyakan
+        $mapping = DB::table('tListDivisionAHPCriterias')
+            ->where('idDivisions', $request->idDivision)
+            ->where('idCommittees', $this->committee->idCommittees)
+            ->where('idAHPCriterias', $ahpID)
+            ->first();
+
+        if(!$mapping){
+            $ahpCount = DB::table('tListDivisionAHPCriterias')
+                ->where('idDivisions', $request->idDivision)
+                ->where('idCommittees', $this->committee->idCommittees)
+                ->count();
+
+            if($ahpCount >= 5){
+                DB::rollBack();
+                return redirect()->back()->with('warning',
+                    'Satu divisi maksimal hanya boleh memiliki 5 AHP Criteria.'
+                );
+            }
+
+            // create new mapping
+            $ListDivisionAHPCriteriasID = DB::table('tListDivisionAHPCriterias')
+                ->insertGetId([
+                    'idDivisions'    => $request->idDivision,
+                    'idCommittees'   => $this->committee->idCommittees,
+                    'idAHPCriterias' => $ahpID,
+                    'average_weight' => 0,
+                ]);
+        } else {
+            // reuse existing mapping
+            $ListDivisionAHPCriteriasID = $mapping->idListDivisionAHPCriterias;
+        }
+
 
         $InterviewCriteriasID = DB::table('tInterviewCriterias')
         ->insertGetId([
@@ -137,18 +171,10 @@ class InterviewCriteriaController extends Controller
             'max_score' => $request->max_score,
         ]);
 
-        $ListDivisionAHPCriterias = DB::table('tListDivisionAHPCriterias')
-        ->insertGetId([
-            'idDivisions' => $request->idDivision,
-            'idCommittees' => $this->committee->idCommittees,
-            'idAHPCriterias' => $ahpID,
-            'average_weight' => 0,
-        ]);
-
         DB::table('tInterviewDivisionAHPCriterias')
         ->insert([
             'idInterviewCriterias' => $InterviewCriteriasID,
-            'idListDivisionAHPCriterias' => $ListDivisionAHPCriterias
+            'idListDivisionAHPCriterias' => $ListDivisionAHPCriteriasID
         ]);
 
         return redirect()->route('intvcriteria')->with('success', 'Interview criteria successfully added.');

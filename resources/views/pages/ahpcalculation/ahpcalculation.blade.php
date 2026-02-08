@@ -5,7 +5,7 @@ use Illuminate\Support\Str;
 @extends('layouts.app', ['class' => 'g-sidenav-show bg-gray-100'])
 
 @section('content')
-    @include('layouts.navbars.auth.topnav', ['title' => 'Interview Criteria'])
+    @include('layouts.navbars.auth.topnav', ['title' => 'AHP Calculation'])
     <div class="container-fluid py-4">
         <div class="row">
             <div class="col-12">
@@ -25,12 +25,10 @@ use Illuminate\Support\Str;
                         </div>
                     @endif
                 
-                @foreach($intvCriteria as $idDivision => $criterias)
+                @foreach($members as $divisionNames => $divisionMembers)
                 <div class="card mb-4">
                     <div class="card-header pb-0 d-flex justify-content-between align-items-center" >
-                        <h6>{{ $criterias->first()->division }}</h6>
-                        <a href="{{ route('intvcriteria.add', ['idDivision' => $idDivision]) }}" target=""
-                            class="btn btn-dark btn-add ms-auto">Add Question</a>
+                        <h6>{{ $divisionNames }}</h6>
                     </div>
                     <div class="card-body px-0 pt-0 pb-2">
                         <div class="table-responsive p-0">
@@ -38,55 +36,54 @@ use Illuminate\Support\Str;
                                 <thead>
                                     <tr>
                                         <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
-                                            Question</th>
+                                            Name</th>
                                         <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
-                                            Max Score</th>
+                                            Division</th>
                                         <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
-                                            AHP Criteria</th>
-                                        <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7" colspan=2>Action</th>
+                                            Position</th>
+                                        <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7" colspan=3>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @php $hasquestion = false; @endphp
+                                    @php $hasMember = false; @endphp
 
-                                    @foreach($criterias as $item)
-                                    @if($item->question)
-                                    @php $hasquestion = true; @endphp
+                                    @foreach($divisionMembers as $m)
+                                    @if($m->name)
+                                    @php $hasMember = true; @endphp
                                     <tr>
                                         <td>
                                             <div class="d-flex px-2 py-1">
                                
                                                 <div class="d-flex flex-column justify-content-center">
-                                                    <h6 class="mb-0 text-sm">{{ $item->question }}</h6>
+                                                    <h6 class="mb-0 text-sm">{{ $m->name }}</h6>
+                                                    <p class="text-xs text-secondary mb-0">{{ $m->email }}</p>
                                                 </div>
                                             </div>
                                         </td>
                                         <td>
-                                            <h6 class="mb-0 text-sm">{{ $item->max_score }}</h6>
+                                            <h6 class="mb-0 text-sm">{{ $m->division }}</h6>
                                         </td>
                                         <td>
-                                            <h6 class="mb-0 text-sm">{{ $item->ahpCriteria }}</h6>
+                                            <h6 class="mb-0 text-sm">{{ $m->position }}</h6>
                                         </td>
-                                        <td class="align-middle">
-                                            <form action="" method="GET">
-                                                <button type="submit" class="btn btn-warning btn-sm">Edit</button>                                                
-                                            </form>                                         
-                                        </td>
-                                         <td class="align-middle">
-                                            <form action="" method="POST" onsubmit="return confirm('Are you sure want to delete this question?');">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                                            </form>
+                                        <td>
+                                            <div class="badge-select-wrapper">
+                                                <select name="position" id="position" class="badge-select text-sm position-select" data-member="{{ $m->idUser }}" data-division="{{ $m->idDivision }}">
+                                                    <option value="bph" @selected($m->position == 'bph')>BPH</option>
+                                                    <option value="koor" @selected($m->position =='koor')>Koor</option>
+                                                    <option value="wakoor" @selected($m->position == 'wakoor')>Wakoor</option>
+                                                    <option value="anggota" @selected($m->position == 'anggota')>Anggota</option>
+                                                </select>
+                                            </div>
                                         </td>
                                     </tr>
                                     @endif
                                     @endforeach
 
-                                    @if(!$hasquestion)
+                                    @if(!$hasMember)
                                         <tr>
                                             <td colspan="4" class="text-center text-muted">
-                                                No Interview question available
+                                                No accepted members
                                             </td>
                                         </tr>
                                     @endif
@@ -102,12 +99,30 @@ use Illuminate\Support\Str;
         @include('layouts.footers.auth.footer')
     </div>
     <script>
-        setTimeout(()=>{
-            const alert = document.querySelector('.alert');
-            if(alert){
-                const bsAlert = new bootstrap.Alert(alert);
-                bsAlert.close();
-            }
-        }, 3000); // auto close 3 detik
+        document.querySelectorAll('.position-select').forEach(select => {
+            select.addEventListener('change', function(){
+                const newPosition = this.value;
+                const memberId = this.dataset.member;
+                const divisionId = this.dataset.division;
+
+                fetch(`/update-position/${memberId}/${divisionId}/${newPosition}`, {
+                    method: 'PUT',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(res => res.text())
+                .then(data => {
+                    console.log('RAW RESPONSE:', data);  // lihat HTML / error page
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert('Error updating position');
+                });
+            });
+        });
+
+     
     </script>
 @endsection

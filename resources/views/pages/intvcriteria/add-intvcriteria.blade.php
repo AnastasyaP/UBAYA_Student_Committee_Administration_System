@@ -99,5 +99,13 @@
                 nameinput.removeAttribute('disabled');
             }
         });
+
+        setTimeout(()=>{
+            const alert = document.querySelector('.alert');
+            if(alert){
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }
+        }, 3000); // auto close 3 detik
     </script>
 @endsection
