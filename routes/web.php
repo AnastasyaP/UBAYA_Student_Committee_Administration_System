@@ -19,6 +19,7 @@ use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\RegistrationController;   
 use App\Http\Controllers\InterviewScheduleController;
 use App\Http\Controllers\InterviewCriteriaController;
+use App\Http\Controllers\AHPCalculationController;
 
 Route::get('/', function(){ return redirect('/login'); });
 	Route::get('/register', [RegisterController::class, 'create'])->middleware('guest')->name('register');
@@ -79,6 +80,8 @@ Route::middleware(['auth', 'role:admin'])->group( function () {
 	Route::get('/intv-criteria', [InterviewCriteriaController::class, 'index'])->name('intvcriteria');
 	Route::get('/add-intvcriterias/{idDivision}', [InterviewCriteriaController::class, 'create'])->name('intvcriteria.add');
 	Route::post('/store-intvcriterias', [InterviewCriteriaController::class, 'store'])->name('intvcriteria.store');
+	// ahp calculation
+	Route::get('/ahp', [AHPCalculationController::class, 'index'])->name('ahpcalc');
 
 	Route::get('/{page}', [PageController::class, 'index'])->name('page');
 });

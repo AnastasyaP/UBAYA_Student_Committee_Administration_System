@@ -25,104 +25,98 @@ use Illuminate\Support\Str;
                         </div>
                     @endif
                 
-                @foreach($members as $divisionNames => $divisionMembers)
                 <div class="card mb-4">
                     <div class="card-header pb-0 d-flex justify-content-between align-items-center" >
-                        <h6>{{ $divisionNames }}</h6>
+                        <div class="badge-select-wrapper">
+                            <select name="division" id="division" class="badge-select text-sm division-select">
+                                @foreach($masterDivision as $division)
+                                <option value="{{ $division->idDivisions }}" @selected($division->idDivisions == $default)>{{ $division->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <a href="" target=""
+                            class="btn btn-dark btn-add ms-auto">Normalize</a>
                     </div>
-                    <div class="card-body px-0 pt-0 pb-2">
+                    <div class="card-body px-2 pt-2 pb-2">
                         <div class="table-responsive p-0">
-                            <table class="table align-items-center mb-0">
+                            <table class="table align-items-center mb-0 text-center">
                                 <thead>
                                     <tr>
                                         <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
-                                            Name</th>
+                                            Criteria 1</th>
+                                        <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7"></th>
                                         <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
-                                            Division</th>
-                                        <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
-                                            Position</th>
-                                        <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7" colspan=3>Action</th>
+                                            Criteria 2</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @php $hasMember = false; @endphp
-
-                                    @foreach($divisionMembers as $m)
-                                    @if($m->name)
-                                    @php $hasMember = true; @endphp
+                                    @foreach($pairwise as $row)
                                     <tr>
                                         <td>
-                                            <div class="d-flex px-2 py-1">
-                               
-                                                <div class="d-flex flex-column justify-content-center">
-                                                    <h6 class="mb-0 text-sm">{{ $m->name }}</h6>
-                                                    <p class="text-xs text-secondary mb-0">{{ $m->email }}</p>
-                                                </div>
+                                            <h6 class="mb-0 text-sm">{{ $row['c1']->name }}</h6>
+                                        </td>
+                                        <td>
+                                            <input type="range" 
+                                                class="form-range ahp-slider"
+                                                min = -4
+                                                max =  4
+                                                step = 1                                                
+                                                data-c1="{{ $row['c1']->idAHPCriterias }}"
+                                                data-c2="{{ $row['c2']->idAHPCriterias }}"
+                                            >
+                                            <div class="text-xs mt-1 text-muted text-center">
+                                                <span class="slider-label">Sama penting</span>
                                             </div>
                                         </td>
                                         <td>
-                                            <h6 class="mb-0 text-sm">{{ $m->division }}</h6>
-                                        </td>
-                                        <td>
-                                            <h6 class="mb-0 text-sm">{{ $m->position }}</h6>
-                                        </td>
-                                        <td>
-                                            <div class="badge-select-wrapper">
-                                                <select name="position" id="position" class="badge-select text-sm position-select" data-member="{{ $m->idUser }}" data-division="{{ $m->idDivision }}">
-                                                    <option value="bph" @selected($m->position == 'bph')>BPH</option>
-                                                    <option value="koor" @selected($m->position =='koor')>Koor</option>
-                                                    <option value="wakoor" @selected($m->position == 'wakoor')>Wakoor</option>
-                                                    <option value="anggota" @selected($m->position == 'anggota')>Anggota</option>
-                                                </select>
-                                            </div>
+                                            <h6 class="mb-0 text-sm">{{ $row['c2']->name }}</h6>
                                         </td>
                                     </tr>
-                                    @endif
                                     @endforeach
-
-                                    @if(!$hasMember)
-                                        <tr>
-                                            <td colspan="4" class="text-center text-muted">
-                                                No accepted members
-                                            </td>
-                                        </tr>
-                                    @endif
                                 </tbody>
                             </table>
                             
                         </div>    
                     </div>
                 </div>
-                @endforeach
             </div>
         </div>
         @include('layouts.footers.auth.footer')
     </div>
     <script>
-        document.querySelectorAll('.position-select').forEach(select => {
-            select.addEventListener('change', function(){
-                const newPosition = this.value;
-                const memberId = this.dataset.member;
-                const divisionId = this.dataset.division;
+        const scaleMap = {
+            "-4": 1/9,
+            "-3": 1/7,
+            "-2": 1/5,
+            "-1": 1/3,
+            "0": 1,
+            "1": 3,
+            "2": 5,
+            "3": 7,
+            "4": 9
+        };
 
-                fetch(`/update-position/${memberId}/${divisionId}/${newPosition}`, {
-                    method: 'PUT',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Content-Type': 'application/json'
-                    }
-                })
-                .then(res => res.text())
-                .then(data => {
-                    console.log('RAW RESPONSE:', data);  // lihat HTML / error page
-                })
-                .catch(err => {
-                    console.error(err);
-                    alert('Error updating position');
-                });
+        const labelMap = {
+            "-4": "Mutlak lebih penting (C2)",
+            "-3": "Sangat lebih penting (C2)",
+            "-2": "Lebih penting (C2)",
+            "-1": "Sedikit lebih penting (C2)",
+            "0": "Sama penting",
+            "1": "Sedikit lebih penting (C1)",
+            "2": "Lebih penting (C1)",
+            "3": "Sangat lebih penting (C1)",
+            "4": "Mutlak lebih penting (C1)"
+        };
+
+        document.querySelectorAll('.ahp-slider').forEach(slider => {
+            slider.addEventListener('input', function(){
+                const val = this.value;
+                const weight = scaleMap[val];
+                const label = labelMap[val];
+
+                this.dataset.weight = weight;
+                this.closest('td').querySelector('.slider-label').innerText = label;
             });
         });
-
-     
     </script>
 @endsection
