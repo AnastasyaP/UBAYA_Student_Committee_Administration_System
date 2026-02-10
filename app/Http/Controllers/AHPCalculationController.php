@@ -65,6 +65,39 @@ class AHPCalculationController extends Controller
         return view('pages.ahpcalculation.ahpcalculation', compact('masterDivision', 'default', 'criterias', 'pairwise'));
     }
 
+    public function getCriteriasByDivision($idDivision){
+        $this->init();
+
+        $masterDivision = DB::table('tDivisions as d')
+                            ->join('tListDivisions as ld', 'd.idDivisions', 'ld.idDivisions')
+                            ->where('ld.idCommittees', $this->committee->idCommittees)
+                            ->get();
+
+        // $default = $masterDivision->first()->idDivisions;
+
+        $criterias = DB::table('tListDivisionAHPCriterias as lc')
+                        ->join('tAHPCriterias as ac', 'lc.idAHPCriterias', 'ac.idAHPCriterias')
+                        ->where('lc.idDivisions', $idDivision)
+                        ->where('lc.idCommittees', $this->committee->idCommittees)
+                        ->get();
+        
+        $pairwise = [];
+        for($i = 0; $i < count($criterias); $i++){
+            for($j = $i+1; $j < count($criterias); $j++){
+                $pairwise[] = [
+                    'c1'=> $criterias[$i],
+                    'c2'=> $criterias[$j]
+                ];
+            }
+        }
+
+        return response()->json([
+            'criterias' => $criterias,
+            'pairwise' => $pairwise,
+            'masterDivision' => $masterDivision
+        ]);
+    }
+
     /**
      * Show the form for creating a new resource.
      */

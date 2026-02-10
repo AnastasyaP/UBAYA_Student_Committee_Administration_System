@@ -82,6 +82,7 @@ Route::middleware(['auth', 'role:admin'])->group( function () {
 	Route::post('/store-intvcriterias', [InterviewCriteriaController::class, 'store'])->name('intvcriteria.store');
 	// ahp calculation
 	Route::get('/ahp', [AHPCalculationController::class, 'index'])->name('ahpcalc');
+	Route::get('/ahp/division/{idDivision}/criterias', [AHPCalculationController::class, 'getCriteriasByDivision'])->name('ahp.division.criterias');
 
 	Route::get('/{page}', [PageController::class, 'index'])->name('page');
 });

@@ -49,7 +49,7 @@ use Illuminate\Support\Str;
                                             Criteria 2</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="pairwise-body"> 
                                     @foreach($pairwise as $row)
                                     <tr>
                                         <td>
@@ -108,15 +108,54 @@ use Illuminate\Support\Str;
             "4": "Mutlak lebih penting (C1)"
         };
 
-        document.querySelectorAll('.ahp-slider').forEach(slider => {
-            slider.addEventListener('input', function(){
-                const val = this.value;
-                const weight = scaleMap[val];
-                const label = labelMap[val];
 
-                this.dataset.weight = weight;
-                this.closest('td').querySelector('.slider-label').innerText = label;
-            });
-        });
+        document.getElementById('division').addEventListener('change', function(){
+            const idDivision = this.value;
+
+            fetch(`/ahp/division/${idDivision}/criterias`)
+            .then(res => res.json())
+            .then(data => {
+                const tbody = document.getElementById('pairwise-body');
+                tbody.innerHTML = '';
+
+                data.pairwise.forEach(row => {
+                    const tr = document.createElement('tr');
+
+                    tr.innerHTML = `
+                        <td>
+                            <h6 class="mb-0 text-sm">{{ $row['c1']->name }}</h6>
+                        </td>
+                        <td>
+                            <input type="range" 
+                                class="form-range ahp-slider"
+                                min = -4
+                                max =  4
+                                step = 1                                                
+                                data-c1="{{ $row['c1']->idAHPCriterias }}"
+                                data-c2="{{ $row['c2']->idAHPCriterias }}"
+                            >
+                            <div class="text-xs mt-1 text-muted text-center">
+                                <span class="slider-label">Sama penting</span>
+                            </div>
+                        </td>
+                        <td>
+                            <h6 class="mb-0 text-sm">{{ $row['c2']->name }}</h6>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+                document.querySelectorAll('.ahp-slider').forEach(slider => {
+                    slider.addEventListener('input', function(){
+                        const val = this.value;
+                        const weight = scaleMap[val];
+                        const label = labelMap[val];
+
+                        this.dataset.weight = weight;
+                        this.closest('td').querySelector('.slider-label').innerText = label;
+                    });
+                });
+            })
+        })
     </script>
 @endsection
