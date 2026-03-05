@@ -83,6 +83,7 @@ Route::middleware(['auth', 'role:admin'])->group( function () {
 	// ahp calculation
 	Route::get('/ahp', [AHPCalculationController::class, 'index'])->name('ahpcalc');
 	Route::get('/ahp/division/{idDivision}/criterias', [AHPCalculationController::class, 'getCriteriasByDivision'])->name('ahp.division.criterias');
+	Route::post('/ahp/normalize', [AHPCalculationController::class, 'normalize'])->name('normalize');
 
 	Route::get('/{page}', [PageController::class, 'index'])->name('page');
 });
