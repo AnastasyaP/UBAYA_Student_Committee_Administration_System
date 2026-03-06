@@ -70,19 +70,14 @@
                     <form action="{{ route('committees.update', ['idCommittees' => $committee->idCommittees]) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
-                    <div class="card-header pb-0">
-                        <div class="d-flex align-items-center">
-                            <p class="mb-0">Committee Profile</p>
-                            <button class="btn btn-primary btn-sm ms-auto">Save</button>
-                        </div>
-                    </div>
+
                     <div class="card-body">
                         <p class="text-uppercase text-sm">Contact Information</p>
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label class="form-control-label">Name</label>
-                                    <input class="form-control" type="text" name="name" value="{{ $committee->name }}">
+                                    <input class="form-control" type="text" name="name" value="{{ $committee->name }}" disabled>
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -94,7 +89,7 @@
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label class="form-control-label">Contact</label>
-                                    <input class="form-control" type="text" name="contact" value="{{ $committee->contact }}">
+                                    <input class="form-control" type="text" name="contact" value="{{ $committee->contact }}" disabled>
                                 </div>
                             </div>
                             <div class="col-md-12">
@@ -103,73 +98,24 @@
                                     <input class="form-control" type="text" name="contact" value="{{ $committee->organizerName }}" disabled>
                                 </div>
                             </div>
-                        </div>
-                        
-                        <hr class="horizontal dark">
-                        <p class="text-uppercase text-sm">Committee Details</p>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="form-control-label">Start Period</label>
-                                    <!-- <input class="form-control" type="text" value="{{ \Carbon\Carbon::parse($committee->start_period)->format('d F Y') }}"> -->
-                                    <input class="form-control" type="date" name="start_period" value="{{ $committee->start_period }}">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="form-control-label">End Period</label>
-                                    <!-- <input class="form-control" type="text" value="{{ \Carbon\Carbon::parse($committee->end_period)->format('d F Y') }}"> -->
-                                    <input class="form-control" type="date" name="end_period" value="{{ $committee->end_period }}">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="form-control-label">Start Registration</label>
-                                    <!-- <input class="form-control" type="text" value="{{ \Carbon\Carbon::parse($committee->start_regis)->format('d F Y') }}"> -->
-                                    <input class="form-control" type="date" name="start_regis" value="{{ $committee->start_regis }}">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label class="form-control-label">End Registration</label>
-                                    <!-- <input class="form-control" type="text" value="{{ \Carbon\Carbon::parse($committee->end_regis)->format('d F Y') }}"> -->
-                                    <input class="form-control" type="date" name="end_regis" value="{{ $committee->end_regis }}">
-                                </div>
-                            </div>
+ 
                             <div class="col-md-12">
                                 <div class="form-group">
                                     <label class="form-control-label">Description</label>
-                                    <textarea class="form-control" rows="5" name="description">{{ $committee->description }}</textarea>
-                                </div>
-                            </div>
-                              <div class="col-md-12">
-                                <div class="form-group">
-                                    <label class="form-control-label">Requirements</label>
-                                    <textarea class="form-control" rows="5" name="requirement">{{ $committee->requirements }}</textarea>
+                                    <textarea class="form-control" rows="5" name="description" disabled>{{ $committee->description }}</textarea>
                                 </div>
                             </div>
                             <div class="col-md-12">
                                     <div class="form-group">
                                         <label class="form-control-label">Is Committee Active?</label>
-                                        <select name="is_active" id="is_active" class="form-control">
+                                        <select name="is_active" id="is_active" class="form-control" disabled>
                                             <option value="1" @selected($committee->is_active == 1)>Active</option>
-                                            <option value="0" @selected($committee->is_active == 0)>Not Active</option>
                                         </select>
                                         @error('is_active')
                                             <div class="text-danger small">{{ $message }}</div>
                                         @enderror
                                     </div>
                                 </div>
-                        </div>
-                        <hr class="horizontal dark">
-                        <p class="text-uppercase text-sm">Evaluation</p>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label class="form-control-label">Evaluation</label>
-                                    <textarea class="form-control" rows="5" name="evaluation">{{ $committee->evaluation }}</textarea>
-                                </div>
-                            </div>
                         </div>
                         
                         <!-- <hr class="horizontal dark">

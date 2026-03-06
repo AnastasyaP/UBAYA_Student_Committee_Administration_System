@@ -86,7 +86,6 @@ class CommitteeController extends Controller
             'end_regis' => 'required|date',
             'description' => 'required|string|max:600',
             'requirement' => 'required|string|max:500',
-            'is_active' => 'required',
         ], [
             'required' => 'Bagian :attribute wajib diisi.',
             'max' => 'Bagian :attribute maksimal :max karakter.',            
@@ -115,7 +114,7 @@ class CommitteeController extends Controller
             'requirements' => $request->requirement,
             'contact' => $request->contact,
             'picture' => $filePath ,
-            'is_active' => $request->is_active,
+            'is_active' => 1,
         ]);
         return redirect()->route('committees')->with('success', 'Division added Successfully!');
     }
@@ -123,7 +122,23 @@ class CommitteeController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show()
+    public function show($idCommittee)
+    {
+        $admin = Auth::user(); // ngambil admin yg login
+        
+        // $committees = Committee::all();
+        $committees = DB::table('tCommittees as c')
+        ->join('tUsers as u', 'c.admin', 'u.idUsers')
+        ->join('tAdmins as a', 'u.idUsers', 'a.idUsers')
+        ->join('tOrganizerUnits as o', 'a.idOrganizerUnits', 'o.idOrganizerUnits')
+        ->where('c.idCommittees', $idCommittee)
+        ->select('c.*', DB::raw("'". $admin->email . "'as email"), 'a.idOrganizerUnits as idOrganizerUnits', 'o.name as organizerName')
+        ->get();
+        
+        return view('pages.committee.edit-committees', compact('committees'));
+    }
+
+    public function profile()
     {
         $admin = Auth::user(); // ngambil admin yg login
         
@@ -137,7 +152,7 @@ class CommitteeController extends Controller
         ->select('c.*', DB::raw("'". $admin->email . "'as email"), 'a.idOrganizerUnits as idOrganizerUnits', 'o.name as organizerName')
         ->get();
         
-        return view('pages.profile', compact('committees'));
+        return view('pages.committee.profile', compact('committees'));
     }
 
     /**
@@ -202,7 +217,7 @@ class CommitteeController extends Controller
             'evaluation' => $request->evaluation,
         ]);
 
-        return redirect()->route('committees.profile')->with('success', 'Committee updated successfully!');
+        return redirect()->route('committees')->with('success', 'Committee updated successfully!');
     }
 
     /**

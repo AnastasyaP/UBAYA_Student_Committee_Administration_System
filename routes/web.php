@@ -51,9 +51,10 @@ Route::middleware(['auth', 'role:admin'])->group( function () {
 	Route::get('/sign-up-static', [PageController::class, 'signup'])->name('sign-up-static');
 	// committee
 	Route::get('/committees', [CommitteeController::class, 'index'])->name('committees');
-	Route::get('/profile', [CommitteeController::class, 'show'])->name('committees.profile');
+	Route::get('/profile', [CommitteeController::class, 'profile'])->name('committees.profile');
 	Route::get('/add-committees', [CommitteeController::class, 'create'])->name('committees.add');
 	Route::post('/store-committees', [CommitteeController::class, 'store'])->name('committees.store');
+	Route::get('/edit-committees/{idCommittees}', [CommitteeController::class, 'show'])->name('committees.show');
 	Route::put('/committees/{idCommittees}', [CommitteeController::class, 'update'])->name('committees.update');
 	// division
 	Route::get('/divisions', [DivisionController::class, 'index'])->name('divisions');

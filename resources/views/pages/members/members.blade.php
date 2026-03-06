@@ -7,28 +7,20 @@ use Illuminate\Support\Str;
 @section('content')
     @include('layouts.navbars.auth.topnav', ['title' => 'Member'])
     <div class="container-fluid py-4">
+        
+        <div id="alert-container"></div>
+
         <div class="row">
             <div class="col-12">
-                    @if(session('success'))
-                        <div>
-                            <div class="alert alert-success auto-close-alert alert-dismissible fade show" role="alert">
-                                <strong>Success!</strong> {{ session('success') }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        </div>
-                    @elseif(session('warning'))
-                        <div>
-                            <div class="alert alert-warning auto-close-alert alert-dismissible fade show" role="alert">
-                                <strong>Warning!</strong> {{ session('warning') }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        </div>
-                    @endif
-                
+                    
                 @foreach($members as $divisionNames => $divisionMembers)
                 <div class="card mb-4">
                     <div class="card-header pb-0 d-flex justify-content-between align-items-center" >
                         <h6>{{ $divisionNames }}</h6>
+                        <a href="#"
+                            class="btn btn-dark btn-add w-15 mb-3">
+                            Add Member
+                        </a>
                     </div>
                     <div class="card-body px-0 pt-0 pb-2">
                         <div class="table-responsive p-0">
@@ -64,11 +56,11 @@ use Illuminate\Support\Str;
                                             <h6 class="mb-0 text-sm">{{ $m->division }}</h6>
                                         </td>
                                         <td>
-                                            <h6 class="mb-0 text-sm">{{ $m->position }}</h6>
+                                            <h6 class="mb-0 text-sm position-label">{{ $m->position }}</h6>
                                         </td>
                                         <td>
                                             <div class="badge-select-wrapper">
-                                                <select name="position" id="position" class="badge-select text-sm position-select" data-member="{{ $m->idUser }}" data-division="{{ $m->idDivision }}">
+                                                <select name="position" class="badge-select text-sm position-select" data-member="{{ $m->idUser }}" data-division="{{ $m->idDivision }}">
                                                     <option value="bph" @selected($m->position == 'bph')>BPH</option>
                                                     <option value="koor" @selected($m->position =='koor')>Koor</option>
                                                     <option value="wakoor" @selected($m->position == 'wakoor')>Wakoor</option>
@@ -109,12 +101,33 @@ use Illuminate\Support\Str;
                     method: 'PUT',
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Content-Type': 'application/json'
+                        'Accept': 'application/json'
                     }
                 })
-                .then(res => res.text())
+                .then(res => {
+                    if(!res.ok){
+                        throw new Error('Network response was not ok');
+                    }
+                    return res.json();
+                })
                 .then(data => {
-                    console.log('RAW RESPONSE:', data);  // lihat HTML / error page
+                    console.log(data);
+
+                    if(data.success){
+                        const container = document.getElementById('alert-container');
+
+                        this.closest('tr').querySelector('.position-label').textContent = newPosition;
+
+                        document.getElementById('alert-container').innerHTML = `
+                            <div class="alert alert-success alert-dismissible fade show">
+                                <strong>Success!</strong> ${data.message}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        `;
+                        setTimeout(()=>{
+                            location.reload();
+                        },1000);
+                    }
                 })
                 .catch(err => {
                     console.error(err);
@@ -122,7 +135,6 @@ use Illuminate\Support\Str;
                 });
             });
         });
-
      
     </script>
 @endsection

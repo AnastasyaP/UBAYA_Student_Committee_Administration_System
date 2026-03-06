@@ -5,7 +5,7 @@ use Illuminate\Support\Str;
 @extends('layouts.app', ['class' => 'g-sidenav-show bg-gray-100'])
 
 @section('content')
-    @include('layouts.navbars.auth.topnav', ['title' => 'Committee History'])
+    @include('layouts.navbars.auth.topnav', ['title' => 'Committees'])
     <div class="container-fluid py-4">
         <div class="row">
             <div class="col-12">
@@ -26,37 +26,37 @@ use Illuminate\Support\Str;
                 @endif
                 <div class="card mb-4">
                     <div class="card-header pb-0 d-flex justify-content-between align-items-center" >
-                        <h6>Committees History</h6>
-                        @if(!$activeCommittee)
-                        <a href="{{ route('committees.add') }}" target=""
-                            class="btn btn-dark btn-add w-15 mb-3">Add Committee</a>
-                        @endif
+                        <h6>List Committees</h6>
+                        
+                        <a href="{{ $activeCommittee ? '#' : route('committees.add') }}"
+                            class="btn btn-dark btn-add w-15 mb-3 {{ $activeCommittee ? 'disabled' : '' }}">
+                            Add Committee
+                        </a>
+                        
                     </div>
                     <div class="card-body px-0 pt-0 pb-2">
                         <div class="table-responsive p-0">
                             <table class="table align-items-center mb-0">
                                 <thead>
                                     <tr>
-                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                        <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
                                             Name</th>
-                                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">
-                                            Description</th>
                                         <th
-                                            class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                            class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
                                             Start Period</th>
                                         <th
-                                            class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                            class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
                                             End Period</th>
                                         <th
-                                            class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                            class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
                                             Start Regis</th>
                                         <th
-                                            class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                            class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
                                             End Regis</th>
                                         <th
-                                            class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">
+                                            class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
                                             Status</th>
-                                        <th class="text-secondary opacity-7"></th>
+                                        <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7" colspan=2>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -74,10 +74,6 @@ use Illuminate\Support\Str;
                                                 </div>
                                             </div>
                                         </td>
-                                        <td>
-                                            <p class="text-xs text-secondary mb-0">{{ Str::limit($committee->description, 30, '..') }}</p>
-                                        </td>
-                             
                                         <td class="align-middle text-center">
                                             <span class="text-secondary text-xs font-weight-bold">{{ $committee->start_period }}</span>
                                         </td>
@@ -97,12 +93,19 @@ use Illuminate\Support\Str;
                                                 <span class="badge bg-danger">Ended</span>
                                             @endif
                                         </td>
-                                        <td class="align-middle">
-                                            <a href="javascript:;" class="text-secondary font-weight-bold text-xs"
-                                                data-toggle="tooltip" data-original-title="Edit user">
+                                        @if($committee->is_active == 1)
+                                        <td>       
+                                            <a href="{{ route('committees.show', ['idCommittees'=> $committee->idCommittees, 'idCommittees' => $committee->idCommittees]) }}" 
+                                            class="btn btn-warning btn-sm">Edit</a>                                
+                                        </td>
+                                        @else
+                                        <td>
+                                            <a href="javascript:;" class="btn btn-dark font-weight-bold text-xs"
+                                                data-toggle="tooltip" data-original-title="Evaluationr">
                                                 See Evaluation
                                             </a>
                                         </td>
+                                        @endif
                                     </tr>
                                    @endforeach
                                 </tbody>

@@ -91,7 +91,7 @@
                                         <div class="form-group">
                                             <label class="form-control-label">Upload Picture</label>
                                             <div class="mb-3">
-                                                <img src="#" alt="Preview picture" id="preview" class="img-fluid rounded" style="max-width:200px">
+                                                <img src="{{ asset('assets_lp/img/noimage.jpg') }}" alt="Preview picture" id="preview" class="img-fluid rounded" style="max-width:200px">
                                             </div>
                                             <input type="file" class="form-control" name="picture" id="picture" accept="image/*">
                                             <small class="text-muted">Format: JPG, JPEG, PNG</small>
@@ -114,18 +114,6 @@
                                         <label class="form-control-label">Requirements</label>
                                         <textarea class="form-control" name="requirement" id="requirement" rows="5"></textarea>
                                         @error('requirement')
-                                            <div class="text-danger small">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label class="form-control-label">Is Committee Active?</label>
-                                        <select name="is_active" id="is_active" class="form-control">
-                                            <option value="1">Active</option>
-                                            <option value="0">Not Active</option>
-                                        </select>
-                                        @error('is_active')
                                             <div class="text-danger small">{{ $message }}</div>
                                         @enderror
                                     </div>
@@ -211,7 +199,7 @@
                 }
                 reader.readAsDataURL(file);
             }else{
-                preview.src = "#";
+                preview.src = "{{ asset('assets_lp/img/noimage.jpg') }}";
                 preview.style.display = 'none';
             }
         })

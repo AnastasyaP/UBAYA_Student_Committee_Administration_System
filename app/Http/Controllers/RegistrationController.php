@@ -196,6 +196,10 @@ class RegistrationController extends Controller
         return view('pages.members.members', compact('members'));
     }
 
+    public function addMember(){
+        
+    }
+
     public function updatePosition($memberId, $divisionId, $newPosition){
         $user = Auth::user();
         $admin = null;
