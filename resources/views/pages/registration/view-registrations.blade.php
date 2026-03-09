@@ -45,6 +45,17 @@
                                 </div>
                                 <div class="col-md-12">
                                     <div class="form-group">
+                                        <label class="form-control-label">Motivation</label>
+                                        <textarea 
+                                            class="form-control" 
+                                            id="motivation" 
+                                            name="motivation" 
+                                            rows="4" 
+                                            disabled>{{ $registration->motivation }}</textarea>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group">
                                         <label class="form-control-label">CV</label>
                                         <iframe
                                             src="/pdfjs/web/viewer.html?file={{ asset('storage/' . $registration->cv) }}"

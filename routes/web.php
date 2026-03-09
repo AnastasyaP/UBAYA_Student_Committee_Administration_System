@@ -77,6 +77,7 @@ Route::middleware(['auth', 'role:admin'])->group( function () {
 	//members
 	Route::get('/members', [RegistrationController::class, 'members'])->name('member');
 	Route::put('/update-position/{memberId}/{divisionId}/{newPosition}', [RegistrationController::class, 'updatePosition'])->name('position.update');
+	Route::get('/add-members/{divisionId}', [RegistrationController::class, 'create'])->name('member.add');
 	//interview criteria
 	Route::get('/intv-criteria', [InterviewCriteriaController::class, 'index'])->name('intvcriteria');
 	Route::get('/add-intvcriterias/{idDivision}', [InterviewCriteriaController::class, 'create'])->name('intvcriteria.add');

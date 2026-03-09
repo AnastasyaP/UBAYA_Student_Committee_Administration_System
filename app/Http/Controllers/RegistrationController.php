@@ -6,9 +6,33 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Http\Models\Registration;
+use App\Http\Models\User;
 
 class RegistrationController extends Controller
 {
+    protected $admin;
+    protected $committee;
+
+    public function __construct(){
+        $this->admin = null;
+        $this->committee = null;
+    }
+
+    function init(){
+        $user = Auth::user();
+        if($user->role === 'admin'){
+            $this->admin = $user;
+        }else{
+            return redirect()->back()->with('warning', "this account doesn't have an authority");
+        }
+
+        $this->committee = DB::table('tUsers as u')
+                        ->join('tCommittees as c', 'u.idUsers', 'c.admin')
+                        ->where('c.admin', $this->admin->idUsers)
+                        ->where('is_active', 1)
+                        ->first();
+    }
     /**
      * Display a listing of the resource.
      */
@@ -54,9 +78,25 @@ class RegistrationController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create($divisionId)
     {
-        //
+        $this->init();
+
+        $division = DB::table('tDivisions as d')
+                            ->join('tListDivisions as ld', 'd.idDivisions', 'ld.idDivisions')
+                            ->where('ld.idCommittees', $this->committee->idCommittees)
+                            ->where('ld.idDivisions', $divisionId)
+                            ->select([
+                                'd.idDivisions as idDivision',
+                                'd.name as division_name',
+                                'ld.is_open as is_open',
+                                'ld.description as description',
+                                'ld.picture as picture'
+                            ])
+                            ->first();
+        
+
+        return view('pages.members.add-members', compact('division'));
     }
 
     /**
@@ -64,7 +104,45 @@ class RegistrationController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $this->init();
+
+        $request->validate([
+            'idDivision' => 'required',
+            'email' => 'required|string',
+            'position' => 'required',
+        ], [
+            'required' => 'Bagian :attribute wajib diisi.',
+            'max' => 'Bagian :attribute maksimal :max karakter.',            
+            'after_or_equal' => 'Tanggal :attribute harus setelah atau sama dengan tanggal sebelumnya.',
+            'image' => 'File harus berupa gambar (jpg, jpeg, png).',
+            'mimes' => 'Format file harus jpg, jpeg, atau png.',
+        ]);
+        
+        $email = $request->email;
+
+        // pengecekan klo committee itu uda punya divisi yg mau ditambah or belom
+        $exists = User::where('email', $email)
+                ->exists();
+
+        if (!$exists) {
+            return redirect()->back()->with('warning', 'User not found! Please check the email.');
+        }
+
+        $userID = DB::table('tUsers')
+                    ->where('email', $email)
+                    ->first();
+
+        Registration::create([
+            'idUsers' => $userID->idUsers,
+            'idDivisions' => $request->idDivision,
+            'idCommittees' => $this->committee->idCommittees,
+            'status' => 'pending',
+            'percentage' => 100,
+            'position' => $request->position,
+            'motivation' => '',
+        ]);
+        return redirect()->back()->with('success', 'Email has successfully sended!');
+
     }
 
     /**
@@ -101,6 +179,7 @@ class RegistrationController extends Controller
             'r.status as status',
             'r.idDivisions as idDivision',
             'r.percentage as percentage',
+            'r.motivation as motivation',
             'd.name as division',
         )
         ->first();
@@ -185,7 +264,7 @@ class RegistrationController extends Controller
                         'r.idUsers as idUser',
                         DB::raw("concat(u.firstname, ' ', u.lastname) as name"),
                         'u.email as email',
-                        'r.idDivisions as idDivision',
+                        'd.idDivisions as idDivision',
                         'd.name as division', 
                         'r.position as position'
                     )
@@ -194,10 +273,6 @@ class RegistrationController extends Controller
                     ->groupby('division');
 
         return view('pages.members.members', compact('members'));
-    }
-
-    public function addMember(){
-        
     }
 
     public function updatePosition($memberId, $divisionId, $newPosition){

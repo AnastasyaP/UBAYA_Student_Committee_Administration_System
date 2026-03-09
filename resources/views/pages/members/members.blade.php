@@ -17,7 +17,8 @@ use Illuminate\Support\Str;
                 <div class="card mb-4">
                     <div class="card-header pb-0 d-flex justify-content-between align-items-center" >
                         <h6>{{ $divisionNames }}</h6>
-                        <a href="#"
+                        
+                        <a href="{{ route('member.add', ['divisionId' => $divisionMembers->first()->idDivision]) }}"
                             class="btn btn-dark btn-add w-15 mb-3">
                             Add Member
                         </a>
@@ -70,7 +71,7 @@ use Illuminate\Support\Str;
                                         </td>
                                     </tr>
                                     @endif
-                                    @endforeach
+                @endforeach
 
                                     @if(!$hasMember)
                                         <tr>
