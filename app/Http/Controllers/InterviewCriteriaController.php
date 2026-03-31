@@ -18,11 +18,7 @@ class InterviewCriteriaController extends Controller
         $this->committee = null;
     }
 
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
+    function init(){
         $user = Auth::user();
         if($user->role === 'admin'){
             $this->admin = $user;
@@ -35,6 +31,14 @@ class InterviewCriteriaController extends Controller
                         ->where('c.admin', $this->admin->idUsers)
                         ->where('is_active', 1)
                         ->first();
+    }
+
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        $this->init();
 
         $intvCriteria = DB::table('tListDivisions as ld')
                         ->join('tDivisions as d', 'ld.idDivisions', '=', 'd.idDivisions')
@@ -55,8 +59,7 @@ class InterviewCriteriaController extends Controller
                         ->select(
                             'd.name as division',
                             'd.idDivisions as idDivision',
-                            'ic.question as question',
-                            'ic.max_score as max_score',
+                            'ic.name as name',
                             'ac.name as ahpCriteria'
                         )
                         ->orderBy('d.idDivisions')
@@ -102,8 +105,7 @@ class InterviewCriteriaController extends Controller
 
         $request->validate([
             'ahp_criteria' => 'required|string|max:45',
-            'question' => 'required|string|max:500',
-            'max_score' => 'required|integer',
+            'name' => 'required|string|max:500',
         ], [
             'required' => 'Bagian :attribute wajib diisi.',
             'max' => 'Bagian :attribute maksimal :max karakter.',            
@@ -125,7 +127,8 @@ class InterviewCriteriaController extends Controller
             } else {
                 $newAHP = AHPCriteria::create([
                     'name' => $request->ahp_criteria,
-                    'idDivisions' => $request->idDivision
+                    'created_at' => now(),
+                    'updated_at' => now()
                 ]);
                 $ahpID = $newAHP->idAHPCriterias;
             }
@@ -158,6 +161,8 @@ class InterviewCriteriaController extends Controller
                     'idCommittees'   => $this->committee->idCommittees,
                     'idAHPCriterias' => $ahpID,
                     'average_weight' => 0,
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ]);
         } else {
             // reuse existing mapping
@@ -167,8 +172,9 @@ class InterviewCriteriaController extends Controller
 
         $InterviewCriteriasID = DB::table('tInterviewCriterias')
         ->insertGetId([
-            'question' => $request->question,
-            'max_score' => $request->max_score,
+            'name' => $request->name,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
         DB::table('tInterviewDivisionAHPCriterias')

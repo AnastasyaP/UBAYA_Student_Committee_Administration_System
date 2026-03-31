@@ -5,8 +5,8 @@
             aria-hidden="true" id="iconSidenav"></i>
         <a class="navbar-brand m-0" href="{{ route('dashboard') }}"
             target="_blank">
-            <img src="./img/logo-ct-dark.png" class="navbar-brand-img h-100" alt="main_logo">
-            <span class="ms-1 font-weight-bold">Committee Dashboard</span>
+            <img src="{{ asset('./img/logo-ct-dark.png') }}" class="navbar-brand-img h-100" alt="main_logo">
+            <span class="ms-1 font-weight-bold">Dashboard Kepanitiaan</span>
         </a>
     </div>
     <hr class="horizontal dark mt-0">
@@ -25,7 +25,7 @@
                 <div class="ps-4">
                     <i class="fab fa-laravel" style="color: #f4645f;"></i>
                 </div>
-                <h6 class="ms-2 text-uppercase text-xs font-weight-bolder opacity-6 mb-0">Committee Data</h6>
+                <h6 class="ms-2 text-uppercase text-xs font-weight-bolder opacity-6 mb-0">Data Kepanitiaan</h6>
             </li>
             <li class="nav-item">
                 <a class="nav-link {{ str_contains(request()->url(), 'profile') == true ? 'active' : '' }}" href="{{ route('page', ['page' => 'profile']) }}">
@@ -33,7 +33,7 @@
                         class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                         <i class="ni ni-single-02 text-dark text-sm opacity-10"></i>
                     </div>
-                    <span class="nav-link-text ms-1">Profile</span>
+                    <span class="nav-link-text ms-1">Profil</span>
                 </a>
             </li>
             <li class="nav-item">
@@ -42,7 +42,7 @@
                         class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                         <i class="ni ni-album-2 text-warning text-sm opacity-10"></i>
                     </div>
-                    <span class="nav-link-text ms-1">Committees</span>
+                    <span class="nav-link-text ms-1">Kepanitiaan</span>
                 </a>
             </li>
             <li class="nav-item">
@@ -51,7 +51,7 @@
                         class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                         <i class="ni ni-calendar-grid-58 text-warning text-sm opacity-10"></i>
                     </div>
-                    <span class="nav-link-text ms-1">Divisions</span>
+                    <span class="nav-link-text ms-1">Divisi</span>
                 </a>
             </li>
             <li class="nav-item">
@@ -59,7 +59,7 @@
                     <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                         <i class="ni ni-bullet-list-67 text-dark text-sm opacity-10"></i>
                     </div>
-                    <span class="nav-link-text ms-1">Members List</span>
+                    <span class="nav-link-text ms-1">Daftar Anggota</span>
                 </a>
             </li>
             <li class="nav-item mt-3 d-flex align-items-center">
@@ -74,7 +74,7 @@
                         class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                         <i class="ni ni-calendar-grid-58 text-warning text-sm opacity-10"></i>
                     </div>
-                    <span class="nav-link-text ms-1">Interview Schedules</span>
+                    <span class="nav-link-text ms-1">Jadwal Interview</span>
                 </a>
             </li>
             <li class="nav-item">
@@ -82,7 +82,7 @@
                     <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                         <i class="ni ni-bullet-list-67 text-dark text-sm opacity-10"></i>
                     </div>
-                    <span class="nav-link-text ms-1">Interview Criterias</span>
+                    <span class="nav-link-text ms-1">Kriteria Interview</span>
                 </a>
             </li>
             <li class="nav-item">
@@ -90,8 +90,25 @@
                     <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
                         <i class="ni ni-fat-add text-dark text-sm opacity-10"></i>
                     </div>
-                    <span class="nav-link-text ms-1">AHP Calculation</span>
+                    <span class="nav-link-text ms-1">Perhitungan AHP</span>
                 </a>
+            </li>
+            <li class="nav-item mt-3 d-flex align-items-center">
+                <div class="ps-4">
+                    <i class="fab fa-laravel" style="color: #f4645f;"></i>
+                </div>
+                <h6 class="ms-2 text-uppercase text-xs font-weight-bolder opacity-6 mb-0">Registrasi</h6>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ str_contains(request()->url(), 'registration-list') == true ? 'active' : '' }}" href="{{ route('page', ['page' => 'registrations']) }}">
+                    <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                        <i class="ni ni-bullet-list-67 text-dark text-sm opacity-10"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Daftar Registrasi</span>
+                </a>
+            </li>
+            <li class="nav-item mt-3">
+                <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">Pages</h6>
             </li>
             <li class="nav-item">
                 <a class="nav-link {{ str_contains(request()->url(), 'user-management') == true ? 'active' : '' }}" href="{{ route('page', ['page' => 'user-management']) }}">
@@ -99,17 +116,6 @@
                         <i class="ni ni-bullet-list-67 text-dark text-sm opacity-10"></i>
                     </div>
                     <span class="nav-link-text ms-1">User Management</span>
-                </a>
-            </li>
-            <li class="nav-item mt-3">
-                <h6 class="ps-4 ms-2 text-uppercase text-xs font-weight-bolder opacity-6">Pages</h6>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {{ str_contains(request()->url(), 'registration-list') == true ? 'active' : '' }}" href="{{ route('page', ['page' => 'registrations']) }}">
-                    <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                        <i class="ni ni-bullet-list-67 text-dark text-sm opacity-10"></i>
-                    </div>
-                    <span class="nav-link-text ms-1">Registration List</span>
                 </a>
             </li>
             <li class="nav-item">

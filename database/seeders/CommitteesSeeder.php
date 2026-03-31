@@ -16,6 +16,7 @@ class CommitteesSeeder extends Seeder
         DB::table('tCommittees')->insert([
             [
                 'admin' => 11,
+                'committee_name' => 'ILPC',
                 'name' => 'ILPC 2022',
                 'start_period' => '2022-01-01',
                 'end_period' => '2022-12-31',
@@ -32,6 +33,7 @@ class CommitteesSeeder extends Seeder
                 'updated_at' => now(),
             ],            [
                 'admin' =>11,
+                'committee_name' => 'ILPC',
                 'name' => 'ILPC 2023',
                 'start_period' => '2023-01-01',
                 'end_period' => '2023-12-31',
@@ -49,6 +51,7 @@ class CommitteesSeeder extends Seeder
             ],
             [
                 'admin' => 12,
+                'committee_name' => 'CEG',
                 'name' => 'CEG 2021',
                 'start_period' => '2021-03-01',
                 'end_period' => '2021-07-01',

@@ -293,7 +293,11 @@ class AHPCalculationController extends Controller
             'lambda_max' => $lambdaMax,
             'CI' => $CI,
             'CR' => $CR,
-            'is_consistent' => $isConsistent
+            'is_consistent' => $isConsistent,
+            'message' => $isConsistent 
+                ? 'Bobot konsisten dan siap digunakan untuk penilaian.' 
+                : 'Perbandingan tidak konsisten, silakan atur ulang bobot.',
+            'type' => $isConsistent ? 'success' : 'warning'
         ]);
     }
 

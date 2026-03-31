@@ -5,7 +5,7 @@ use Illuminate\Support\Str;
 @extends('layouts.app', ['class' => 'g-sidenav-show bg-gray-100'])
 
 @section('content')
-    @include('layouts.navbars.auth.topnav', ['title' => 'Interview Schedule'])
+    @include('layouts.navbars.auth.topnav', ['title' => 'Jadwal Interview'])
     <div class="container-fluid py-4">
         <div class="row">
             <div class="col-12">
@@ -26,9 +26,9 @@ use Illuminate\Support\Str;
                 @endif
                 <div class="card mb-4">
                     <div class="card-header pb-0 d-flex justify-content-between align-items-center" >
-                        <h6>Interview Schedule List</h6>
+                        <h6>Daftar Jadwal Interview</h6>
                         <a href="{{ route('intv.add') }}" target=""
-                            class="btn btn-dark btn-add ms-auto">Add Schedule</a>
+                            class="btn btn-dark btn-add ms-auto">Tambah Jadwal</a>
                     </div>
                     <div class="card-body px-0 pt-0 pb-2">
                         <div id="calendar" style="min-height: 600px; margin-right: 10px; margin-left: 10px;"></div>
@@ -39,12 +39,12 @@ use Illuminate\Support\Str;
                     <div class="modal-dialog modal-dialog-scrollable">
                         <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="detailModalLabel">Detail Schedule Interview</h5>
+                                    <h5 class="modal-title" id="detailModalLabel">Detail Jadwal Interview</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
                                         <div class="mb-3">
-                                            <label class="col-form-label">Division:</label>
+                                            <label class="col-form-label">Divisi:</label>
                                             <select class="form-control" name="division" id="division">
                                                 @foreach($masterDivisions as $master)
                                                 <option value="{{ $master->idDivisions }}">{{ $master->name }}</option>
@@ -52,25 +52,25 @@ use Illuminate\Support\Str;
                                             </select>
                                         </div>
                                         <div class="mb-3">
-                                            <label class="col-form-label">Date:</label>
+                                            <label class="col-form-label">Tanggal:</label>
                                             <input type="date" class="form-control" name="date" id="date">
                                         </div>
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="mb-3">
-                                                    <label class="col-form-label">Start Time:</label>
+                                                    <label class="col-form-label">Jam Mulai:</label>
                                                     <input type="time" class="form-control" name="start_time" id="start_time">
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="mb-3">
-                                                    <label class="col-form-label">End Time:</label>
+                                                    <label class="col-form-label">Jam Berakhir:</label>
                                                     <input type="time" class="form-control" name="end_time" id="end_time">
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="mb-3">
-                                            <label class="col-form-label">Place:</label>
+                                            <label class="col-form-label">Lokasi:</label>
                                             <input type="text" class="form-control" name="place" id="place">
                                         </div>
                                         <div class="mb-3">
@@ -79,11 +79,11 @@ use Illuminate\Support\Str;
                                         </div>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
                                     <form action="" id="form-detail" method="POST">
                                         @csrf
                                         @method('PUT')
-                                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                                        <button type="submit" class="btn btn-primary">Simpan</button>
                                     </form>
                                     <input type="hidden" name="idSchedule" id="idSchedule">
                                 </div>

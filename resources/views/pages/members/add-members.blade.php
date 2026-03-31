@@ -1,7 +1,7 @@
 @extends('layouts.app', ['class' => 'g-sidenav-show bg-gray-100'])
 
 @section('content')
-    @include('layouts.navbars.auth.topnav', ['title' => 'Add Division'])
+    @include('layouts.navbars.auth.topnav', ['title' => 'Tambah Anggota'])
 
     <div class="container-fluid py-4">
         <div class="row">
@@ -22,11 +22,11 @@
                     </div>
                 @endif
                 <div class="card">
-                    <form method="POST" action="{{ route('division.store') }}" enctype="multipart/form-data">
+                    <form method="POST" action="{{ route('member.invite') }}" enctype="multipart/form-data">
                         @csrf
                         <div class="card-header pb-0">
                             <div class="d-flex align-items-center">
-                                <p class="mb-0">Member</p>
+                                <p class="mb-0">Anggota</p>
                                 <button class="btn btn-primary btn-sm ms-auto" type="submit">Invite</button>
                             </div>
                         </div>
@@ -34,7 +34,7 @@
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                          <label class="form-control-label">Division Name</label>
+                                          <label class="form-control-label">Nama Divisi</label>
                                             <input class="form-control" type="text" id="division_name" name="name" value="{{ $division->division_name }}"
                                            disabled>
                                            <input type="hidden" name="idDivision" value="{{ $division->idDivision }}">
@@ -42,18 +42,18 @@
                                 </div>
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                          <label class="form-control-label">Email Member</label>
+                                          <label class="form-control-label">Email Anggota</label>
                                             <input class="form-control" type="text" id="email" name="email">
                                     </div>
                                 </div>
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <label class="form-control-label">Position</label>
+                                        <label class="form-control-label">Posisi</label>
                                         <select name="position" id="position" class="form-control">
-                                            <option value="bph">BPH</option>
-                                            <option value="koor">Koor</option>
-                                            <option value="wakoor">Wakoor</option>
-                                            <option value="anggota">Anggota</option>
+                                            <option value="BPH-SC">BPH-SC</option>
+                                            <option value="Coordinator">Koordinator</option>
+                                            <option value="Vice Coordinator">Wakil Koordinator</option>
+                                            <option value="Member">Anggota</option>
                                         </select>
                                         @error('position')
                                         <div class="text-danger small">{{ $message }}</div>
@@ -72,7 +72,7 @@
                             @csrf
                             <div class="card-header pb-0">
                                 <div class="d-flex align-items-center">
-                                    <p class="mb-0">Pending Invitation</p>
+                                    <p class="mb-0">Undangan Email</p>
                                 </div>
                             </div>
                             <div class="card mb-4">
@@ -83,32 +83,36 @@
                                             <thead>
                                                 <tr>
                                                     <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
-                                                        Name</th>
+                                                        Nama</th>
                                                     <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
-                                                        Division</th>
+                                                        Posisi</th>
                                                     <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
-                                                        Position</th>
-                                                    <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7" colspan=3>Action</th>
+                                                        Status</th>
+                                                    <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7" colspan=3>Aksi</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                        
+                                                @foreach($invitationList as $invitation)
                                                 <tr>
                                                     <td>
                                                         <div class="d-flex px-2 py-1">
-                                        
                                                             <div class="d-flex flex-column justify-content-center">
-                                                                <h6 class="mb-0 text-sm"></h6>
-                                                                <p class="text-xs text-secondary mb-0"></p>
+                                                                <h6 class="mb-0 text-sm">{{ $invitation->name }}</h6>
+                                                                <p class="text-xs text-secondary mb-0">{{ $invitation->email}}</p>
                                                             </div>
                                                         </div>
                                                     </td>
                                                     <td>
-                                                        <h6 class="mb-0 text-sm"></h6>
+                                                        <h6 class="mb-0 text-sm">{{ $invitation->position }}</h6>
                                                     </td>
                                                     <td>
-                                                        <h6 class="mb-0 text-sm position-label"></h6>
+                                                        <h6 class="mb-0 text-sm position-label">{{ $invitation->status }}</h6>
                                                     </td>
+                                                    <td>
+
+                                                    </td>
+                                                </tr>
+                                                @endforeach
                                             </tbody>
                                         </table>
                                         
@@ -122,4 +126,14 @@
         </div>
         @include('layouts.footers.auth.footer')
     </div>
+
+    <script>
+        setTimeout(()=>{
+            const alert = document.querySelector('.alert');
+            if(alert){
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }
+        }, 3000);
+    </script>
 @endsection

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('idInterviewEvaluations');
             $table->unsignedBigInteger('idInterviewCriterias');
             $table->integer('score');
-            $table->longText('answer');
+            $table->longText('answer')->nullable();
 
             $table->timestamps();
 

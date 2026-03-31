@@ -12,7 +12,7 @@ class Registration extends Model
     use HasFactory;
 
     protected $table = 'tRegistrations';
-    protected $primaryKey = ['idRegistrations'];
+    protected $primaryKey = 'idRegistrations';
     protected $fillable = [
         'idUsers',
         'idDivisions',
@@ -20,7 +20,10 @@ class Registration extends Model
         'status',
         'percentage',
         'position',
+        'motivation',
         'idInterviewSchedules',
+        'invitation_token',
+        'invitation_expired',
     ];
 
     public function interviewschedule(){

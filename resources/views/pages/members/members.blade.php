@@ -5,7 +5,7 @@ use Illuminate\Support\Str;
 @extends('layouts.app', ['class' => 'g-sidenav-show bg-gray-100'])
 
 @section('content')
-    @include('layouts.navbars.auth.topnav', ['title' => 'Member'])
+    @include('layouts.navbars.auth.topnav', ['title' => 'Anggota'])
     <div class="container-fluid py-4">
         
         <div id="alert-container"></div>
@@ -20,7 +20,7 @@ use Illuminate\Support\Str;
                         
                         <a href="{{ route('member.add', ['divisionId' => $divisionMembers->first()->idDivision]) }}"
                             class="btn btn-dark btn-add w-15 mb-3">
-                            Add Member
+                            Tambah Anggota
                         </a>
                     </div>
                     <div class="card-body px-0 pt-0 pb-2">
@@ -29,12 +29,12 @@ use Illuminate\Support\Str;
                                 <thead>
                                     <tr>
                                         <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
-                                            Name</th>
+                                            Nama</th>
                                         <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
-                                            Division</th>
+                                            Divisi</th>
                                         <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
-                                            Position</th>
-                                        <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7" colspan=3>Action</th>
+                                            Posisi</th>
+                                        <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7" colspan=3>Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -62,21 +62,21 @@ use Illuminate\Support\Str;
                                         <td>
                                             <div class="badge-select-wrapper">
                                                 <select name="position" class="badge-select text-sm position-select" data-member="{{ $m->idUser }}" data-division="{{ $m->idDivision }}">
-                                                    <option value="bph" @selected($m->position == 'bph')>BPH</option>
-                                                    <option value="koor" @selected($m->position =='koor')>Koor</option>
-                                                    <option value="wakoor" @selected($m->position == 'wakoor')>Wakoor</option>
-                                                    <option value="anggota" @selected($m->position == 'anggota')>Anggota</option>
+                                                    <option value="BPH-SC" @selected($m->position == 'BPH-SC')>BPH-SC</option>
+                                                    <option value="Coordinator" @selected($m->position =='Coordinator')>Koordinator</option>
+                                                    <option value="Vice Coordinator" @selected($m->position == 'Vice Coordinator')>Wakil Koordinator</option>
+                                                    <option value="Member" @selected($m->position == 'Member')>Anggota</option>
                                                 </select>
                                             </div>
                                         </td>
                                     </tr>
                                     @endif
-                @endforeach
+                                    @endforeach
 
                                     @if(!$hasMember)
                                         <tr>
                                             <td colspan="4" class="text-center text-muted">
-                                                No accepted members
+                                                Tidak Ada Anggota yang Diterima
                                             </td>
                                         </tr>
                                     @endif

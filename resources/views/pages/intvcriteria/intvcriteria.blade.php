@@ -5,7 +5,7 @@ use Illuminate\Support\Str;
 @extends('layouts.app', ['class' => 'g-sidenav-show bg-gray-100'])
 
 @section('content')
-    @include('layouts.navbars.auth.topnav', ['title' => 'Interview Criteria'])
+    @include('layouts.navbars.auth.topnav', ['title' => 'Kriteria Interview'])
     <div class="container-fluid py-4">
         <div class="row">
             <div class="col-12">
@@ -30,7 +30,7 @@ use Illuminate\Support\Str;
                     <div class="card-header pb-0 d-flex justify-content-between align-items-center" >
                         <h6>{{ $criterias->first()->division }}</h6>
                         <a href="{{ route('intvcriteria.add', ['idDivision' => $idDivision]) }}" target=""
-                            class="btn btn-dark btn-add ms-auto">Add Question</a>
+                            class="btn btn-dark btn-add ms-auto">Tambah Kriteria</a>
                     </div>
                     <div class="card-body px-0 pt-0 pb-2">
                         <div class="table-responsive p-0">
@@ -38,31 +38,26 @@ use Illuminate\Support\Str;
                                 <thead>
                                     <tr>
                                         <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
-                                            Question</th>
+                                            Kriteria Interview</th>
                                         <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
-                                            Max Score</th>
-                                        <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
-                                            AHP Criteria</th>
-                                        <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7" colspan=2>Action</th>
+                                            Kriteria AHP</th>
+                                        <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7" colspan=2>Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @php $hasquestion = false; @endphp
+                                    @php $hascriteria = false; @endphp
 
                                     @foreach($criterias as $item)
-                                    @if($item->question)
-                                    @php $hasquestion = true; @endphp
+                                    @if($item->name)
+                                    @php $hascriteria = true; @endphp
                                     <tr>
                                         <td>
                                             <div class="d-flex px-2 py-1">
                                
                                                 <div class="d-flex flex-column justify-content-center">
-                                                    <h6 class="mb-0 text-sm">{{ $item->question }}</h6>
+                                                    <h6 class="mb-0 text-sm">{{ $item->name }}</h6>
                                                 </div>
                                             </div>
-                                        </td>
-                                        <td>
-                                            <h6 class="mb-0 text-sm">{{ $item->max_score }}</h6>
                                         </td>
                                         <td>
                                             <h6 class="mb-0 text-sm">{{ $item->ahpCriteria }}</h6>
@@ -73,20 +68,20 @@ use Illuminate\Support\Str;
                                             </form>                                         
                                         </td>
                                          <td class="align-middle">
-                                            <form action="" method="POST" onsubmit="return confirm('Are you sure want to delete this question?');">
+                                            <form action="" method="POST" onsubmit="return confirm('Are you sure want to delete this criteria?');">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                                <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
                                             </form>
                                         </td>
                                     </tr>
                                     @endif
                                     @endforeach
 
-                                    @if(!$hasquestion)
+                                    @if(!$hascriteria)
                                         <tr>
                                             <td colspan="4" class="text-center text-muted">
-                                                No Interview question available
+                                                Tidak ada Kriteria Interview yang Tersedia
                                             </td>
                                         </tr>
                                     @endif

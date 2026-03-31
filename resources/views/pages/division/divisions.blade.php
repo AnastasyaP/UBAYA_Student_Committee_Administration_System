@@ -5,7 +5,7 @@ use Illuminate\Support\Str;
 @extends('layouts.app', ['class' => 'g-sidenav-show bg-gray-100'])
 
 @section('content')
-    @include('layouts.navbars.auth.topnav', ['title' => 'Division'])
+    @include('layouts.navbars.auth.topnav', ['title' => 'Divisi'])
     <div class="container-fluid py-4">
         <div class="row">
             <div class="col-12">
@@ -26,10 +26,10 @@ use Illuminate\Support\Str;
                 @endif
                 <div class="card mb-4">
                     <div class="card-header pb-0 d-flex justify-content-between align-items-center" >
-                        <h6>Divisions List</h6>
+                        <h6>Daftar Divisi</h6>
                         @if($activeCommittee)
                         <a href="{{ route('divisions.add') }}" target=""
-                            class="btn btn-dark btn-add ms-auto">Add Division</a>
+                            class="btn btn-dark btn-add ms-auto">Tambah Divisi</a>
                         @endif
                     </div>
                     <div class="card-body px-0 pt-0 pb-2">
@@ -38,12 +38,12 @@ use Illuminate\Support\Str;
                                 <thead>
                                     <tr>
                                         <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
-                                            Name</th>
+                                            Nama</th>
                                         <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
-                                            Description</th>
+                                            Deskripsi</th>
                                         <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
                                             Status</th>
-                                        <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7" colspan=2>Action</th>
+                                        <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7" colspan=2>Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -65,9 +65,9 @@ use Illuminate\Support\Str;
                                         </td>
                                         <td>
                                             @if ($division->status == 1)
-                                                <span class="badge bg-success">Open</span>
+                                                <span class="badge bg-success">Buka</span>
                                             @else
-                                                <span class="badge bg-danger">Close</span>
+                                                <span class="badge bg-danger">Tidak Buka</span>
                                             @endif
                                         </td>
                                         <td class="align-middle">
@@ -79,7 +79,7 @@ use Illuminate\Support\Str;
                                             <form action="{{ route('division.destroy', ['idDivisions' => (int) $division->idDivisions, 'idCommittees' => (int) $division->idCommittees]) }}" method="POST" onsubmit="return confirm('Are you sure want to delete division {{ $division->name }} from this committee?');">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                                <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
                                             </form>
                                         </td>
                                     </tr>

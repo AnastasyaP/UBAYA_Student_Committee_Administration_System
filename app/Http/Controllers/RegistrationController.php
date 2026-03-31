@@ -6,8 +6,11 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use App\Http\Models\Registration;
-use App\Http\Models\User;
+use App\Models\Registration;
+use App\Models\User;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\InviteCommitteeMail;
 
 class RegistrationController extends Controller
 {
@@ -95,8 +98,19 @@ class RegistrationController extends Controller
                             ])
                             ->first();
         
+        $invitationList = DB::table('tRegistrations as r')
+                            ->join('tUsers as u', 'r.idUsers', 'u.idUsers')
+                            ->where('r.idCommittees', $this->committee->idCommittees)
+                            ->where('r.idDivisions', $divisionId)
+                            ->where('r.idInterviewSchedules', null)
+                            ->select([
+                                'r.*',
+                                'u.email as email',
+                                DB::raw("concat(u.firstname, ' ', u.lastname) as name")
+                            ])
+                            ->get();
 
-        return view('pages.members.add-members', compact('division'));
+        return view('pages.members.add-members', compact('division', 'invitationList'));
     }
 
     /**
@@ -120,7 +134,6 @@ class RegistrationController extends Controller
         
         $email = $request->email;
 
-        // pengecekan klo committee itu uda punya divisi yg mau ditambah or belom
         $exists = User::where('email', $email)
                 ->exists();
 
@@ -132,6 +145,10 @@ class RegistrationController extends Controller
                     ->where('email', $email)
                     ->first();
 
+
+        $token = Str::random(40);
+        $link = url('/invitation/' . $token);
+
         Registration::create([
             'idUsers' => $userID->idUsers,
             'idDivisions' => $request->idDivision,
@@ -139,8 +156,17 @@ class RegistrationController extends Controller
             'status' => 'pending',
             'percentage' => 100,
             'position' => $request->position,
-            'motivation' => '',
+            'motivation' => "-",
+            'invitation_token' => $token,
+            'invitation_expired' => now()->addDays(3)
         ]);
+
+        $division = DB::table('tDivisions')
+            ->where('idDivisions', $request->idDivision)
+            ->first();
+
+        Mail::to($email)->send(new InviteCommitteeMail($this->committee->name, $division->name, $request->position, $link));
+
         return redirect()->back()->with('success', 'Email has successfully sended!');
 
     }

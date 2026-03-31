@@ -13,8 +13,7 @@ return new class extends Migration
     {
         Schema::create('tInterviewCriterias', function (Blueprint $table) {
             $table->id('idInterviewCriterias');
-            $table->string('question', 500);
-            $table->integer('max_score');
+            $table->string('name', 500);
             
             $table->timestamps();
         });

@@ -1,7 +1,7 @@
 @extends('layouts.app', ['class' => 'g-sidenav-show bg-gray-100'])
 
 @section('content')
-    @include('layouts.navbars.auth.topnav', ['title' => 'View Registration'])
+    @include('layouts.navbars.auth.topnav', ['title' => 'Detail Registrasi'])
     <div class="container-fluid py-4">
         <div class="row">
             <div class="col-md-8">
@@ -11,7 +11,7 @@
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="form-group">
-                                        <label class="form-control-label">Name</label>
+                                        <label class="form-control-label">Nama</label>
                                         <input type="text" class="form-control" id="name" value="{{ $registration->name }}" disabled>
                                     </div>
                                 </div>
@@ -31,21 +31,21 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                          <label class="form-control-label">Division</label>
+                                          <label class="form-control-label">Divisi</label>
                                             <input class="form-control" type="text" id="division" name="division"
                                             value="{{ $registration->division }}" disabled>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label class="form-control-label">Percentage</label>
+                                        <label class="form-control-label">Persentase</label>
                                         <input class="form-control" type="text" id="percentage" name="percentage"
                                             value="{{ $registration->percentage }}" disabled>
                                     </div>
                                 </div>
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <label class="form-control-label">Motivation</label>
+                                        <label class="form-control-label">Motivasi</label>
                                         <textarea 
                                             class="form-control" 
                                             id="motivation" 
@@ -74,7 +74,7 @@
                                             height="500px">
                                         </iframe>
                                         @else
-                                        <h6>No portofolio existed</h6>
+                                        <h6>Tidak Ada Portofolio yang Tersedia</h6>
                                         @endif
                                     </div>
                                 </div>

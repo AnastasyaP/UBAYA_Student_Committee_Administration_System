@@ -1,7 +1,7 @@
 @extends('layouts.app', ['class' => 'g-sidenav-show bg-gray-100'])
 
 @section('content')
-    @include('layouts.navbars.auth.topnav', ['title' => 'Add Committee'])
+    @include('layouts.navbars.auth.topnav', ['title' => 'Tambah Kepanitiaan'])
 
     <div class="container-fluid py-4">
         <div class="row">
@@ -11,15 +11,15 @@
                         @csrf
                         <div class="card-header pb-0">
                             <div class="d-flex align-items-center">
-                                <p class="mb-0">Committee</p>
-                                <button class="btn btn-primary btn-sm ms-auto">Save</button>
+                                <p class="mb-0">Kepanitiaan</p>
+                                <button class="btn btn-primary btn-sm ms-auto">Simpan</button>
                             </div>
                         </div>
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-4">
                                     <div class="form-group">
-                                        <label class="form-control-label">Name</label>
+                                        <label class="form-control-label">Nama</label>
                                         <input class="form-control" type="text" name="name" id="name">
                                         @error('name')
                                             <div class="text-danger small">{{ $message }}</div>
@@ -28,7 +28,7 @@
                                 </div>
                                 <div class="col-md-4">
                                     <div class="form-group">
-                                        <label class="form-control-label">Contact</label>
+                                        <label class="form-control-label">Kontak</label>
                                         <input class="form-control" type="text" name="contact" id="contact">
                                         @error('contact')
                                             <div class="text-danger small">{{ $message }}</div>
@@ -43,17 +43,17 @@
                                 </div>
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <label class="form-control-label">Organizer Unit</label>
+                                        <label class="form-control-label">Unit Penyelenggara</label>
                                         <input class="form-control" type="text" name="organizer_unit" value="{{ $committee->organizerName }}" disabled>
                                     </div>
                                 </div>
                             </div>
                             <hr class="horizontal dark">
-                            <p class="text-uppercase text-sm">Detail Information</p>
+                            <p class="text-uppercase text-sm">Detail Informasi</p>
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label class="form-control-label">Start Period</label>
+                                        <label class="form-control-label">Periode Dimulai</label>
                                         <input class="form-control" type="date" name="start_period">
                                         @error('start_period')
                                             <div class="text-danger small">{{ $message }}</div>
@@ -62,7 +62,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label class="form-control-label">End Period</label>
+                                        <label class="form-control-label">Periode Berakhir</label>
                                         <input class="form-control" type="date" name="end_period">
                                         @error('end_period')
                                             <div class="text-danger small">{{ $message }}</div>
@@ -71,7 +71,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label class="form-control-label">Start Registration</label>
+                                        <label class="form-control-label">Mulai Pendaftaran</label>
                                         <input class="form-control" type="date" name="start_regis">
                                         @error('start_regis')
                                             <div class="text-danger small">{{ $message }}</div>
@@ -80,7 +80,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label class="form-control-label">End Registration</label>
+                                        <label class="form-control-label">Akhir Pendaftaran</label>
                                         <input class="form-control" type="date" name="end_regis">
                                         @error('end_regis')
                                             <div class="text-danger small">{{ $message }}</div>
@@ -89,7 +89,7 @@
                                 </div>
                                 <div class="col-md-12">
                                         <div class="form-group">
-                                            <label class="form-control-label">Upload Picture</label>
+                                            <label class="form-control-label">Upload Gambar</label>
                                             <div class="mb-3">
                                                 <img src="{{ asset('assets_lp/img/noimage.jpg') }}" alt="Preview picture" id="preview" class="img-fluid rounded" style="max-width:200px">
                                             </div>
@@ -102,7 +102,7 @@
                                 </div>
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <label class="form-control-label">Description</label>
+                                        <label class="form-control-label">Deskripsi</label>
                                         <textarea class="form-control" name="description" id="description" rows="5"></textarea>
                                         @error('description')
                                             <div class="text-danger small">{{ $message }}</div>
@@ -111,7 +111,7 @@
                                 </div>
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <label class="form-control-label">Requirements</label>
+                                        <label class="form-control-label">Persyaratan</label>
                                         <textarea class="form-control" name="requirement" id="requirement" rows="5"></textarea>
                                         @error('requirement')
                                             <div class="text-danger small">{{ $message }}</div>

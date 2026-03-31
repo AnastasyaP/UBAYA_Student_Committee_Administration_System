@@ -1,7 +1,7 @@
 @extends('layouts.app', ['class' => 'g-sidenav-show bg-gray-100'])
 
 @section('content')
-    @include('layouts.navbars.auth.topnav', ['title' => 'Edit Division'])
+    @include('layouts.navbars.auth.topnav', ['title' => 'Edit Divisi'])
     <div class="container-fluid py-4">
         <div class="row">
             <div class="col-md-8">
@@ -26,17 +26,17 @@
                         @method('PUT')
                         <div class="card-header pb-0">
                             <div class="d-flex align-items-center">
-                                <p class="mb-0">Division</p>
-                                <button class="btn btn-primary btn-sm ms-auto" type="submit">Save</button>
+                                <p class="mb-0">Divisi</p>
+                                <button class="btn btn-primary btn-sm ms-auto" type="submit">Simpan</button>
                             </div>
                         </div>
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label class="form-control-label">Select Existing Division</label>
+                                        <label class="form-control-label">Pilih Divisi yang Tersedia</label>
                                         <select class="form-control" id="master_division" name="master_division" disabled>
-                                            <option value="">-- Choose Existing Division --</option>
+                                            <option value="">-- Pilih Divisi --</option>
                                             @foreach($masterDivisions as $master)
                                             <option value="{{ $master->idDivisions }}" @selected($division->idDivisions == $master->idDivisions)>
                                                 {{ $master->name }}
@@ -47,14 +47,14 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                          <label class="form-control-label">Or Add New Division Name</label>
+                                          <label class="form-control-label">Atau Tambah Divisi Baru</label>
                                             <input class="form-control" type="text" id="division_name" name="name"
                                            placeholder="Enter new division name" value="{{ $division->name }}" disabled>
                                     </div>
                                 </div>
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <label class="form-control-label">Upload Picture</label>
+                                        <label class="form-control-label">Upload Gambar</label>
                                         <div class="mb-3">
                                             <img src="{{ asset('storage/' . $division->picture) }}" alt="Preview picture" id="preview" class="img-fluid rounded" style="max-width:200px">
                                         </div>
@@ -65,16 +65,16 @@
                                 </div>
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <label class="form-control-label">Description</label>
+                                        <label class="form-control-label">Deskripsi</label>
                                         <textarea class="form-control" rows="5" name="description">{{ $division->description }}</textarea>
                                     </div>
                                 </div>
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <label class="form-control-label">Open for Recruitment?</label>
+                                        <label class="form-control-label">Status Pendaftaran</label>
                                         <select name="is_open" id="is_open" class="form-control">
-                                            <option value=0 @selected($division->is_open == 0)>No</option>
-                                            <option value=1 @selected($division->is_open == 1)>Yes</option>
+                                            <option value=0 @selected($division->is_open == 0)>Tidak Buka</option>
+                                            <option value=1 @selected($division->is_open == 1)>Buka</option>
                                         </select>
                                     </div>
                                 </div>

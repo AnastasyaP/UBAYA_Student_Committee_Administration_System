@@ -1,7 +1,7 @@
 @extends('layouts.app', ['class' => 'g-sidenav-show bg-gray-100'])
 
 @section('content')
-    @include('layouts.navbars.auth.topnav', ['title' => 'Committee Profile'])
+    @include('layouts.navbars.auth.topnav', ['title' => 'Profil Kepanitiaan'])
     @foreach($committees as $committee)
     <div class="card shadow-lg mx-4 card-profile-bottom">
         <div class="card-body p-3">
@@ -72,11 +72,11 @@
                         @method('PUT')
 
                     <div class="card-body">
-                        <p class="text-uppercase text-sm">Contact Information</p>
+                        <p class="text-uppercase text-sm">Informasi Kontak</p>
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label class="form-control-label">Name</label>
+                                    <label class="form-control-label">Nama Kepanitiaan</label>
                                     <input class="form-control" type="text" name="name" value="{{ $committee->name }}" disabled>
                                 </div>
                             </div>
@@ -88,28 +88,28 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label class="form-control-label">Contact</label>
+                                    <label class="form-control-label">Kontak</label>
                                     <input class="form-control" type="text" name="contact" value="{{ $committee->contact }}" disabled>
                                 </div>
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label class="form-control-label">Organizer Unit</label>
+                                    <label class="form-control-label">Unit Penyelenggara</label>
                                     <input class="form-control" type="text" name="contact" value="{{ $committee->organizerName }}" disabled>
                                 </div>
                             </div>
  
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label class="form-control-label">Description</label>
+                                    <label class="form-control-label">Deskripsi</label>
                                     <textarea class="form-control" rows="5" name="description" disabled>{{ $committee->description }}</textarea>
                                 </div>
                             </div>
                             <div class="col-md-12">
                                     <div class="form-group">
-                                        <label class="form-control-label">Is Committee Active?</label>
+                                        <label class="form-control-label">Status Kepanitiaan</label>
                                         <select name="is_active" id="is_active" class="form-control" disabled>
-                                            <option value="1" @selected($committee->is_active == 1)>Active</option>
+                                            <option value="1" @selected($committee->is_active == 1)>Aktif</option>
                                         </select>
                                         @error('is_active')
                                             <div class="text-danger small">{{ $message }}</div>

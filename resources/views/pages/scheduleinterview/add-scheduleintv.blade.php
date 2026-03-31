@@ -1,7 +1,7 @@
 @extends('layouts.app', ['class' => 'g-sidenav-show bg-gray-100'])
 
 @section('content')
-    @include('layouts.navbars.auth.topnav', ['title' => 'Add Schedule Interview'])
+    @include('layouts.navbars.auth.topnav', ['title' => 'Tambah Jadwal Interview'])
 
     <div class="container-fluid py-4">
         <div class="row">
@@ -19,17 +19,17 @@
                         @csrf
                         <div class="card-header pb-0">
                             <div class="d-flex align-items-center">
-                                <p class="mb-0">Division</p>
-                                <button class="btn btn-primary btn-sm ms-auto" type="submit">Save</button>
+                                <p class="mb-0">Jadwal Interview</p>
+                                <button class="btn btn-primary btn-sm ms-auto" type="submit">Simpan</button>
                             </div>
                         </div>
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <label class="form-control-label">Select Existing Division</label>
+                                        <label class="form-control-label">Pilih Divisi yang Tersedia</label>
                                         <select class="form-control" id="division" name="division">
-                                            <option value="">-- Choose Existing Division --</option>
+                                            <option value="">-- Pilih Divisi --</option>
                                             @foreach ($divisions as $division)
                                                 <option value="{{ $division->idDivisions }}">{{ $division->name }}</option>
                                             @endforeach
@@ -38,7 +38,7 @@
                                 </div>
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                          <label class="form-control-label">Interview Date</label>
+                                          <label class="form-control-label">Tanggal Interview</label>
                                             <input class="form-control" type="date" id="date" name="date">
                                            @error('date')
                                            <div class="text-danger small">{{ $message }}</div>
@@ -47,7 +47,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                          <label class="form-control-label">Start Time</label>
+                                          <label class="form-control-label">Jam Mulai</label>
                                             <input class="form-control" type="time" id="start_time" name="start_time">
                                            @error('start_time')
                                            <div class="text-danger small">{{ $message }}</div>
@@ -56,7 +56,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                          <label class="form-control-label">End Time</label>
+                                          <label class="form-control-label">Jam Berakhir</label>
                                             <input class="form-control" type="time" id="end_time" name="end_time">
                                            @error('end_time')
                                            <div class="text-danger small">{{ $message }}</div>
@@ -65,7 +65,7 @@
                                 </div>
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                          <label class="form-control-label">Place</label>
+                                          <label class="form-control-label">Lokasi</label>
                                             <input class="form-control" type="text" id="place" name="place">
                                            @error('place')
                                            <div class="text-danger small">{{ $message }}</div>

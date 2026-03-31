@@ -14,11 +14,8 @@ return new class extends Migration
         Schema::create('tAHPCriterias', function (Blueprint $table) {
             $table->id('idAHPCriterias');
             $table->string('name');
-            $table->unsignedBigInteger('idDivisions');
 
             $table->timestamps();
-
-            $table->foreign('idDivisions')->references('idDivisions')->on('tDivisions')->onDelete('cascade');
         });
     }
 

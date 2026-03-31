@@ -14,10 +14,11 @@ class AHPCriteriasSeeder extends Seeder
     public function run(): void
     {
         DB::table('tAHPCriterias')->insert([
-            ['name' => 'Komunikasi', 'idDivisions' => '3', 'created_at' => now(), 'updated_at' => now()],
-            ['name' => 'Leadership', 'idDivisions' => '1','created_at' => now(), 'updated_at' => now()],
-            ['name' => 'Komitmen', 'idDivisions' => '4','created_at' => now(), 'updated_at' => now()],
-            ['name' => 'Kreativitas', 'idDivisions' => '2','created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Pengetahuan', 'created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Inisiatif','created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Komitmen','created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Kreativitas','created_at' => now(), 'updated_at' => now()],
+            ['name' => 'Pengalaman','created_at' => now(), 'updated_at' => now()],
         ]);
     }
 }

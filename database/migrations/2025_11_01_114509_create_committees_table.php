@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('tCommittees', function (Blueprint $table) {
             $table->id('idCommittees');
             $table->unsignedBigInteger('admin');
+            $table->string('committee_name', 45);
             $table->string('name', 45);
             $table->date('start_period')->nullable();
             $table->date('end_period')->nullable();

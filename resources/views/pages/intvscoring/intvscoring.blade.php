@@ -1,8 +1,7 @@
 @extends('layouts.app', ['class' => 'g-sidenav-show bg-gray-100'])
 
 @section('content')
-    @include('layouts.navbars.auth.topnav', ['title' => 'Tambah DIvisi'])
-
+    @include('layouts.navbars.auth.topnav', ['title' => 'Penilaian Interview'])
     <div class="container-fluid py-4">
         <div class="row">
             <div class="col-md-8">
@@ -13,10 +12,18 @@
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     </div>
+                @elseif(session('success'))
+                    <div>
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <strong>Success!</strong> {{ session('success') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    </div>
                 @endif
                 <div class="card">
-                    <form method="POST" action="{{ route('division.store') }}" enctype="multipart/form-data">
+                    <form method="POST" action="{{ route('intvscoring.intvscoring')" enctype="multipart/form-data">
                         @csrf
+                        @method('PUT')
                         <div class="card-header pb-0">
                             <div class="d-flex align-items-center">
                                 <p class="mb-0">Divisi</p>
@@ -28,10 +35,12 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label class="form-control-label">Pilih Divisi yang Tersedia</label>
-                                        <select class="form-control" id="master_division" name="master_division">
+                                        <select class="form-control" id="master_division" name="master_division" disabled>
                                             <option value="">-- Pilih Divisi --</option>
-                                            @foreach ($masterDivisions as $division)
-                                                <option value="{{ $division->idDivisions }}">{{ $division->name }}</option>
+                                            @foreach($masterDivisions as $master)
+                                            <option value="{{ $master->idDivisions }}" @selected($division->idDivisions == $master->idDivisions)>
+                                                {{ $master->name }}
+                                            </option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -40,45 +49,33 @@
                                     <div class="form-group">
                                           <label class="form-control-label">Atau Tambah Divisi Baru</label>
                                             <input class="form-control" type="text" id="division_name" name="name"
-                                           placeholder="Enter new division name">
-                                           @error('name')
-                                           <div class="text-danger small">{{ $message }}</div>
-                                           @enderror
+                                           placeholder="Enter new division name" value="{{ $division->name }}" disabled>
                                     </div>
                                 </div>
                                 <div class="col-md-12">
                                     <div class="form-group">
                                         <label class="form-control-label">Upload Gambar</label>
                                         <div class="mb-3">
-                                            <img src="{{ asset('assets_lp/img/noimage.jpg') }}" alt="Preview picture" id="preview" class="img-fluid rounded" style="max-width:200px">
+                                            <img src="{{ asset('storage/' . $division->picture) }}" alt="Preview picture" id="preview" class="img-fluid rounded" style="max-width:200px">
                                         </div>
                                         <input type="file" class="form-control" name="picture" id="picture" accept="image/*">
                                         <small class="text-muted">Format: JPG, JPEG, PNG</small>
-                                        @error('picture')
-                                        <div class="text-danger small">{{ $message }}</div>
-                                        @enderror
                                         
                                     </div>
                                 </div>
                                 <div class="col-md-12">
                                     <div class="form-group">
                                         <label class="form-control-label">Deskripsi</label>
-                                        <textarea class="form-control" rows="5" name="description"></textarea>
-                                        @error('description')
-                                        <div class="text-danger small">{{ $message }}</div>
-                                        @enderror
+                                        <textarea class="form-control" rows="5" name="description">{{ $division->description }}</textarea>
                                     </div>
                                 </div>
                                 <div class="col-md-12">
                                     <div class="form-group">
                                         <label class="form-control-label">Status Pendaftaran</label>
                                         <select name="is_open" id="is_open" class="form-control">
-                                            <option value=0>Tidak Buka</option>
-                                            <option value=1>Buka</option>
+                                            <option value=0 @selected($division->is_open == 0)>Tidak Buka</option>
+                                            <option value=1 @selected($division->is_open == 1)>Buka</option>
                                         </select>
-                                        @error('is_open')
-                                        <div class="text-danger small">{{ $message }}</div>
-                                        @enderror
                                     </div>
                                 </div>
                             </div>
@@ -115,7 +112,7 @@
                 };
                 reader.readAsDataURL(file);
             }else{
-                  preview.src = "{{ asset('assets_lp/img/noimage.jpg') }}";
+                  preview.src = "#";
                     preview.style.display = 'none';
             }
         })

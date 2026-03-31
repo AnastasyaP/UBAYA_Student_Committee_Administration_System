@@ -20,6 +20,7 @@ use App\Http\Controllers\RegistrationController;
 use App\Http\Controllers\InterviewScheduleController;
 use App\Http\Controllers\InterviewCriteriaController;
 use App\Http\Controllers\AHPCalculationController;
+use App\Http\Controllers\EmailController;
 
 Route::get('/', function(){ return redirect('/login'); });
 	Route::get('/register', [RegisterController::class, 'create'])->middleware('guest')->name('register');
@@ -78,6 +79,11 @@ Route::middleware(['auth', 'role:admin'])->group( function () {
 	Route::get('/members', [RegistrationController::class, 'members'])->name('member');
 	Route::put('/update-position/{memberId}/{divisionId}/{newPosition}', [RegistrationController::class, 'updatePosition'])->name('position.update');
 	Route::get('/add-members/{divisionId}', [RegistrationController::class, 'create'])->name('member.add');
+	Route::post('/invite-members', [RegistrationController::class, 'store'])->name('member.invite');
+	// email invitation
+	Route::get('/invitation/{token}', [EmailController::class,'show']);
+	Route::post('/invitation/accept/{token}', [EmailController::class,'accept']);
+	// Route::post('/invitation/reject/{token}', [EmailController::class,'reject']);
 	//interview criteria
 	Route::get('/intv-criteria', [InterviewCriteriaController::class, 'index'])->name('intvcriteria');
 	Route::get('/add-intvcriterias/{idDivision}', [InterviewCriteriaController::class, 'create'])->name('intvcriteria.add');

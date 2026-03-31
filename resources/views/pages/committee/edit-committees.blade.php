@@ -1,7 +1,7 @@
 @extends('layouts.app', ['class' => 'g-sidenav-show bg-gray-100'])
 
 @section('content')
-    @include('layouts.navbars.auth.topnav', ['title' => 'Edit Committee'])
+    @include('layouts.navbars.auth.topnav', ['title' => 'Edit Kepanitiaan'])
     @foreach($committees as $committee)
     <div class="card shadow-lg mx-4 card-profile-bottom">
         <div class="card-body p-3">
@@ -72,16 +72,16 @@
                         @method('PUT')
                     <div class="card-header pb-0">
                         <div class="d-flex align-items-center">
-                            <p class="mb-0">Committee Profile</p>
-                            <button class="btn btn-primary btn-sm ms-auto">Save</button>
+                            <p class="mb-0">Profil Kepanitiaan</p>
+                            <button class="btn btn-primary btn-sm ms-auto">Simpan</button>
                         </div>
                     </div>
                     <div class="card-body">
-                        <p class="text-uppercase text-sm">Contact Information</p>
+                        <p class="text-uppercase text-sm">Informasi Kontak</p>
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label class="form-control-label">Name</label>
+                                    <label class="form-control-label">Nama</label>
                                     <input class="form-control" type="text" name="name" value="{{ $committee->name }}">
                                 </div>
                             </div>
@@ -93,67 +93,67 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label class="form-control-label">Contact</label>
+                                    <label class="form-control-label">Kontak</label>
                                     <input class="form-control" type="text" name="contact" value="{{ $committee->contact }}">
                                 </div>
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label class="form-control-label">Organizer Unit</label>
+                                    <label class="form-control-label">Unit Penyelenggara</label>
                                     <input class="form-control" type="text" name="contact" value="{{ $committee->organizerName }}" disabled>
                                 </div>
                             </div>
                         </div>
                         
                         <hr class="horizontal dark">
-                        <p class="text-uppercase text-sm">Committee Details</p>
+                        <p class="text-uppercase text-sm">Detail Kepanitiaan</p>
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="form-control-label">Start Period</label>
+                                    <label class="form-control-label">Periode Dimulai</label>
                                     <!-- <input class="form-control" type="text" value="{{ \Carbon\Carbon::parse($committee->start_period)->format('d F Y') }}"> -->
                                     <input class="form-control" type="date" name="start_period" value="{{ $committee->start_period }}">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="form-control-label">End Period</label>
+                                    <label class="form-control-label">Periode Berakhir</label>
                                     <!-- <input class="form-control" type="text" value="{{ \Carbon\Carbon::parse($committee->end_period)->format('d F Y') }}"> -->
                                     <input class="form-control" type="date" name="end_period" value="{{ $committee->end_period }}">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="form-control-label">Start Registration</label>
+                                    <label class="form-control-label">Mulai Pendaftaran</label>
                                     <!-- <input class="form-control" type="text" value="{{ \Carbon\Carbon::parse($committee->start_regis)->format('d F Y') }}"> -->
                                     <input class="form-control" type="date" name="start_regis" value="{{ $committee->start_regis }}">
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label class="form-control-label">End Registration</label>
+                                    <label class="form-control-label">Akhir Pendaftaran</label>
                                     <!-- <input class="form-control" type="text" value="{{ \Carbon\Carbon::parse($committee->end_regis)->format('d F Y') }}"> -->
                                     <input class="form-control" type="date" name="end_regis" value="{{ $committee->end_regis }}">
                                 </div>
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label class="form-control-label">Description</label>
+                                    <label class="form-control-label">Deskripsi</label>
                                     <textarea class="form-control" rows="5" name="description">{{ $committee->description }}</textarea>
                                 </div>
                             </div>
                               <div class="col-md-12">
                                 <div class="form-group">
-                                    <label class="form-control-label">Requirements</label>
+                                    <label class="form-control-label">Persyaratan</label>
                                     <textarea class="form-control" rows="5" name="requirement">{{ $committee->requirements }}</textarea>
                                 </div>
                             </div>
                             <div class="col-md-12">
                                     <div class="form-group">
-                                        <label class="form-control-label">Is Committee Active?</label>
+                                        <label class="form-control-label">Status Kepanitiaan</label>
                                         <select name="is_active" id="is_active" class="form-control">
-                                            <option value="1" @selected($committee->is_active == 1)>Active</option>
-                                            <option value="0" @selected($committee->is_active == 0)>Not Active</option>
+                                            <option value="1" @selected($committee->is_active == 1)>Aktif</option>
+                                            <option value="0" @selected($committee->is_active == 0)>Tidak Aktif</option>
                                         </select>
                                         @error('is_active')
                                             <div class="text-danger small">{{ $message }}</div>
@@ -162,11 +162,11 @@
                                 </div>
                         </div>
                         <hr class="horizontal dark">
-                        <p class="text-uppercase text-sm">Evaluation</p>
+                        <p class="text-uppercase text-sm">Evaluasi</p>
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label class="form-control-label">Evaluation</label>
+                                    <label class="form-control-label">Evaluasi</label>
                                     <textarea class="form-control" rows="5" name="evaluation">{{ $committee->evaluation }}</textarea>
                                 </div>
                             </div>

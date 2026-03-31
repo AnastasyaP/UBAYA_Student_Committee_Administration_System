@@ -5,7 +5,7 @@ use Illuminate\Support\Str;
 @extends('layouts.app', ['class' => 'g-sidenav-show bg-gray-100'])
 
 @section('content')
-    @include('layouts.navbars.auth.topnav', ['title' => 'Registration'])
+    @include('layouts.navbars.auth.topnav', ['title' => 'Registrasi'])
     <div class="container-fluid py-4">
         <div class="row">
             <div class="col-12">
@@ -27,7 +27,7 @@ use Illuminate\Support\Str;
                 
                 <div class="card mb-4">
                     <div class="card-header pb-0 d-flex justify-content-between align-items-center" >
-                        <h6>Registrations List</h6>
+                        <h6>Daftar Registrasi</h6>
                     </div>
                     <div class="card-body px-0 pt-0 pb-2">
                         <div class="table-responsive p-0">
@@ -35,14 +35,14 @@ use Illuminate\Support\Str;
                                 <thead>
                                     <tr>
                                         <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
-                                            Name</th>
+                                            Nama</th>
                                         <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
                                             NRP</th>
                                         <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
-                                            Division</th>
+                                            Divisi</th>
                                         <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
                                             Status</th>
-                                        <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7" colspan=3>Action</th>
+                                        <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7" colspan=3>Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -67,20 +67,28 @@ use Illuminate\Support\Str;
                                             <h6 class="mb-0 text-sm">{{ $regis->division }}</h6>
                                         </td>
                                         <td>
-                                            @if ($regis->status == "pending")
-                                                <span class="badge bg-warning">Pending</span>
-                                            @elseif($regis->status == 'accepted')
-                                                <span class="badge bg-success">Accepted</span>
+                                            @if ($regis->status == "menunggu")
+                                                <span class="badge bg-warning">Menunggu</span>
+                                            @elseif($regis->status == 'dinilai')
+                                                <span class="badge bg-info">Dinilai</span>
+                                            @elseif($regis->status == 'diterima')
+                                                <span class="badge bg-success">Diterima</span>
                                             @else
-                                                <span class="badge bg-danger">Rejected</span>
+                                                <span class="badge bg-danger">Ditolak</span>
                                             @endif
                                         </td>
                                         <td class="align-middle">
                                             <form action="{{ route('view.regis', ['idRegis' => $regis->idRegis]) }}" method="GET">
-                                                <button type="submit" class="btn btn-warning btn-sm">Details</button>
+                                                <button type="submit" class="btn btn-warning btn-sm">Detail</button>
                                             </form>
                                         </td>
-                                        @if($regis->status == 'pending')
+                                        @if($regis->status == 'menunggu')
+                                        <td class="align-middle">
+                                            <form action="" method="GET">
+                                                <button type="submit" class="btn btn-success btn-sm">Nilai</button>
+                                            </form>
+                                        </td>
+                                        @elseif($regis->status == 'dinilai')
                                         <td class="align-middle">
                                             <form id="acceptForm-{{ $regis->idRegis }}" action="{{ route('accept.regis', ['idRegis' => $regis->idRegis]) }}" method="POST">
                                                 @csrf
@@ -97,7 +105,7 @@ use Illuminate\Support\Str;
                                                     data-color="btn-success"
                                                     data-title="Confirm Accept"
                                                     data-message="Are you sure you want to accept"
-                                                >Accept</button>                                                
+                                                >Terima</button>                                                
                                             </form>                                         
                                         </td>
                                         
@@ -117,7 +125,7 @@ use Illuminate\Support\Str;
                                                     data-color="btn-danger"
                                                     data-title="Confirm Reject"
                                                     data-message="Are you sure you want to reject"
-                                                >Reject</button>
+                                                >Tolak</button>
                                             </form>
                                         </td>
                                         @endif
@@ -130,18 +138,18 @@ use Illuminate\Support\Str;
                                 <div class="modal-dialog modal-dialog-centered">
                                     <div class="modal-content">
                                         <div class="modal-header">
-                                            <h5 class="modal-title" id="modalTitle">Confirm Action</h5>
+                                            <h5 class="modal-title" id="modalTitle">Konfirmasi</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                         </div>
 
                                         <div class="modal-body">
-                                            <span id="modalMessage">Are you sure?</span>    
+                                            <span id="modalMessage">Apakah Anda Yakin?</span>    
                                             <strong id="modalName"></strong>?
                                         </div>
 
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                            <button type="button" class="btn" id="confirmBtn">Yes</button>
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                            <button type="button" class="btn" id="confirmBtn">Yakin</button>
                                         </div>
                                     </div>
                                 </div>
@@ -151,7 +159,7 @@ use Illuminate\Support\Str;
                 </div>
             </div>
         </div>
-        @include('layouts.footers.auth.footer')
+        @include('layouts.footers.auth.footer') 
     </div>
     <script>
         setTimeout(()=>{

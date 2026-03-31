@@ -18,12 +18,14 @@ return new class extends Migration
             $table->unsignedBigInteger('idDivisions');
             $table->unsignedBigInteger('idCommittees');
 
-            $table->enum('status', ['pending', 'accepted', 'rejected'])->default('pending');
+            $table->enum('status', ['menunggu', 'dinilai', 'diterima', 'ditolak'])->default('menunggu');
             $table->integer('percentage');
-            $table->enum('position', ['bph', 'koor', 'anggota'])->default('anggota');
+            $table->enum('position', ['BPH-SC', 'Koordinator', 'Wakil Koordinator', 'Anggota'])->default('Anggota');
             $table->longText('motivation');
 
-            $table->unsignedBigInteger('idInterviewSchedules');
+            $table->unsignedBigInteger('idInterviewSchedules')->nullable();
+            $table->string('invitation_token', 255);
+            $table->datetime('invitation_expired');
             
             $table->timestamps();
 
