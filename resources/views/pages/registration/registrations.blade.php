@@ -84,7 +84,10 @@ use Illuminate\Support\Str;
                                         </td>
                                         @if($regis->status == 'menunggu')
                                         <td class="align-middle">
-                                            <form action="" method="GET">
+                                            <form action="{{ route('intvscoring') }}" method="POST">
+                                                @csrf
+                                                <input type="hidden" value="{{ $regis->idMahasiswa }}" name="idMahasiswa">
+                                                <input type="hidden" value="{{ $regis->idDivision }}" name="idDivision">
                                                 <button type="submit" class="btn btn-success btn-sm">Nilai</button>
                                             </form>
                                         </td>

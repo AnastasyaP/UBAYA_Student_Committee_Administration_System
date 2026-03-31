@@ -41,13 +41,7 @@ class RegistrationController extends Controller
      */
     public function index()
     {
-        $user = Auth::user();
-        $admin = null;
-        if($user->role === 'admin'){
-            $admin = $user;
-        } else {
-            return redirect()->route('dashboard')->with('warning', 'You are not an administrator!');
-        }
+        $this->init();
 
         $registrations = DB::table('tMahasiswas as m')
         ->join('tUsers as u', 'm.idUsers', 'u.idUsers')
@@ -58,7 +52,7 @@ class RegistrationController extends Controller
         })        
         ->join('tCommittees as c', 'ld.idCommittees', 'c.idCommittees')
         ->join('tDivisions as d', 'ld.idDivisions', 'd.idDivisions')
-        ->where('c.admin', $admin->idUsers)
+        ->where('c.admin', $this->admin->idUsers)
         ->whereColumn('r.idCommittees', 'c.idCommittees')
         ->where('c.is_active', 1)
         ->select(

@@ -21,6 +21,8 @@ use App\Http\Controllers\InterviewScheduleController;
 use App\Http\Controllers\InterviewCriteriaController;
 use App\Http\Controllers\AHPCalculationController;
 use App\Http\Controllers\EmailController;
+use App\Http\Controllers\InterviewScoringController;
+
 
 Route::get('/', function(){ return redirect('/login'); });
 	Route::get('/register', [RegisterController::class, 'create'])->middleware('guest')->name('register');
@@ -75,7 +77,7 @@ Route::middleware(['auth', 'role:admin'])->group( function () {
 	Route::get('/add-schedule', [InterviewScheduleController::class, 'create'])->name('intv.add');
 	Route::post('/store-schedule',[InterviewScheduleController::class, 'store'])->name('intv.store');
 	Route::put('/update-schedule/{idSchedule}', [InterviewScheduleController::class, 'update'])->name('intv.update');
-	//members
+	// members
 	Route::get('/members', [RegistrationController::class, 'members'])->name('member');
 	Route::put('/update-position/{memberId}/{divisionId}/{newPosition}', [RegistrationController::class, 'updatePosition'])->name('position.update');
 	Route::get('/add-members/{divisionId}', [RegistrationController::class, 'create'])->name('member.add');
@@ -84,7 +86,7 @@ Route::middleware(['auth', 'role:admin'])->group( function () {
 	Route::get('/invitation/{token}', [EmailController::class,'show']);
 	Route::post('/invitation/accept/{token}', [EmailController::class,'accept']);
 	// Route::post('/invitation/reject/{token}', [EmailController::class,'reject']);
-	//interview criteria
+	// interview criteria
 	Route::get('/intv-criteria', [InterviewCriteriaController::class, 'index'])->name('intvcriteria');
 	Route::get('/add-intvcriterias/{idDivision}', [InterviewCriteriaController::class, 'create'])->name('intvcriteria.add');
 	Route::post('/store-intvcriterias', [InterviewCriteriaController::class, 'store'])->name('intvcriteria.store');
@@ -92,6 +94,8 @@ Route::middleware(['auth', 'role:admin'])->group( function () {
 	Route::get('/ahp', [AHPCalculationController::class, 'index'])->name('ahpcalc');
 	Route::get('/ahp/division/{idDivision}/criterias', [AHPCalculationController::class, 'getCriteriasByDivision'])->name('ahp.division.criterias');
 	Route::post('/ahp/normalize', [AHPCalculationController::class, 'normalize'])->name('normalize');
+	// interview scoring
+	Route::post('/intv-scoring', [InterviewScoringController::class, 'index'])->name('intvscoring');
 
 	Route::get('/{page}', [PageController::class, 'index'])->name('page');
 });

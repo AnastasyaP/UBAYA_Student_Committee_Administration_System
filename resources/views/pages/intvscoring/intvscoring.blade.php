@@ -1,84 +1,92 @@
+@php
+use Illuminate\Support\Str;
+@endphp
+
 @extends('layouts.app', ['class' => 'g-sidenav-show bg-gray-100'])
 
 @section('content')
-    @include('layouts.navbars.auth.topnav', ['title' => 'Penilaian Interview'])
+    @include('layouts.navbars.auth.topnav', ['title' => 'Form Penilaian'])
     <div class="container-fluid py-4">
         <div class="row">
-            <div class="col-md-8">
-                @if(session('warning'))
-                    <div>
-                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                            <strong>Warning!</strong> {{ session('warning') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    </div>
-                @elseif(session('success'))
+            <div class="col-12">
+                @if(session('success'))
                     <div>
                         <div class="alert alert-success alert-dismissible fade show" role="alert">
                             <strong>Success!</strong> {{ session('success') }}
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     </div>
+                @elseif(session('warning'))
+                    <div>
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            <strong>Warning!</strong> {{ session('warning') }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    </div>
                 @endif
-                <div class="card">
-                    <form method="POST" action="{{ route('intvscoring.intvscoring')" enctype="multipart/form-data">
+                <div class="card mb-4">
+                    <form method="POST" action="">
                         @csrf
-                        @method('PUT')
-                        <div class="card-header pb-0">
-                            <div class="d-flex align-items-center">
-                                <p class="mb-0">Divisi</p>
-                                <button class="btn btn-primary btn-sm ms-auto" type="submit">Simpan</button>
-                            </div>
+                        <div class="card-header pb-0 d-flex justify-content-between align-items-center" >
+                        <h6>Form Penilaian</h6>
+                        <button class="btn btn-dark btn-sm ms-auto" type="submit">Simpan</button>
                         </div>
                         <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class="form-control-label">Pilih Divisi yang Tersedia</label>
-                                        <select class="form-control" id="master_division" name="master_division" disabled>
-                                            <option value="">-- Pilih Divisi --</option>
-                                            @foreach($masterDivisions as $master)
-                                            <option value="{{ $master->idDivisions }}" @selected($division->idDivisions == $master->idDivisions)>
-                                                {{ $master->name }}
-                                            </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                          <label class="form-control-label">Atau Tambah Divisi Baru</label>
-                                            <input class="form-control" type="text" id="division_name" name="name"
-                                           placeholder="Enter new division name" value="{{ $division->name }}" disabled>
-                                    </div>
-                                </div>
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label class="form-control-label">Upload Gambar</label>
-                                        <div class="mb-3">
-                                            <img src="{{ asset('storage/' . $division->picture) }}" alt="Preview picture" id="preview" class="img-fluid rounded" style="max-width:200px">
+                                
+                            <div class="table-responsive p-0">
+                                <table class="table align-items-center mb-0 text-center">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
+                                                Kriteria Interview</th>
+                                            <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
+                                                Nilai</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($criterias as $criteria)
+                                        <tr>
+                                            <td>
+                                                    <div class="d-flex flex-column justify-content-center">
+                                                        <h6 class="mb-0 text-sm">{{ $criteria->kriteria }}</h6>
+                                                    </div>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex flex-column justify-content-center">
+                                                    <input type="number" class="form-control">
+                                                </div>
+                                                
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                            <p>
+                                <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDetail" aria-expanded="false" aria-controls="collapseDetail">
+                                        Detail Pendaftar
+                                </button>
+                            </p>
+                                <div class="collapse" id="collapseDetail">
+                                    <div class="card card-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-control-label">Nama</label>
+                                                <input type="text" class="form-control" id="name" value="{{ $mahasiswa->name }}" disabled>
+                                            </div>
                                         </div>
-                                        <input type="file" class="form-control" name="picture" id="picture" accept="image/*">
-                                        <small class="text-muted">Format: JPG, JPEG, PNG</small>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-control-label">Divisi</label>
+                                                    <input class="form-control" type="text" id="division" name="division"
+                                                    value="{{ $divisionName->name }}" disabled>
+                                            </div>
+                                        </div>
+                                        </div>
                                         
                                     </div>
                                 </div>
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label class="form-control-label">Deskripsi</label>
-                                        <textarea class="form-control" rows="5" name="description">{{ $division->description }}</textarea>
-                                    </div>
-                                </div>
-                                <div class="col-md-12">
-                                    <div class="form-group">
-                                        <label class="form-control-label">Status Pendaftaran</label>
-                                        <select name="is_open" id="is_open" class="form-control">
-                                            <option value=0 @selected($division->is_open == 0)>Tidak Buka</option>
-                                            <option value=1 @selected($division->is_open == 1)>Buka</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </form>
                 </div>
@@ -87,34 +95,12 @@
         @include('layouts.footers.auth.footer')
     </div>
     <script>
-        document.getElementById('master_division').addEventListener('change', function(){
-            const selectedOption = this.options[this.selectedIndex]; // ambil value yg di pilih 
-            const nameInput = document.getElementById('division_name'); // tempat untuk taruh valuenya
-
-            if(this.value){
-                nameInput.value = selectedOption.text;
-                nameinput.setAttribute('disabled', true); // kalo milih dari combobox text inputnya di disable
-            } else{
-                nameInput.value = '';
-                nameinput.removeAttribute('disabled');
+        setTimeout(()=>{
+            const alert = document.querySelector('.alert');
+            if(alert){
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
             }
-        });
-
-        document.getElementById('picture').addEventListener('change', function(){
-            const preview = document.getElementById('preview');
-            const file = event.target.files[0];
-
-            if(file){
-                const reader = new FileReader();
-                reader.onload = function (e){
-                    preview.src = e.target.result;
-                    preview.style.display = 'block';
-                };
-                reader.readAsDataURL(file);
-            }else{
-                  preview.src = "#";
-                    preview.style.display = 'none';
-            }
-        })
+        }, 3000); // auto close 3 detik
     </script>
 @endsection
