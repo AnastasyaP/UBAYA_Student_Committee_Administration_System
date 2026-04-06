@@ -14,14 +14,11 @@ return new class extends Migration
         Schema::create('tAHPResults', function (Blueprint $table) {
             $table->id('idAHPResults');
             $table->unsignedBigInteger('idRegistrations');
-            $table->double('final_weighted_score');
-            $table->integer('rank');
-            $table->unsignedBigInteger('idDivisions');
+            $table->double('final_score');
 
             $table->timestamps();
 
             $table->foreign('idRegistrations')->references('idRegistrations')->on('tRegistrations')->onDelete('cascade');
-            $table->foreign('idDivisions')->references('idDivisions')->on('tDivisions')->onDelete('cascade');
         });
     }
 

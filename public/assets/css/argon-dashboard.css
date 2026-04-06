@@ -24918,3 +24918,17 @@ pre[class*=language-] {
     font-weight: bold;
 }
 
+/* toggle icon detail in intv scoring */
+.toggle-detail{
+  display: flex;
+  align-items: center;
+}
+.toggle-detail .icon-toggle{
+  display: flex;
+  align-items: center;
+  transition: tranform 0.3s ease;
+}
+
+.toggle-detail:not(.collapsed) .icon-toggle{
+  transform: rotate(90deg);
+}

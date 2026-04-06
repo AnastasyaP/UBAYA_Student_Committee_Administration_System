@@ -170,13 +170,7 @@ class RegistrationController extends Controller
      */
     public function show($idRegis)
     {
-        $user = Auth::user();
-        $admin = null;
-        if($user->role === 'admin'){
-            $admin = $user;
-        } else {
-            return redirect()->route('dashboard')->with('warning', 'You are not an administrator!');
-        }
+        $this->init();
 
         $registration = DB::table('tMahasiswas as m')
         ->join('tUsers as u', 'm.idUsers', 'u.idUsers')

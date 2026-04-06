@@ -96,6 +96,8 @@ Route::middleware(['auth', 'role:admin'])->group( function () {
 	Route::post('/ahp/normalize', [AHPCalculationController::class, 'normalize'])->name('normalize');
 	// interview scoring
 	Route::post('/intv-scoring', [InterviewScoringController::class, 'index'])->name('intvscoring');
+	Route::get('/intvscoring/{idMahasiswa}/{idRegis}/{idDivision}', [InterviewScoringController::class, 'index'])->name('intvscoring.get');
+	Route::post('/score', [InterviewScoringController::class, 'store'])->name('intvscoring.score');
 
 	Route::get('/{page}', [PageController::class, 'index'])->name('page');
 });

@@ -88,6 +88,7 @@ use Illuminate\Support\Str;
                                                 @csrf
                                                 <input type="hidden" value="{{ $regis->idMahasiswa }}" name="idMahasiswa">
                                                 <input type="hidden" value="{{ $regis->idDivision }}" name="idDivision">
+                                                <input type="hidden" value="{{ $regis->idRegis }}" name="idRegis">
                                                 <button type="submit" class="btn btn-success btn-sm">Nilai</button>
                                             </form>
                                         </td>
@@ -106,8 +107,8 @@ use Illuminate\Support\Str;
                                                     data-form="acceptForm-{{ $regis->idRegis }}" 
                                                     data-action="accept"
                                                     data-color="btn-success"
-                                                    data-title="Confirm Accept"
-                                                    data-message="Are you sure you want to accept"
+                                                    data-title="Konfirmasi Penerimaan"
+                                                    data-message="Apakah anda yakin untuk menerima"
                                                 >Terima</button>                                                
                                             </form>                                         
                                         </td>
@@ -126,8 +127,8 @@ use Illuminate\Support\Str;
                                                     data-form="rejectForm-{{ $regis->idRegis }}"
                                                     data-action="reject"
                                                     data-color="btn-danger"
-                                                    data-title="Confirm Reject"
-                                                    data-message="Are you sure you want to reject"
+                                                    data-title="Konfirmasi Penolakan"
+                                                    data-message="Apakah anda yakin untuk menolak"
                                                 >Tolak</button>
                                             </form>
                                         </td>

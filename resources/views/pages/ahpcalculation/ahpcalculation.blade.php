@@ -19,6 +19,7 @@ use Illuminate\Support\Str;
                                 <option value="{{ $division->idDivisions }}" @selected($division->idDivisions == $default)>{{ $division->name }}</option>
                                 @endforeach
                             </select>
+                            <!-- <span class="badge bg-success">valid</span> -->
                         </div>
                         <button id="btn-normalize" target="" class="btn btn-dark btn-add ms-auto">Cek Bobot</button>
                     </div>
