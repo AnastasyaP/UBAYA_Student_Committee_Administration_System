@@ -63,9 +63,9 @@ use Illuminate\Support\Str;
                                             <div class="badge-select-wrapper">
                                                 <select name="position" class="badge-select text-sm position-select" data-member="{{ $m->idUser }}" data-division="{{ $m->idDivision }}">
                                                     <option value="BPH-SC" @selected($m->position == 'BPH-SC')>BPH-SC</option>
-                                                    <option value="Coordinator" @selected($m->position =='Coordinator')>Koordinator</option>
-                                                    <option value="Vice Coordinator" @selected($m->position == 'Vice Coordinator')>Wakil Koordinator</option>
-                                                    <option value="Member" @selected($m->position == 'Member')>Anggota</option>
+                                                    <option value="Koordinator" @selected($m->position =='Koordinator')>Koordinator</option>
+                                                    <option value="Wakil Koordinator" @selected($m->position == 'Wakil Koordinator')>Wakil Koordinator</option>
+                                                    <option value="Anggota" @selected($m->position == 'Anggota')>Anggota</option>
                                                 </select>
                                             </div>
                                         </td>
@@ -76,7 +76,7 @@ use Illuminate\Support\Str;
                                     @if(!$hasMember)
                                         <tr>
                                             <td colspan="4" class="text-center text-muted">
-                                                Tidak Ada Anggota yang Diterima
+                                                Belum ada anggota yang diterima
                                             </td>
                                         </tr>
                                     @endif

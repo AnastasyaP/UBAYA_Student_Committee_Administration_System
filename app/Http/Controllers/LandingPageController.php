@@ -216,14 +216,8 @@ class LandingPageController extends Controller
             }
 
         }
-        //         dd([
-        //     'dataToInput' => $dataToInput,
-        //     'is_empty' => empty($dataToInput),
-        //     'count' => count($dataToInput),
-        //     'skipped' => $dataSkipped
-        // ]);
+   
         if (empty($dataToInput)) {
-                // dd($exist);
                 return back()
                     ->withInput()
                     ->with('error', 'All selected divisions already registered.');

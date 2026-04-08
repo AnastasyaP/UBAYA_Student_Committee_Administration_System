@@ -24,8 +24,8 @@ return new class extends Migration
             $table->longText('motivation');
 
             $table->unsignedBigInteger('idInterviewSchedules')->nullable();
-            $table->string('invitation_token', 255);
-            $table->datetime('invitation_expired');
+            $table->string('invitation_token', 255)->nullable();
+            $table->datetime('invitation_expired')->nullable();
             
             $table->timestamps();
 

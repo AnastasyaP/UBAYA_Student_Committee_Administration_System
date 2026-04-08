@@ -24,10 +24,61 @@ use Illuminate\Support\Str;
                             </div>
                         </div>
                     @endif
-                
                 <div class="card mb-4">
-                    <div class="card-header pb-0 d-flex justify-content-between align-items-center" >
-                        <h6>Daftar Registrasi</h6>
+                      <div class="card-header pb-0" >
+                        <div class="badge-select-wrapper d-flex justify-content-between align-items-center">
+                            <h6 class="division-title">Rekomendasi Divisi {{ $masterDivision->first()->name ?? 'Tidak ada divisi' }}</h6>
+                            <select name="division" class="badge-select text-sm division-select">
+                                @foreach($masterDivision as $division)
+                                <option value="{{ $division->idDivisions }}">{{ $division->name }}</option>
+                                @endforeach
+                            </select>
+                            <!-- <span class="badge bg-success">valid</span> -->
+                        </div>
+                    </div>
+                    <div class="card-body px-0 pt-0 pb-2">
+                        <div class="table-responsive p-0">
+                            <table class="table align-items-center mb-0">
+                                <thead>
+                                    <tr>
+                                        <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
+                                            Peringkat</th>
+                                        <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
+                                            Nama</th>
+                                        <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
+                                            NRP</th>
+                                        <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
+                                            Divisi</th>
+                                        <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
+                                            Status</th>
+                                        <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7" colspan=3>Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="reg-division-body">
+                                    <tr>
+                                        <td colspan="8" class="text-center">
+                                            Belum ada data kandidat di divisi ini
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>    
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header pb-0" >
+                        <div class="badge-select-wrapper d-flex justify-content-between align-items-center">
+                            <h6>Daftar Registrasi</h6>
+                            <select name="status-select" id="status-select" class="badge-select text-sm status-select">
+                                <option value="">Semua</option>
+                                <option value="menunggu">Menunggu</option>
+                                <option value="dinilai">Dinilai</option>
+                                <option value="diterima">Diterima</option>
+                                <option value="ditolak">Ditolak </option>
+                            </select>
+                            <!-- <span class="badge bg-success">valid</span> -->
+                        </div>
                     </div>
                     <div class="card-body px-0 pt-0 pb-2">
                         <div class="table-responsive p-0">
@@ -45,8 +96,8 @@ use Illuminate\Support\Str;
                                         <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7" colspan=3>Aksi</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    @foreach($registrations as $regis)
+                                <tbody id="reg-status-body">
+                                    @forelse($registrations as $regis)
                                     <tr>
                                         <td>
                                             <div class="d-flex px-2 py-1">
@@ -134,10 +185,19 @@ use Illuminate\Support\Str;
                                         </td>
                                         @endif
                                     </tr>
-                                   @endforeach
+                                    @empty
+                                        <tr>
+                                            <td colspan="8" class="text-center text-muted">
+                                                Belum ada data registrasi yang tersedia
+                                            </td>
+                                        </tr>
+                                   @endforelse
                                 </tbody>
                             </table>
-                            <!-- confirm modal  -->
+                        </div>    
+                    </div>
+                </div>
+                <!-- confirm modal  -->
                             <div class="modal fade" id="confirmModal" tabindex="-1">
                                 <div class="modal-dialog modal-dialog-centered">
                                     <div class="modal-content">
@@ -158,20 +218,327 @@ use Illuminate\Support\Str;
                                     </div>
                                 </div>
                             </div>
-                        </div>    
-                    </div>
-                </div>
             </div>
         </div>
         @include('layouts.footers.auth.footer') 
     </div>
     <script>
+        // load division select saat pertama kali
+        document.addEventListener('DOMContentLoaded', function () {
+            const select = document.querySelector('.division-select');
+            const title = document.querySelector('.division-title');
+
+            if(select){
+                const selectedText = select.options[select.selectedIndex].text;
+                title.textContent = "Rekomendasi Divisi " + selectedText;
+
+                fetch(`/registration/division/${select.value}`)
+                    .then(res => res.json())
+                    .then(data =>{
+                        renderTable(data)
+                    });
+            }
+        });
+
+        function renderTable(data){
+            const tbody = document.getElementById('reg-division-body');
+            tbody.innerHTML = '';
+
+            if (!data.regByDivision || data.regByDivision.length === 0) {
+                tbody.innerHTML = `<tr>
+                    <td colspan="8" class="text-center">
+                        Belum ada data kandidat di divisi ini
+                    </td>
+                </tr>`;
+                return;
+            }
+
+            data.regByDivision.forEach((row, index) => {
+                let statusBadge = '';
+
+                if (row.status === 'menunggu') {
+                    statusBadge = `<span class="badge bg-warning">Menunggu</span>`;
+                } else if (row.status === 'dinilai') {
+                    statusBadge = `<span class="badge bg-info">Dinilai</span>`;
+                } else if (row.status === 'diterima') {
+                    statusBadge = `<span class="badge bg-success">Diterima</span>`;
+                } else {
+                    statusBadge = `<span class="badge bg-danger">Ditolak</span>`;
+                }
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                            <td class="text-center">${index+1}</td>
+                            <td>
+                                <h6 class="mb-0 text-sm">${row.name}</h6>
+                                <p class="text-xs text-secondary mb-0">${row.email}</p>
+                            </td>
+                            <td>${row.nrp}</td>
+                            <td>${row.division}</td>
+                            <td>${statusBadge}</td>
+                            <td>
+                                <a href="/registration/${row.idRegis}" 
+                                class="btn btn-warning btn-sm">Detail</a>
+                            </td>
+                            <td class="align-middle">
+                                <form id="acceptForm-${row.idRegis}" action="/registrations/accepted/${row.idRegis}" method="POST">
+                                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                    <input type="hidden" name="_method" value="PUT">
+                                    <button 
+                                        type="button" 
+                                        class="btn btn-action btn-success btn-sm" 
+                                        value="accepted" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#confirmModal" 
+                                        data-name="${row.name}"
+                                        data-form="acceptForm-${row.idRegis}" 
+                                        data-action="accept"
+                                        data-color="btn-success"
+                                        data-title="Konfirmasi Penerimaan"
+                                        data-message="Apakah anda yakin untuk menerima"
+                                    >Terima</button>                                                
+                                </form>                                         
+                            </td>                                        
+                            <td class="align-middle">
+                                <form id="rejectForm-${row.idRegis}" action="/registrations/rejected/${row.idRegis}" method="POST">
+                                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                    <input type="hidden" name="_method" value="PUT">
+                                    <button 
+                                        type="button" 
+                                        class="btn btn-action btn-danger btn-sm" 
+                                        value="rejected" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target= "#confirmModal" 
+                                        data-name="${row.name}"
+                                        data-form="rejectForm-${row.idRegis}"
+                                        data-action="reject"
+                                        data-color="btn-danger"
+                                        data-title="Konfirmasi Penolakan"
+                                        data-message="Apakah anda yakin untuk menolak"
+                                    >Tolak</button>
+                                </form>
+                            </td>
+                        `;
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        // division select
+        document.querySelectorAll('.division-select').forEach(select => {
+            select.addEventListener('change', function() {
+
+                const idDivision = this.value;
+
+                const card = this.closest('.card');
+                const title = card.querySelector('.division-title');
+                const selectedText = this.options[this.selectedIndex].text;
+                title.textContent = "Rekomendasi Divisi " + selectedText;
+
+                fetch(`/registration/division/${idDivision}`)
+                .then(res => res.json())
+                .then(data => {
+
+                    const tbody = this.closest('.card').querySelector('tbody');
+
+                    tbody.innerHTML = '';
+
+                    if (!data.regByDivision || data.regByDivision.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="8" class="text-center">Belum ada data kandidat di divisi ini</td></tr>`;
+                        return;
+                    }
+                    
+                    data.regByDivision.forEach((row, index) => {
+
+                        let statusBadge = '';
+
+                        if (row.status === 'menunggu') {
+                            statusBadge = `<span class="badge bg-warning">Menunggu</span>`;
+                        } else if (row.status === 'dinilai') {
+                            statusBadge = `<span class="badge bg-info">Dinilai</span>`;
+                        } else if (row.status === 'diterima') {
+                            statusBadge = `<span class="badge bg-success">Diterima</span>`;
+                        } else {
+                            statusBadge = `<span class="badge bg-danger">Ditolak</span>`;
+                        }
+
+                        const tr = document.createElement('tr');
+
+                        tr.innerHTML = `
+                            <td class="text-center">${index+1}</td>
+                            <td>
+                                <h6 class="mb-0 text-sm">${row.name}</h6>
+                                <p class="text-xs text-secondary mb-0">${row.email}</p>
+                            </td>
+                            <td>${row.nrp}</td>
+                            <td>${row.division}</td>
+                            <td>${statusBadge}</td>
+                            <td>
+                                <a href="/registration/${row.idRegis}" 
+                                class="btn btn-warning btn-sm">Detail</a>
+                            </td>
+                            <td class="align-middle">
+                                <form id="acceptForm-${row.idRegis}" action="/registrations/accepted/${row.idRegis}" method="POST">
+                                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                    <input type="hidden" name="_method" value="PUT">
+                                    <button 
+                                        type="button" 
+                                        class="btn btn-action btn-success btn-sm" 
+                                        value="accepted" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#confirmModal" 
+                                        data-name="${row.name}"
+                                        data-form="acceptForm-${row.idRegis}" 
+                                        data-action="accept"
+                                        data-color="btn-success"
+                                        data-title="Konfirmasi Penerimaan"
+                                        data-message="Apakah anda yakin untuk menerima"
+                                    >Terima</button>                                                
+                                </form>                                         
+                            </td>                                        
+                            <td class="align-middle">
+                                <form id="rejectForm-${row.idRegis}" action="/registrations/rejected/${row.idRegis}" method="POST">
+                                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                    <input type="hidden" name="_method" value="PUT">
+                                    <button 
+                                        type="button" 
+                                        class="btn btn-action btn-danger btn-sm" 
+                                        value="rejected" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target= "#confirmModal" 
+                                        data-name="${row.name}"
+                                        data-form="rejectForm-${row.idRegis}"
+                                        data-action="reject"
+                                        data-color="btn-danger"
+                                        data-title="Konfirmasi Penolakan"
+                                        data-message="Apakah anda yakin untuk menolak"
+                                    >Tolak</button>
+                                </form>
+                            </td>
+                        `;
+
+                        tbody.appendChild(tr);
+                    });
+                });
+            });
+        });
+
+        // status select
+        document.querySelectorAll('.status-select').forEach(select => {
+            select.addEventListener('change', function(){
+                const status = this.value;
+
+                let url = '/registration';
+
+                if(status){
+                    url += `/${status}`;
+                }
+
+                fetch(url)
+                .then(res => res.json())
+                .then(data => {
+                    const tbody = document.getElementById('reg-status-body');
+
+                    tbody.innerHTML = '';
+
+                    if(!data.regByStatus || data.regByStatus.length === 0){
+                        tbody.innerHTML = `<tr><td colspan="8" class="text-center">Belum ada data registrasi yang tersedia</td></tr>`;
+                        return;
+                    }
+
+                    data.regByStatus.forEach(row => {
+                        
+                        let statusBadge = '';
+                        if(row.status === 'menunggu'){
+                            statusBadge = `<span class="badge bg-warning">Menunggu</span>`;
+                        } else if(row.status === 'dinilai'){
+                            statusBadge = `<span class="badge bg-info">Dinilai</span>`;
+                        } else if(row.status === 'diterima'){
+                            statusBadge = `<span class="badge bg-success">Diterima</span>`;
+                        } else {
+                            statusBadge = `<span class="badge bg-danger">Ditolak</span>`;
+                        }
+                                        
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>
+                                <h6 class="mb-0 text-sm">${row.name}</h6>
+                                <p class="text-xs text-secondary mb-0">${row.email}</p>
+                            </td>
+                            <td>${row.nrp}</td>
+                            <td>${row.division}</td>
+                            <td>${statusBadge}</td>
+                            <td>
+                                <a href="/registration/${row.idRegis}" 
+                                class="btn btn-warning btn-sm">Detail</a>
+                            </td>
+                            <td>
+                                ${row.status === 'menunggu' ? `
+                                    <form action="/intv-scoring" method="POST">
+                                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                        <input type="hidden" value="${row.idMahasiswa}" name="idMahasiswa">
+                                        <input type="hidden" value="${row.idDivision}" name="idDivision">
+                                        <input type="hidden" value="${row.idRegis}" name="idRegis">
+                                        <button type="submit" class="btn btn-success btn-sm">Nilai</button>
+                                    </form>
+                                ` : ''} 
+                            </td>
+                            ${row.status === 'dinilai' ? `
+                                <td class="align-middle">
+                                    <form id="acceptForm-${row.idRegis}" action="/registrations/accepted/${row.idRegis}" method="POST">
+                                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                        <input type="hidden" name="_method" value="PUT">
+                                        <button 
+                                            type="button" 
+                                            class="btn btn-action btn-success btn-sm" 
+                                            value="accepted" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#confirmModal" 
+                                            data-name="${row.name}"
+                                            data-form="acceptForm-${row.idRegis}" 
+                                            data-action="accept"
+                                            data-color="btn-success"
+                                            data-title="Konfirmasi Penerimaan"
+                                            data-message="Apakah anda yakin untuk menerima"
+                                        >Terima</button>                                                
+                                    </form>                                         
+                                </td>                                        
+                                <td class="align-middle">
+                                    <form id="rejectForm-${row.idRegis}" action="/registrations/rejected/${row.idRegis}" method="POST">
+                                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                        <input type="hidden" name="_method" value="PUT">
+                                        <button 
+                                            type="button" 
+                                            class="btn btn-action btn-danger btn-sm" 
+                                            value="rejected" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target= "#confirmModal" 
+                                            data-name="${row.name}"
+                                            data-form="rejectForm-${row.idRegis}"
+                                            data-action="reject"
+                                            data-color="btn-danger"
+                                            data-title="Konfirmasi Penolakan"
+                                            data-message="Apakah anda yakin untuk menolak"
+                                        >Tolak</button>
+                                    </form>
+                                </td>
+                            `
+                            : ''}
+                        `;
+
+                        tbody.appendChild(tr);
+
+                    });
+
+                });
+            });
+        });
+
         setTimeout(()=>{
             document.querySelectorAll('.auto-close-alert').forEach(a => {
                 new bootstrap.Alert(a).close();
             });
         }, 3000); // auto close 3 detik
-
 
         // confirm modal
         document.addEventListener('DOMContentLoaded', function () {
@@ -185,27 +552,38 @@ use Illuminate\Support\Str;
             let activeForm = null;
 
     
+            // message
+            document.addEventListener('click', function(e){
+                const btn = e.target.closest('.btn-action');
+                if(!btn) return;
 
-            document.querySelectorAll('.btn.btn-action').forEach(btn =>{
-                btn.addEventListener('click', function(){
-                    const name = this.dataset.name;
-                    const formId = this.dataset.form;
-                    const title = this.dataset.title;
-                    const message = this.dataset.message;
-                    const color = this.dataset.color;
-                    
-                    activeForm = document.getElementById(formId);
+                const name = btn.dataset.name;
+                const formId = btn.dataset.form;
+                const title = btn.dataset.title;
+                const message = btn.dataset.message;
+                const color = btn.dataset.color;
 
-                    modalTitle.textContent = title;
-                    modalMessage.textContent = message;
-                    modalName.textContent = name;
-                    
-                    confirmBtn.className = 'btn '  + color;
-                    modal.show();
-                });   
+                const activeForm = document.getElementById(formId);
+
+                modalTitle.textContent = title;
+                modalMessage.textContent = message;
+                modalName.textContent = name;
+
+                confirmBtn.className = 'btn ' + color;
+
+                confirmBtn.onclick = () => activeForm.submit();
+
+                modal.show();
             });
 
-            confirmBtn.onclick = ()=> activeForm.submit();
+            confirmBtn.onclick = function(){
+                if(activeForm) activeForm.submit();
+            };
+
+            modalEl.addEventListener('hidden.bs.modal', function(){
+                activeForm = null;
+                confirmBtn.onclick = null;
+            });
         });
     </script>
 @endsection

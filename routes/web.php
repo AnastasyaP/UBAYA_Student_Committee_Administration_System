@@ -68,6 +68,8 @@ Route::middleware(['auth', 'role:admin'])->group( function () {
 	Route::put('/divisions/{idDivisions}/{idCommittees}', [DivisionController::class, 'update'])->name('division.update');
 	// regis
 	Route::get('registrations', [RegistrationController::class, 'index'])->name('registration');
+	Route::get('/registration/division/{idDivision}', [RegistrationController::class, 'getRegByDivision'])->name('reg.division');
+	Route::get('/registration/{status?}', [RegistrationController::class, 'getRegByStatus'])->name('reg.status');
 	Route::get('/view-registrations/{idRegis}', [RegistrationController::class, 'show'])->name('view.regis');
 	Route::put('/registrations/accepted/{idRegis}', [RegistrationController::class, 'accept'])->name('accept.regis');
 	Route::put('/registrations/rejected/{idRegis}', [RegistrationController::class, 'reject'])->name('reject.regis');
