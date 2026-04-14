@@ -10,35 +10,13 @@ use App\Models\AHPCriteria;
 
 class InterviewCriteriaController extends Controller
 {
-    protected $admin;
-    protected $committee;
-
-    public function __construct(){
-        $this->admin = null;
-        $this->committee = null;
-    }
-
-    function init(){
-        $user = Auth::user();
-        if($user->role === 'admin'){
-            $this->admin = $user;
-        }else{
-            return redirect()->back()->with('warning', "this account doesn't have an authority");
-        }
-
-        $this->committee = DB::table('tUsers as u')
-                        ->join('tCommittees as c', 'u.idUsers', 'c.admin')
-                        ->where('c.admin', $this->admin->idUsers)
-                        ->where('is_active', 1)
-                        ->first();
-    }
 
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $this->init();
+        $committee = $request->get('displayed_committee');
 
         $intvCriteria = DB::table('tListDivisions as ld')
                         ->join('tDivisions as d', 'ld.idDivisions', '=', 'd.idDivisions')
@@ -55,7 +33,7 @@ class InterviewCriteriaController extends Controller
                         ->leftJoin('tInterviewCriterias as ic',
                             'dc.idInterviewCriterias', '=', 'ic.idInterviewCriterias')
 
-                        ->where('ld.idCommittees', $this->committee->idCommittees)
+                        ->where('ld.idCommittees', $committee->idCommittees)
                         ->select(
                             'd.name as division',
                             'd.idDivisions as idDivision',
@@ -90,18 +68,7 @@ class InterviewCriteriaController extends Controller
      */
     public function store(Request $request)
     {
-        $user = Auth::user();
-        if($user->role === 'admin'){
-            $this->admin = $user;
-        }else{
-            return redirect()->back()->with('warning', "this account doesn't have an authority");
-        }
-
-        $this->committee = DB::table('tUsers as u')
-                        ->join('tCommittees as c', 'u.idUsers', 'c.admin')
-                        ->where('c.admin', $this->admin->idUsers)
-                        ->where('is_active', 1)
-                        ->first();
+        $committee = $request->get('displayed_committee');
 
         $request->validate([
             'ahp_criteria' => 'required|string|max:45',
@@ -137,14 +104,14 @@ class InterviewCriteriaController extends Controller
         // batesin 1 divisi di masing2 committee max 5 ahp criteria biar pairwisenya nga kebanyakan
         $mapping = DB::table('tListDivisionAHPCriterias')
             ->where('idDivisions', $request->idDivision)
-            ->where('idCommittees', $this->committee->idCommittees)
+            ->where('idCommittees', $committee->idCommittees)
             ->where('idAHPCriterias', $ahpID)
             ->first();
 
         if(!$mapping){
             $ahpCount = DB::table('tListDivisionAHPCriterias')
                 ->where('idDivisions', $request->idDivision)
-                ->where('idCommittees', $this->committee->idCommittees)
+                ->where('idCommittees', $committee->idCommittees)
                 ->count();
 
             if($ahpCount >= 5){
@@ -158,7 +125,7 @@ class InterviewCriteriaController extends Controller
             $ListDivisionAHPCriteriasID = DB::table('tListDivisionAHPCriterias')
                 ->insertGetId([
                     'idDivisions'    => $request->idDivision,
-                    'idCommittees'   => $this->committee->idCommittees,
+                    'idCommittees'   => $committee->idCommittees,
                     'idAHPCriterias' => $ahpID,
                     'average_weight' => 0,
                     'created_at' => now(),

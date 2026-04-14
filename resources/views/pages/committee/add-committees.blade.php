@@ -89,13 +89,13 @@
                                 </div>
                                 <div class="col-md-12">
                                         <div class="form-group">
-                                            <label class="form-control-label">Upload Gambar</label>
+                                            <label class="form-control-label">Upload Poster</label>
                                             <div class="mb-3">
-                                                <img src="{{ asset('assets_lp/img/noimage.jpg') }}" alt="Preview picture" id="preview" class="img-fluid rounded" style="max-width:200px">
+                                                <img src="{{ asset('/img/noimage.jpg') }}" alt="Preview poster" id="preview" class="img-fluid rounded" style="max-width:200px">
                                             </div>
-                                            <input type="file" class="form-control" name="picture" id="picture" accept="image/*">
+                                            <input type="file" class="form-control" name="poster" id="poster" accept="image/*">
                                             <small class="text-muted">Format: JPG, JPEG, PNG</small>
-                                            @error('picture')
+                                            @error('poster')
                                                 <div class="text-danger small">{{ $message }}</div>
                                             @enderror
                                         </div>
@@ -123,7 +123,7 @@
                     </form>
                 </div>
             </div>
-            <div class="col-md-4">
+            <!-- <div class="col-md-4">
                 <div class="card card-profile">
                     <img src="/img/bg-profile.jpg" alt="Image placeholder" class="card-img-top">
                     <div class="row justify-content-center">
@@ -182,12 +182,12 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> -->
         </div>
         @include('layouts.footers.auth.footer')
     </div>
     <script>
-        document.getElementById('picture').addEventListener('change', function(){
+        document.getElementById('poster').addEventListener('change', function(){
             const preview = document.getElementById('preview');
             const file = event.target.files[0];
 
@@ -199,7 +199,7 @@
                 }
                 reader.readAsDataURL(file);
             }else{
-                preview.src = "{{ asset('assets_lp/img/noimage.jpg') }}";
+                preview.src = "{{ asset('/img/noimage.jpg') }}";
                 preview.style.display = 'none';
             }
         })

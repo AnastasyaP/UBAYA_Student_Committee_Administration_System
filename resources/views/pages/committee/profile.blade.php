@@ -2,19 +2,18 @@
 
 @section('content')
     @include('layouts.navbars.auth.topnav', ['title' => 'Profil Kepanitiaan'])
-    @foreach($committees as $committee)
     <div class="card shadow-lg mx-4 card-profile-bottom">
         <div class="card-body p-3">
             <div class="row gx-4">
                 <div class="col-auto">
                     <div class="avatar avatar-xl position-relative">
-                        <img src="{{ asset('storage/' . $committee->picture) }}" alt="profile_image" class="w-100 border-radius-lg shadow-sm">
+                        <img src="{{ $committees->picture ? asset('storage/' . $committees->picture) : asset('/img/profile-default.png') }}" alt="profile_image" class="w-100 border-radius-lg shadow-sm">
                     </div>
                 </div>
                 <div class="col-auto my-auto">
                     <div class="h-100">
                         <h1 class="mb-1">
-                            {{ $committee->name }}
+                            {{ $committees->committee_name }}
                         </h1>
                     </div>
                 </div>
@@ -67,134 +66,66 @@
                     </div>
                 @endif
                 <div class="card">
-                    <form action="{{ route('committees.update', ['idCommittees' => $committee->idCommittees]) }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('committees.update', ['idCommittees' => $committees->idCommittees]) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
 
-                    <div class="card-body">
-                        <p class="text-uppercase text-sm">Informasi Kontak</p>
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label class="form-control-label">Nama Kepanitiaan</label>
-                                    <input class="form-control" type="text" name="name" value="{{ $committee->name }}" disabled>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label class="form-control-label">Email</label>
-                                    <input class="form-control" type="text" name="email" value="{{ $committee->email }}" disabled>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label class="form-control-label">Kontak</label>
-                                    <input class="form-control" type="text" name="contact" value="{{ $committee->contact }}" disabled>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label class="form-control-label">Unit Penyelenggara</label>
-                                    <input class="form-control" type="text" name="contact" value="{{ $committee->organizerName }}" disabled>
-                                </div>
-                            </div>
- 
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label class="form-control-label">Deskripsi</label>
-                                    <textarea class="form-control" rows="5" name="description" disabled>{{ $committee->description }}</textarea>
-                                </div>
-                            </div>
-                            <div class="col-md-12">
+                        <div class="card-body">
+                            <p class="text-uppercase text-sm">Informasi Kontak</p>
+                            <div class="row">
+                                <div class="col-md-4">
                                     <div class="form-group">
-                                        <label class="form-control-label">Status Kepanitiaan</label>
-                                        <select name="is_active" id="is_active" class="form-control" disabled>
-                                            <option value="1" @selected($committee->is_active == 1)>Aktif</option>
-                                        </select>
-                                        @error('is_active')
-                                            <div class="text-danger small">{{ $message }}</div>
-                                        @enderror
+                                        <label class="form-control-label">Nama Kepanitiaan</label>
+                                        <input class="form-control" type="text" name="name" value="{{ $committees->name }}" disabled>
                                     </div>
                                 </div>
-                        </div>
-                        
-                        <!-- <hr class="horizontal dark">
-                        <p class="text-uppercase text-sm">About me</p>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="form-group">
-                                    <label for="example-text-input" class="form-control-label">About me</label>
-                                    <input class="form-control" type="text"
-                                        value="A beautiful Dashboard for Bootstrap 5. It is Free and Open Source.">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Email</label>
+                                        <input class="form-control" type="text" name="email" value="{{ $committees->email }}" disabled>
+                                    </div>
                                 </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Kontak</label>
+                                        <input class="form-control" type="text" name="contact" value="{{ $committees->contact }}" disabled>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Unit Penyelenggara</label>
+                                        <input class="form-control" type="text" name="contact" value="{{ $committees->organizerName }}" disabled>
+                                    </div>
+                                </div>
+    
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Deskripsi</label>
+                                        <textarea class="form-control" rows="5" name="description" disabled>{{ $committees->description }}</textarea>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label class="form-control-label">Status Kepanitiaan</label>
+                                            <select name="is_active" id="is_active" class="form-control" disabled>
+                                                <option value="1" @selected($committees->is_active == 1)>Aktif</option>
+                                            </select>
+                                            @error('is_active')
+                                                <div class="text-danger small">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                    </div>
                             </div>
-                        </div>-->
+                        </div>
                     </form>
-                    
                 </div>
             </div>
-            <!-- <div class="col-md-4">
-                <div class="card card-profile">
-                    <img src="/img/bg-profile.jpg" alt="Image placeholder" class="card-img-top">
-                    <div class="row justify-content-center">
-                        <div class="col-4 col-lg-4 order-lg-2">
-                            <div class="mt-n4 mt-lg-n6 mb-4 mb-lg-0">
-                                <a href="javascript:;">
-                                    <img src="/img/team-2.jpg"
-                                        class="rounded-circle img-fluid border border-2 border-white">
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-header text-center border-0 pt-0 pt-lg-2 pb-4 pb-lg-3">
-                        <div class="d-flex justify-content-between">
-                            <a href="javascript:;" class="btn btn-sm btn-info mb-0 d-none d-lg-block">Connect</a>
-                            <a href="javascript:;" class="btn btn-sm btn-info mb-0 d-block d-lg-none"><i
-                                    class="ni ni-collection"></i></a>
-                            <a href="javascript:;"
-                                class="btn btn-sm btn-dark float-right mb-0 d-none d-lg-block">Message</a>
-                            <a href="javascript:;" class="btn btn-sm btn-dark float-right mb-0 d-block d-lg-none"><i
-                                    class="ni ni-email-83"></i></a>
-                        </div>
-                    </div>
-                    <div class="card-body pt-0">
-                        <div class="row">
-                            <div class="col">
-                                <div class="d-flex justify-content-center">
-                                    <div class="d-grid text-center">
-                                        <span class="text-lg font-weight-bolder">22</span>
-                                        <span class="text-sm opacity-8">Friends</span>
-                                    </div>
-                                    <div class="d-grid text-center mx-4">
-                                        <span class="text-lg font-weight-bolder">10</span>
-                                        <span class="text-sm opacity-8">Photos</span>
-                                    </div>
-                                    <div class="d-grid text-center">
-                                        <span class="text-lg font-weight-bolder">89</span>
-                                        <span class="text-sm opacity-8">Comments</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="text-center mt-4">
-                            <h5>
-                                Mark Davis<span class="font-weight-light">, 35</span>
-                            </h5>
-                            <div class="h6 font-weight-300">
-                                <i class="ni location_pin mr-2"></i>Bucharest, Romania
-                            </div>
-                            <div class="h6 mt-4">
-                                <i class="ni business_briefcase-24 mr-2"></i>Solution Manager - Creative Tim Officer
-                            </div>
-                            <div>
-                                <i class="ni education_hat mr-2"></i>University of Computer Science
-                            </div>
-                        </div>
-                    </div>
+           <div class="col-md-4">
+                <div class="card">
+                    <img src="{{ asset('storage/' . $committees->poster) }}" alt="poster" class="img-fluid rounded-3">
                 </div>
-            </div> -->
+            </div>
         </div>
-    @endforeach
         @include('layouts.footers.auth.footer')
     </div>
         <script>

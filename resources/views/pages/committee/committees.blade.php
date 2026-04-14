@@ -68,7 +68,7 @@ use Illuminate\Support\Str;
                                         <td>
                                             <div class="d-flex px-2 py-1">
                                                 <div>
-                                                    <img src="{{ asset('storage/' . $committee->picture) }}" class="avatar avatar-sm me-3"
+                                                    <img src="{{ $committee->picture ? asset('storage/' . $committee->picture) : asset('/img/profile-default.png') }}" class="avatar avatar-sm me-3"
                                                         alt="committee picture">
                                                 </div>
                                                 <div class="d-flex flex-column justify-content-center">
@@ -96,9 +96,23 @@ use Illuminate\Support\Str;
                                                 <span class="badge bg-danger">Berakhir</span>
                                             @endif
                                         </td>
+                                        
                                         @if($committee->is_active == 1)
+                                        <td>    
+                                            @if(session('displayed_committee') == $committee->idCommittees)
+                                                <span class="badge bg-success">Sedang Ditampilkan</span>
+                                            @else
+                                                <form action="{{ route('set.committee', ['idCommittee'=> $committee->idCommittees]) }}" method="POST">
+                                                    @csrf
+                                                    <button class="btn btn-primary btn-sm">
+                                                        Tampilkan
+                                                        <!-- Terapkan -->
+                                                    </button>      
+                                                </form>    
+                                            @endif                         
+                                        </td>
                                         <td>       
-                                            <a href="{{ route('committees.show', ['idCommittees'=> $committee->idCommittees, 'idCommittees' => $committee->idCommittees]) }}" 
+                                            <a href="{{ route('committees.show', ['idCommittees'=> $committee->idCommittees]) }}" 
                                             class="btn btn-warning btn-sm">Edit</a>                                
                                         </td>
                                         @else

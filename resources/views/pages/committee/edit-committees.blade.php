@@ -8,13 +8,13 @@
             <div class="row gx-4">
                 <div class="col-auto">
                     <div class="avatar avatar-xl position-relative">
-                        <img src="{{ asset('storage/' . $committee->picture) }}" alt="profile_image" class="w-100 border-radius-lg shadow-sm">
+                        <img src="{{ $committee->picture ? asset('storage/' . $committee->picture) : asset('/img/profile-default.png') }}" alt="commitee picture" class="w-100 border-radius-lg shadow-sm">
                     </div>
                 </div>
                 <div class="col-auto my-auto">
                     <div class="h-100">
                         <h1 class="mb-1">
-                            {{ $committee->name }}
+                            {{ $committee->committee_name }}
                         </h1>
                     </div>
                 </div>
@@ -137,6 +137,19 @@
                                 </div>
                             </div>
                             <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label class="form-control-label">Upload Poster</label>
+                                            <div class="mb-3">
+                                                <img src="{{ $committee->poster ? asset('storage/' . $committee->poster) : asset('/img/noimage.jpg') }}" alt="Preview picture" id="preview" class="img-fluid rounded" style="max-width:200px">
+                                            </div>
+                                            <input type="file" class="form-control" name="poster" id="poster" accept="image/*">
+                                            <small class="text-muted">Format: JPG, JPEG, PNG</small>
+                                            @error('poster')
+                                                <div class="text-danger small">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                            </div>
+                            <div class="col-md-12">
                                 <div class="form-group">
                                     <label class="form-control-label">Deskripsi</label>
                                     <textarea class="form-control" rows="5" name="description">{{ $committee->description }}</textarea>
@@ -159,7 +172,7 @@
                                             <div class="text-danger small">{{ $message }}</div>
                                         @enderror
                                     </div>
-                                </div>
+                            </div>
                         </div>
                         <hr class="horizontal dark">
                         <p class="text-uppercase text-sm">Evaluasi</p>
@@ -259,5 +272,22 @@
                 bsAlert.close();
             }
         }, 3000);
+
+        document.getElementById('poster').addEventListener('change', function(){
+            const preview = document.getElementById('preview');
+            const file = event.target.files[0];
+
+            if(file){
+                const reader = new FileReader();
+                reader.onload = function(e){
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            }else{
+                preview.src = "{{ asset('/img/noimage.jpg') }}";
+                preview.style.display = 'none';
+            }
+        })
     </script>
 @endsection

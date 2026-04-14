@@ -9,52 +9,30 @@ use Illuminate\Support\Facades\Auth;
 
 class AHPCalculationController extends Controller
 {
-    protected $admin;
-    protected $committee;
-
-    public function __construct(){
-        $this->admin = null;
-        $this->committee = null;
-    }
-
-    function init(){
-        $user = Auth::user();
-        if($user->role === 'admin'){
-            $this->admin = $user;
-        }else{
-            return redirect()->back()->with('warning', "this account doesn't have an authority");
-        }
-
-        $this->committee = DB::table('tUsers as u')
-                        ->join('tCommittees as c', 'u.idUsers', 'c.admin')
-                        ->where('c.admin', $this->admin->idUsers)
-                        ->where('is_active', 1)
-                        ->first();
-    }
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $this->init();
+        $committee = $request->get('displayed_committee');
 
         $masterDivision = DB::table('tDivisions as d')
                             ->join('tListDivisions as ld', 'd.idDivisions', 'ld.idDivisions')
-                            ->where('ld.idCommittees', $this->committee->idCommittees)
+                            ->where('ld.idCommittees', $committee->idCommittees)
                             ->get();
 
-        // $default = $masterDivision->first()->idDivisions;
+        $default = $masterDivision->first()->idDivisions;
 
-        $default = 3;
+        // $default = 3;
         $criterias = DB::table('tListDivisionAHPCriterias as lc')
                         ->join('tAHPCriterias as ac', 'lc.idAHPCriterias', 'ac.idAHPCriterias')
                         ->where('lc.idDivisions', $default)
-                        ->where('lc.idCommittees', $this->committee->idCommittees)
+                        ->where('lc.idCommittees', $committee->idCommittees)
                         ->get();
         // dd($criterias);
         $pairwiseDB = DB::table('tPairwiseComparisons')
                         ->where('idDivisions', $default)
-                        ->where('idCommittees', $this->committee->idCommittees)
+                        ->where('idCommittees', $committee->idCommittees)
                         ->get();
 
         if($pairwiseDB->isNotEmpty()){
@@ -89,12 +67,12 @@ class AHPCalculationController extends Controller
         return view('pages.ahpcalculation.ahpcalculation', compact('masterDivision', 'default', 'criterias', 'pairwise'));
     }
 
-    public function getCriteriasByDivision($idDivision){
-        $this->init();
+    public function getCriteriasByDivision($idDivision, Request $request){
+        $committee = $request->get('displayed_committee');
 
         $masterDivision = DB::table('tDivisions as d')
                             ->join('tListDivisions as ld', 'd.idDivisions', 'ld.idDivisions')
-                            ->where('ld.idCommittees', $this->committee->idCommittees)
+                            ->where('ld.idCommittees', $committee->idCommittees)
                             ->get();
 
         // $default = $masterDivision->first()->idDivisions;
@@ -102,12 +80,12 @@ class AHPCalculationController extends Controller
         $criterias = DB::table('tListDivisionAHPCriterias as lc')
                         ->join('tAHPCriterias as ac', 'lc.idAHPCriterias', 'ac.idAHPCriterias')
                         ->where('lc.idDivisions', $idDivision)
-                        ->where('lc.idCommittees', $this->committee->idCommittees)
+                        ->where('lc.idCommittees', $committee->idCommittees)
                         ->get();
         
          $pairwiseDB = DB::table('tPairwiseComparisons')
                         ->where('idDivisions', $idDivision)
-                        ->where('idCommittees', $this->committee->idCommittees)
+                        ->where('idCommittees', $committee->idCommittees)
                         ->get();
 
         if($pairwiseDB->isNotEmpty()){
@@ -147,17 +125,15 @@ class AHPCalculationController extends Controller
     }
 
     public function normalize(Request $request){
-        $this->init();
-
         $comparisons = $request->comparisons;
-        $committee = $this->committee->idCommittees;
+        $committee = $request->get('displayed_committee');
         $division = $request->division;
 
         // simpan pairwise ke tabel pairwise
         foreach($comparisons as $comp){
             DB::table('tPairwiseComparisons')
             ->updateOrInsert([
-                'idCommittees'=>$committee,
+                'idCommittees'=>$committee->idCommittees,
                 'idDivisions'=> $division,
                 'idCriteria1'=> $comp['c1'],
                 'idCriteria2'=> $comp['c2'],
@@ -176,7 +152,7 @@ class AHPCalculationController extends Controller
         $criterias = DB::table('tListDivisionAHPCriterias as lc')
             ->join('tAHPCriterias as ac', 'lc.idAHPCriterias', 'ac.idAHPCriterias')
             ->where('lc.idDivisions', $division)
-            ->where('lc.idCommittees', $committee)
+            ->where('lc.idCommittees', $committee->idCommittees)
             ->select('ac.idAHPCriterias', 'ac.name')
             ->get()
             ->values();
@@ -194,7 +170,7 @@ class AHPCalculationController extends Controller
 
         // 3️⃣ Ambil pairwise dari database
         $pairwise = DB::table('tPairwiseComparisons')
-            ->where('idCommittees', $committee)
+            ->where('idCommittees', $committee->idCommittees)
             ->where('idDivisions', $division)
             ->get();
 
@@ -241,7 +217,7 @@ class AHPCalculationController extends Controller
 
             DB::table('tListDivisionAHPCriterias')
                 ->where('idDivisions', $division)
-                ->where('idCommittees', $committee)
+                ->where('idCommittees', $committee->idCommittees)
                 ->where('idAHPCriterias', $c->idAHPCriterias)
                 ->update([
                     'average_weight' => $priority[$index]

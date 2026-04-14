@@ -17,6 +17,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'role' => RoleMiddleware::class,
+            'check.committee' => \App\Http\Middleware\CheckDisplayedCommittee::class,
+            'load.committee' => \App\Http\Middleware\LoadCommittee::class,
             // 'admin' => AdminMiddleware::class,
             // 'user' => UserMiddleware::class,
             // 'guest.multi' => RedirectIfAuthenticatedMulti::class,

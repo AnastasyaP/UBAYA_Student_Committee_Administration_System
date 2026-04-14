@@ -12,6 +12,8 @@ class DashboardController extends Controller
      */
     public function index()
     {
+                // dd(session('displayed_committee'));
+
         return view('pages.dashboard');
     }
 

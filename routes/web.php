@@ -43,7 +43,14 @@ Route::middleware(['auth', 'role:mahasiswa'])->group(function (){
 	Route::post('/submit-regis', [LandingPageController::class, 'store'])->name('regis.store');
 });
 
-Route::middleware(['auth', 'role:admin'])->group( function () {
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/choose-committees', [CommitteeController::class, 'index'])->name('committees.choose');
+	// committee session
+	Route::post('set-committee/{idCommittee}', [CommitteeController::class, 'setCommittee'])->name('set.committee');
+
+});
+
+Route::middleware(['auth', 'role:admin', 'check.committee', 'load.committee'])->group( function () {
 	Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 	Route::get('/virtual-reality', [PageController::class, 'vr'])->name('virtual-reality');
 	Route::get('/rtl', [PageController::class, 'rtl'])->name('rtl');
@@ -100,6 +107,6 @@ Route::middleware(['auth', 'role:admin'])->group( function () {
 	Route::post('/intv-scoring', [InterviewScoringController::class, 'index'])->name('intvscoring');
 	Route::get('/intvscoring/{idMahasiswa}/{idRegis}/{idDivision}', [InterviewScoringController::class, 'index'])->name('intvscoring.get');
 	Route::post('/score', [InterviewScoringController::class, 'store'])->name('intvscoring.score');
-
+	
 	Route::get('/{page}', [PageController::class, 'index'])->name('page');
 });

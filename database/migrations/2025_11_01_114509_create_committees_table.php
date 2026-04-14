@@ -14,18 +14,17 @@ return new class extends Migration
         Schema::create('tCommittees', function (Blueprint $table) {
             $table->id('idCommittees');
             $table->unsignedBigInteger('admin');
-            $table->string('committee_name', 45);
+            $table->string('committee_name', 50);
             $table->string('name', 45);
             $table->date('start_period')->nullable();
             $table->date('end_period')->nullable();
             $table->string('description', 600)->nullable();
             $table->string('requirements', 500)->nullable();
-            $table->string('picture', 255)->nullable();
             $table->string('contact', 45)->nullable();
             $table->date('start_regis')->nullable();
             $table->date('end_regis')->nullable();
             $table->text('evaluation')->nullable();  
-            $table->string('poster', 500)->nullable();  
+            $table->string('poster', 1000)->dafault('/img/noimage');  
             $table->tinyInteger('is_active')->default(0);
             $table->timestamps();
 

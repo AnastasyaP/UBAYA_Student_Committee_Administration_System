@@ -19,15 +19,16 @@ class DivisionController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $admin = Auth::user();
+        $displayedCommittee = $request->get('displayed_committee');
         
         $divisions = DB::table('tDivisions as d')
         ->join('tListDivisions as ld', 'd.idDivisions', '=', 'ld.idDivisions')
         ->join('tCommittees as c', 'ld.idCommittees', '=', 'c.idCommittees')
         ->where('c.admin', $admin->idUsers)
-        ->where('c.is_active', 1)
+        ->where('c.idCommittees', $displayedCommittee->idCommittees)
         ->select(
             'ld.idDivisions as idDivisions', 
             'ld.idCommittees as idCommittees', 
@@ -82,12 +83,9 @@ class DivisionController extends Controller
             $filePath = $file->storeAs('img/division', $fileName, 'public');
         }
 
-        // ambil id committee dr admin yg login
+        // ambil id committee yg ditampilkan
         $admin = Auth::user();
-        $committeeId = DB::table('tCommittees as c')
-        ->where('c.admin', $admin->idUsers)
-        ->where('c.is_active', 1)
-        ->value('c.idCommittees');
+        $committeeId = $request->get('displayed_committee');
         
         $name = $request->name; // ambil nama dari text input
         $master_division = $request->master_division; //ambil nama dari combobox
@@ -110,7 +108,7 @@ class DivisionController extends Controller
 
         // pengecekan klo committee itu uda punya divisi yg mau ditambah or belom
         $exists = ListDivision::where('idDivisions', $divisionId)
-                ->where('idCommittees', $committeeId)
+                ->where('idCommittees', $committeeId->idCommittees)
                 ->exists();
 
         if ($exists) {
@@ -119,7 +117,7 @@ class DivisionController extends Controller
 
         ListDivision::create([
             'idDivisions' => $divisionId,
-            'idCommittees' => $committeeId,
+            'idCommittees' => $committeeId->idCommittees,
             'is_open' => $request->is_open,
             'description' => $request->description,
             'picture' => $filePath
