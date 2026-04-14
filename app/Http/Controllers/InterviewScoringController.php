@@ -9,34 +9,12 @@ use Illuminate\Support\Facades\Auth;
 
 class InterviewScoringController extends Controller
 {
-    protected $admin;
-    protected $committee;
-
-    public function __construct(){
-        $this->admin = null;
-        $this->committee = null;
-    }
-
-    function init(){
-        $user = Auth::user();
-        if($user->role === 'admin'){
-            $this->admin = $user;
-        }else{
-            return redirect()->back()->with('warning', "this account doesn't have an authority");
-        }
-
-        $this->committee = DB::table('tUsers as u')
-                        ->join('tCommittees as c', 'u.idUsers', 'c.admin')
-                        ->where('c.admin', $this->admin->idUsers)
-                        ->where('is_active', 1)
-                        ->first();
-    }
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
-        $this->init();
+        $committee = $request->get('displayed_committee');
 
         //kirim id pendaftar
         //id evaluator ambil dari yg lg login
@@ -59,7 +37,7 @@ class InterviewScoringController extends Controller
                         $join->on('ic.idInterviewCriterias', '=', 'ies.idInterviewCriterias')
                             ->on('ies.idInterviewEvaluations', '=', 'ie.idInterviewEvaluations');
                     })
-                    ->where('la.idCommittees', $this->committee->idCommittees)
+                    ->where('la.idCommittees', $committee->idCommittees)
                     ->where('la.idDivisions', $idDivision)
                     ->select(
                         'ic.idInterviewCriterias as idCriterias',
@@ -109,12 +87,11 @@ class InterviewScoringController extends Controller
      */
     public function store(Request $request)
     {
-        $this->init();
         // dd($request->all());
 
         //buat tInterviewEvaluations
         $exist = DB::table('tInterviewEvaluations')
-            ->where('idEvaluator', $this->admin->idUsers)
+            ->where('idEvaluator', Auth::id())
             ->where('idRegistrations', $request->idRegis)
             ->first();
 
@@ -129,7 +106,7 @@ class InterviewScoringController extends Controller
         } else {
             $idInterviewEvaluation = DB::table('tInterviewEvaluations')
                 ->insertGetId([
-                    'idEvaluator' => $this->admin->idUsers,
+                    'idEvaluator' => Auth::id(),
                     'idRegistrations' => $request->idRegis,
                     'comment' => $request->comment,
                 ]);

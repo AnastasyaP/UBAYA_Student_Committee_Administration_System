@@ -4,14 +4,18 @@
       <a href="{{ route('home') }}" class="logo d-flex align-items-center me-auto">
         <!-- Uncomment the line below if you also wish to use an image logo -->
         <!-- <img src="assets_lp/img/logo.png" alt=""> -->
-        <h1 class="sitename">Student Committees</h1>
+        <h1 class="sitename">Kepanitiaan Mahasiswa</h1>
       </a>
 
       <nav id="navmenu" class="navmenu">
         <ul>
-          <li><a href="{{ route('home') }}" class="active">Home<br></a></li>
-          <li><a href="profile">Profile</a></li>
-          <li><a href="list-committees">Committees</a></li>
+          <li><a href="{{ route('home') }}" class="active">Beranda<br></a></li>
+          @auth
+              @if(auth()->user()->role == 'mahasiswa')
+                  <li><a href="{{ route('lp.profile') }}">Profil</a></li>
+              @endif
+          @endauth
+          <li><a href="list-committees">Kepanitiaan</a></li>
           <!-- <li><a href="pricing.html">Pricing</a></li>
           <li class="dropdown"><a href="#"><span>Dropdown</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
             <ul>

@@ -14,12 +14,12 @@ use Illuminate\Support\Str;
       <div class="container">
         <div class="row gy-4 d-flex justify-content-between">
           <div class="col-lg-6 order-2 order-lg-1 d-flex flex-column justify-content-center">
-            <h2 data-aos="fade-up">Join, Explore, and Grow with Campus Committees</h2>
-            <p data-aos="fade-up" data-aos-delay="100">Easily find and participate in student committees that match your passion. Manage your involvement and experiences all in one place — fast, simple, and organized.</p>
+            <h2 data-aos="fade-up">Bergabung, Jelajahi, dan Berkembang Bersama Kepanitiaan Kampus</h2>
+            <p data-aos="fade-up" data-aos-delay="100">Temukan dan ikuti kepanitiaan mahasiswa yang sesuai dengan minatmu dengan mudah. ​​Kelola keterlibatan dan pengalamanmu di satu tempat — cepat, sederhana, dan terorganisir.</p>
 
             <form action="#" class="form-search d-flex align-items-stretch mb-3" data-aos="fade-up" data-aos-delay="200">
-              <input type="text" class="form-control" placeholder="Find Your Committee Here..">
-              <button type="submit" class="btn btn-primary">Search</button>
+              <input type="text" class="form-control" placeholder="Temukan kepanitiaanmu disini..">
+              <button type="submit" class="btn btn-primary">Cari</button>
             </form>
 
             <!-- <div class="row gy-4" data-aos="fade-up" data-aos-delay="300">
@@ -110,9 +110,9 @@ use Illuminate\Support\Str;
 
       <!-- Section Title -->
       <div class="container section-title" data-aos="fade-up">
-        <span>Recomendation</span>
-        <h2>Recomendation</h2>
-        <p>Personalized committee recommendations based on your participation and interests</p>
+        <span>Rekomendasi</span>
+        <h2>Rekomendasi</h2>
+        <p>Rekomendasi komite yang dipersonalisasi berdasarkan partisipasi dan minatmu✨</p>
       </div><!-- End Section Title -->
 
       <div class="container">
@@ -223,9 +223,9 @@ use Illuminate\Support\Str;
 
       <!-- Section Title -->
       <div class="container section-title" data-aos="fade-up">
-        <span>Join Active Committees<br></span>
-        <h2>Join Active Committees</h2>
-        <p>Discover committees that are now open for new members. Don't miss your chance to get involved!</p>
+        <span>Kepanitiaan Aktif<br></span>
+        <h2>Kepanitiaan Aktif</h2>
+        <p>Temukan kepanitiaan yang kini membuka pendaftaran anggota baru. Jangan lewatkan kesempatanmu untuk mendaftar🤩</p>
       </div><!-- End Section Title -->
 
       <div class="container">
@@ -236,7 +236,7 @@ use Illuminate\Support\Str;
                 
                 <div class="card committee-card">
                   <div class="committee-img-wrapper">
-                    <img src="{{ asset('storage/' . $committee->picture) }}" class="committee-img">
+                    <img src="{{ $committee->picture ? asset('storage/' . $committee->picture) : asset('/img/profile-default.png') }}" class="committee-img">
                   </div>
 
                   <h3>{{ $committee->name }}</h3>

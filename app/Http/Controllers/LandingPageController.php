@@ -17,11 +17,30 @@ class LandingPageController extends Controller
     {
         $user = Auth::user()->username;
 
-        $committees = DB::table('tCommittees')
+        $committees = DB::table('tCommittees as c')
+                    ->join('tUsers as u', 'c.admin', 'u.idUsers')
                     ->where('is_active', 1)
+                    ->select([
+                        'c.*',
+                        'u.picture as picture'
+                    ])
                     ->get();
 
         return view('pages.landingpage.index', compact('committees', 'user'));
+    }
+
+    public function profile(){
+        $mahasiswa = null;
+        if(Auth::user()->role === 'mahasiswa'){
+            $mahasiswa = Auth::user();
+        }
+
+        $profile = DB::table('tMahasiswas as m')
+                    ->join('tUsers as u', 'm.idUsers', 'u.idUsers')
+                    ->where('u.idUsers', $mahasiswa->idUsers)
+                    ->first();
+
+        return view('pages.landingpage.profile', compact('profile'));
     }
 
     /**
@@ -244,9 +263,10 @@ class LandingPageController extends Controller
     public function show($idCommittee)
     {
         // dd($idCommittee);
-        $committee = DB::table('tCommittees')
+        $committee = DB::table('tCommittees as c')
+                    ->join('tUsers as u', 'c.admin', 'u.idUsers')
                     ->where('idCommittees', $idCommittee)
-                    ->select('*')
+                    ->select('*', 'u.picture as picture')
                     ->first();
 
         if(!$committee){

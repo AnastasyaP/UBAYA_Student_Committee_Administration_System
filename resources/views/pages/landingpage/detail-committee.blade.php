@@ -45,8 +45,8 @@ use Illuminate\Support\Str;
 
         <div class="row gy-4">
 
-          <div class="col-lg-6 position-relative align-self-start order-lg-last order-first" data-aos="fade-up" data-aos-delay="200">
-            <img src="{{ asset('storage/' . $committee->picture) }}" class="img-fluid" alt="" style="height:500px; width:100%; object-fit: cover;">
+          <div class="col-lg-6 position-relative align-self-start order-lg-last order-first d-flex justify-content-center" data-aos="fade-up" data-aos-delay="200">
+            <img src="{{ asset('storage/' . $committee->poster) }}" class="img-fluid" alt="" style="height:auto; width:500px; object-fit: cover;">
             <!-- <a href="https://www.youtube.com/watch?v=Y7f98aduVJ8" class="glightbox pulsating-play-btn"></a> -->
           </div>
 
