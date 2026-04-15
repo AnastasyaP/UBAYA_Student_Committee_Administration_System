@@ -193,7 +193,7 @@ class DivisionController extends Controller
                         'picture' => $filePath,
                     ]);
         // return kembali ke division blade dengan kode sukses
-        return redirect()->route('divisions')->with('success', 'Division updated successfully!');
+        return redirect()->route('divisions')->with('success', 'Divisi berhasil di update!');
     }
 
     /**

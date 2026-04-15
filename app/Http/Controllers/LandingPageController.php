@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 
 class LandingPageController extends Controller
@@ -280,6 +282,46 @@ class LandingPageController extends Controller
                     ->select('d.name as name', 'ld.description as description', 'ld.picture as picture')
                     ->get();
         return view('pages.landingpage.detail-committee', compact('committee', 'divisions'));
+    }
+
+    public function editProfilePicture(Request $request){
+        $request->validate([
+            'picture' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+        ],
+        [
+            'picture.max' => 'Ukuran gambar maksimal 2MB!',
+            'picture.image' => 'File harus berupa gambar!',
+            'picture.mimes' => 'Format harus JPG, JPEG, atau PNG!',
+            'required' => 'Tolong upload foto terlebih dahulu',
+        ]);
+
+        $user = Auth::user();
+
+        $oldData = DB::table('tUsers as u')
+                    ->join('tMahasiswas as m', 'u.idUsers', 'm.idUsers')
+                    ->where('u.idUsers', $user->idUsers)
+                    ->first();
+
+        $filePath = $oldData->picture ?? null;
+
+                // dd($filePath, $request->picture);
+        if($request->hasFile('picture')){
+            if($filePath && Storage::disk('public')->exists($filePath)){
+                Storage::disk('public')->delete($filePath);
+            }
+
+            $file = $request->picture;
+            $fileName = Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $filePath = $file->storeAs('img/profile', $fileName, 'public');
+        }
+
+        DB::table('tUsers')
+            ->where('idUsers', $user->idUsers)
+            ->update([
+                'picture' => $filePath,
+            ]);
+        
+        return redirect()->back()->with('success', 'Foto profil berhasil di update!');
     }
 
     /**

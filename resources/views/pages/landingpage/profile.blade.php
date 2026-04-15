@@ -2,7 +2,23 @@
 
 @section('title', 'Profile')
 @section('content')
+    @if(session('success'))
+      <div class="flash-message success">
+        {{ session('success') }}
+      </div>
+    @endif
 
+    @if(session('warning'))
+      <div class="flash-message warning">
+        {{ session('warning') }}
+      </div>
+    @endif
+
+    @if(session('error'))
+      <div class="flash-message error">
+        {{ session('error') }}
+      </div>
+    @endif
     <!-- Page Title -->
     <div class="page-title dark-background" data-aos="fade" style="background-image: url(assets/img/page-title-bg.jpg);">
       <div class="container position-relative">
@@ -25,31 +41,16 @@
 
         <div class="row gy-4">
 
-          <div class="col-lg-4">
-            <div class="info-item d-flex" data-aos="fade-up" data-aos-delay="300">
-              <i class="bi bi-geo-alt flex-shrink-0"></i>
-              <div>
-                <h3>Address</h3>
-                <p>A108 Adam Street, New York, NY 535022</p>
+          <div class="col-lg-4 d-flex justify-content-center">
+            <div class="profile-wrapper">
+              <div class="profile-img-container">
+                <img src="{{ $profile->picture ? asset('storage/' . $profile->picture) : asset('/img/profile-default.png') }}" alt="profile picture">
               </div>
-            </div><!-- End Info Item -->
-
-            <div class="info-item d-flex" data-aos="fade-up" data-aos-delay="400">
-              <i class="bi bi-telephone flex-shrink-0"></i>
-              <div>
-                <h3>Call Us</h3>
-                <p>+1 5589 55488 55</p>
-              </div>
-            </div><!-- End Info Item -->
-
-            <div class="info-item d-flex" data-aos="fade-up" data-aos-delay="500">
-              <i class="bi bi-envelope flex-shrink-0"></i>
-              <div>
-                <h3>Email Us</h3>
-                <p>info@example.com</p>
-              </div>
-            </div><!-- End Info Item -->
-
+              
+              <button class="edit-btn" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                <i class="fas fa-pen"></i>
+              </button>
+            </div>
           </div>
 
           <div class="col-lg-8">
@@ -57,27 +58,47 @@
               <div class="row gy-4">
 
                 <div class="col-md-6">
-                  <input type="text" name="name" class="form-control" placeholder="Your Name" required="">
+                  <h6>NRP</h6>
+                  <input type="text" name="nrp" class="form-control" placeholder="NRP" required="" value="{{ $profile->nrp }}" disabled>
                 </div>
 
                 <div class="col-md-6 ">
-                  <input type="email" class="form-control" name="email" placeholder="Your Email" required="">
+                  <h6>Email</h6>
+                  <input type="text" class="form-control" name="email" placeholder="Email" required="" value="{{ $profile->email }}" disabled>
+                </div>
+
+                <div class="col-md-6 ">
+                  <h6>Nama Depan</h6>
+                  <input type="text" class="form-control" name="firstname" placeholder="Nama Depan" required="" value="{{ $profile->firstname }}" disabled>
+                </div>
+
+                <div class="col-md-6 ">
+                  <h6>Nama Belakang</h6>
+                  <input type="text" class="form-control" name="lastname" placeholder="Nama Belakang" required="" value="{{ $profile->lastname }}" disabled>
                 </div>
 
                 <div class="col-md-12">
-                  <input type="text" class="form-control" name="subject" placeholder="Subject" required="">
+                  <h6>Ubah Password</h6>
+                  <div class="password-wrapper">
+                    <input type="password" class="form-control" value="12345678" disabled>
+                    <button type="button" class="edit-pass-btn" data-bs-toggle="modal" data-bs-target="#editPwdModal">
+                      <i class="fas fa-pen"></i>
+                    </button>
+                  </div>
                 </div>
 
-                <div class="col-md-12">
-                  <textarea class="form-control" name="message" rows="6" placeholder="Message" required=""></textarea>
+                <div class="col-md-6">
+                  <h6>CV</h6>
+                  <input type="file" class="form-control" name="cv">
+                </div>
+
+                <div class="col-md-6">
+                  <h6>Portofolio</h6>
+                  <input type="file" class="form-control" name="portofolio">
                 </div>
 
                 <div class="col-md-12 text-center">
-                  <div class="loading">Loading</div>
-                  <div class="error-message"></div>
-                  <div class="sent-message">Your message has been sent. Thank you!</div>
-
-                  <button type="submit">Send Message</button>
+                  <button type="submit">Simpan</button>
                 </div>
 
               </div>
@@ -88,5 +109,113 @@
 
       </div>
 
+      <!-- modal edit profile picture -->
+      <form action="{{ route('lp.profile.edit') }}" method="POST" enctype="multipart/form-data">
+        @csrf
+        @method('PUT')
+        <div class="modal fade" id="editProfileModal" tabindex="-1">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              
+              <div class="modal-header">
+                <h5 class="modal-title">Edit Profile Picture</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+
+              <div class="modal-body">
+                @if ($errors->has('picture'))
+                  <div class="alert alert-danger">
+                    {{ $errors->first('picture') }}
+                  </div>
+                @endif
+                <div class="mb-3">
+                  <img src="{{ asset('/img/noimage.jpg') }}" alt="Preview picture" id="preview" class="img-fluid rounded" style="max-width:200px">
+                </div>
+                <input type="file" class="form-control" name="picture" id="picture" accept="image/*">
+                <small class="text-muted">Format: JPG, JPEG, PNG, Maks. 2MB</small>                                        
+              </div>
+
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="submit" class="btn btn-primary">Simpan</button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </form>
+            
+      <!-- modal edit password -->
+      <form action="{{ route('lp.profile.edit') }}" method="POST" enctype="multipart/form-data">
+        @csrf
+        @method('PUT')
+        <div class="modal fade" id="editProfileModal" tabindex="-1">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              
+              <div class="modal-header">
+                <h5 class="modal-title">Edit Profile Picture</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+
+              <div class="modal-body">
+                @if ($errors->has('picture'))
+                  <div class="alert alert-danger">
+                    {{ $errors->first('picture') }}
+                  </div>
+                @endif
+                <div class="mb-3">
+                  <img src="{{ asset('/img/noimage.jpg') }}" alt="Preview picture" id="preview" class="img-fluid rounded" style="max-width:200px">
+                </div>
+                <input type="file" class="form-control" name="picture" id="picture" accept="image/*">
+                <small class="text-muted">Format: JPG, JPEG, PNG, Maks. 2MB</small>                                        
+              </div>
+
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="submit" class="btn btn-primary">Simpan</button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
     </section><!-- /Contact Section -->
+    @if ($errors->has('picture'))
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        var myModal = new bootstrap.Modal(document.getElementById('editProfileModal'));
+        myModal.show();
+      });
+
+      setTimeout(()=>{
+            const alert = document.querySelector('.alert');
+            if(alert){
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }
+        }, 3000); // auto close 3 detik
+    </script>
+    @endif
+
+    <script>
+      document.getElementById('picture').addEventListener('change', function(event){
+            const preview = document.getElementById('preview');
+            const file = event.target.files[0];
+
+            if(file){
+                const reader = new FileReader();
+                reader.onload = function (e){
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }else{
+                  preview.src = "{{ asset('assets_lp/img/noimage.jpg') }}";
+                    preview.style.display = 'none';
+            }
+        })
+    </script>
 @endsection

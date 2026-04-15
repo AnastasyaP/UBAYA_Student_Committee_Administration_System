@@ -42,6 +42,7 @@ Route::middleware(['auth', 'role:mahasiswa'])->group(function (){
 	Route::get('/intv-schedule/{idCommittee}/{idDivision}', [LandingPageController::class, 'intv'])->name('view.scheduleintv');
 	Route::post('/submit-regis', [LandingPageController::class, 'store'])->name('regis.store');
 	Route::get('/lp-profile', [LandingPageController::class, 'profile'])->name('lp.profile');
+	Route::put('/lp-profile/edit', [LandingPageController::class, 'editProfilePicture'])->name('lp.profile.edit');
 });
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
