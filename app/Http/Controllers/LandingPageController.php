@@ -46,6 +46,10 @@ class LandingPageController extends Controller
         return view('pages.landingpage.profile', compact('profile'));
     }
 
+    public function committee(){
+        return view('pages.landingpage.committee');
+    }
+
     /**
      * Show the form for creating a new resource.
      */

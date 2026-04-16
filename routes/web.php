@@ -45,6 +45,7 @@ Route::middleware(['auth', 'role:mahasiswa'])->group(function (){
 	Route::put('/lp-profile/edit', [LandingPageController::class, 'editProfilePicture'])->name('lp.profile.edit');
 	Route::put('/lp-profile/change-password', [LandingPageController::class, 'changePassword'])->name('lp.pwd.change');
 	Route::put('/lp-profile/save-files', [LandingPageController::class, 'saveFiles'])->name('lp.save.files');
+	Route::get('/committee', [LandingPageController::class, 'committee'])->name('lp.committee');
 });
 
 Route::middleware(['auth', 'role:admin'])->group(function () {

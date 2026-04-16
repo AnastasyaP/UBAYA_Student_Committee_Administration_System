@@ -15,7 +15,7 @@
                   <li><a href="{{ route('lp.profile') }}">Profil</a></li>
               @endif
           @endauth
-          <li><a href="list-committees">Kepanitiaan</a></li>
+          <li><a href="{{ route('lp.committee') }}">Kepanitiaan</a></li>
           <!-- <li><a href="pricing.html">Pricing</a></li>
           <li class="dropdown"><a href="#"><span>Dropdown</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
             <ul>
