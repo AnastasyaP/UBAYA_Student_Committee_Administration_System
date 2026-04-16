@@ -39,7 +39,16 @@
         <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
       </nav>
 
-      <a class="btn-getstarted" href="{{  route('logout') }}">Log out</a>
-
+      <a class="btn-getstarted" href="#" id="logout-btn">Log out</a>
+      <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+          @csrf
+      </form>
     </div>
   </header>
+
+  <script>
+    document.getElementById('logout-btn').addEventListener('click', function(e) {
+        e.preventDefault();
+        document.getElementById('logout-form').submit();
+    });
+  </script>

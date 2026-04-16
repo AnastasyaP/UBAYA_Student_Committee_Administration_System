@@ -34,11 +34,11 @@ class LoginController extends Controller
             $role = Auth::user()->role;
 
             if($role === 'admin'){
-                return redirect()->intended('dashboard');
+                return redirect('/dashboard');
             } 
             
             if($role === "mahasiswa"){
-                return redirect()->intended('home');
+                return redirect('/home');
             }
         }
 
@@ -83,6 +83,7 @@ class LoginController extends Controller
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+        $request->session()->flush();
 
         return redirect('/login');
     }

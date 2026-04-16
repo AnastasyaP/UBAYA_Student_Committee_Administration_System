@@ -19,7 +19,8 @@ class RoleMiddleware
             return redirect('/login');
         }
         if(auth()->user()->role !== $role){
-            return redirect('/login')->withErrors('Unauthorized');
+            abort(403); // lgsg nge stop proses, dia returnnya error forbidden
+            // return redirect('/login')->withErrors('Unauthorized');
         }
         return $next($request);
     }
