@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 
 
 class LandingPageController extends Controller
@@ -322,6 +323,96 @@ class LandingPageController extends Controller
             ]);
         
         return redirect()->back()->with('success', 'Foto profil berhasil di update!');
+    }
+
+    public function changePassword(Request $request){
+        $request->validate([
+            'old_pwd' => 'required',
+            'new_password' => 'required',
+            'confirm_password' => 'required|same:new_password',
+        ],[
+            'required' => ':attribute harus diisi',
+            'confirm_password.same' => 'Konfirmasi password tidak cocok',
+        ],[
+            'old_pwd' => 'Password Lama',
+            'new_password' => 'Password Baru',
+            'confirm_password' => 'Konfirmasi Password'
+        ]);
+
+        // if($request->new_password != $request->confirm_password){
+        //     return redirect()->back()->with('warning', 'Konfirmasi password tidak cocok!');
+        // }
+        $user = Auth::user();
+
+        if(!Hash::check($request->old_pwd, $user->password)){
+            return redirect()->back()->withErrors(['old_pwd' => 'Password lama salah!'])->withInput();
+        }
+
+        // $user->password = Hash::make($request->new_password);
+        $user->password = $request->new_password; // hasingnya di model
+        $user->save();
+
+        return redirect()->back()->with('success', 'Password berhasil diubah');
+    }
+
+    public function saveFiles(Request $request){
+        $request->validate([
+            'cv' => 'nullable|file|mimes:pdf|max:2048',
+            'portofolio' => 'nullable|file|mimes:pdf|max:2048',
+        ],[
+            'mimes' => ':attribute harus berupa file PDF',
+            'max' => 'Ukuran :attribute maksimal 2MB',
+        ],[
+            'cv' => 'CV',
+            'portofolio' => 'Portofolio',
+        ]);
+
+        $user = Auth::user();
+
+        $oldData = DB::table('tMahasiswas')
+                    ->where('idUsers', $user->idUsers)
+                    ->first();
+
+        $cvPath = $oldData->cv ?? null;
+        $portoPath = $oldData->portofolio ?? null;
+
+        if(!$request->hasFile('cv') && !$request->hasFile('portofolio')){
+            return redirect()->back()->with('error', 'Tidak ada file yang di upload!');
+        }
+
+        $updateData = [];
+
+        if($request->hasFile('cv')){
+            if($cvPath && Storage::disk('public')->exists($cvPath)){
+                Storage::disk('public')->delete($cvPath);
+            }
+
+            $cvFile = $request->file('cv');
+            $cvFileName = $user->idUsers . '_' . Str::uuid() . '.pdf';
+            $cvFilePath = $cvFile->storeAs('cv', $cvFileName, 'public');
+
+            $updateData['cv'] = $cvFilePath;
+        }
+
+        if($request->hasFile('portofolio')){
+            if($portoPath && Storage::disk('public')->exists($portoPath)){
+                Storage::disk('public')->delete($portoPath);
+            }
+
+            $portoFile = $request->file('portofolio');
+            $portoFileName = $user->idUsers . '_' . Str::uuid() . '.pdf';
+            $portoFilePath = $portoFile->storeAs('portofolio', $portoFileName, 'public');
+
+            $updateData['portofolio'] = $portoFilePath;
+        }
+
+        if(!empty($updateData)){
+            DB::table('tMahasiswas')
+                ->where('idUsers', $user->idUsers)
+                ->update($updateData);
+        }
+
+        return redirect()->back()->with('success', 'File berhasil di upload!');
     }
 
     /**

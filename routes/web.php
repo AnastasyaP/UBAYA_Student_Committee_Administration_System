@@ -43,6 +43,8 @@ Route::middleware(['auth', 'role:mahasiswa'])->group(function (){
 	Route::post('/submit-regis', [LandingPageController::class, 'store'])->name('regis.store');
 	Route::get('/lp-profile', [LandingPageController::class, 'profile'])->name('lp.profile');
 	Route::put('/lp-profile/edit', [LandingPageController::class, 'editProfilePicture'])->name('lp.profile.edit');
+	Route::put('/lp-profile/change-password', [LandingPageController::class, 'changePassword'])->name('lp.pwd.change');
+	Route::put('/lp-profile/save-files', [LandingPageController::class, 'saveFiles'])->name('lp.save.files');
 });
 
 Route::middleware(['auth', 'role:admin'])->group(function () {

@@ -74,6 +74,7 @@ class DivisionController extends Controller
             'after_or_equal' => 'Tanggal :attribute harus setelah atau sama dengan tanggal sebelumnya.',
             'image' => 'File harus berupa gambar (jpg, jpeg, png).',
             'mimes' => 'Format file harus jpg, jpeg, atau png.',
+            'picture.max' => 'Ukuran gambar maksimal 2MB!',
         ]);
 
         $filePath = null;

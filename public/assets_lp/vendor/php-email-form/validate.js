@@ -21,8 +21,17 @@
         displayError(thisForm, 'The form action property is not set!');
         return;
       }
-      thisForm.querySelector('.loading').classList.add('d-block');
-      thisForm.querySelector('.error-message').classList.remove('d-block');
+      // thisForm.querySelector('.loading').classList.add('d-block');
+      const loading = thisForm.querySelector('.loading');
+      if (loading) {
+        loading.classList.add('d-block');
+      }
+      // thisForm.querySelector('.error-message').classList.remove('d-block');
+      const errorDiv = thisForm.querySelector('.error-message');
+      if (errorDiv) {
+        errorDiv.innerHTML = error;
+        errorDiv.classList.add('d-block');
+      }
       thisForm.querySelector('.sent-message').classList.remove('d-block');
 
       let formData = new FormData( thisForm );
