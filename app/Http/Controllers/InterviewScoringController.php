@@ -56,7 +56,7 @@ class InterviewScoringController extends Controller
         $mahasiswa = DB::table('tMahasiswas as m')
                         ->join('tUsers as u', 'm.idUsers', 'u.idUsers')
                         ->join('tRegistrations as r', 'u.idUsers', 'r.idUsers')
-                        ->where('u.idUsers', $idMahasiswa)
+                        ->where('r.idRegistrations', $idRegistrations)
                         ->select(
                             'u.idUsers as idUser',
                             DB::raw("concat(u.firstname, ' ', u.lastname) as name"),
@@ -89,6 +89,7 @@ class InterviewScoringController extends Controller
     {
         // dd($request->all());
 
+        // dd($request->idDivision);
         //buat tInterviewEvaluations
         $exist = DB::table('tInterviewEvaluations')
             ->where('idEvaluator', Auth::id())
@@ -143,16 +144,18 @@ class InterviewScoringController extends Controller
             )
             ->get();
 
+// dd($request->idRegis);
+
         // foreach avgScores as row
         $finalScore = $avgScores->sum(function ($row) {
             return $row->avg_score * $row->average_weight;
         });
 
         DB::table('tAHPResults')
-            ->updateOrInsert([
-            'idRegistrations' => $request->idRegis,
-            'final_score' => $finalScore
-        ]);
+            ->updateOrInsert(
+            ['idRegistrations' => $request->idRegis], //condition
+            ['final_score' => $finalScore] // value
+        );
         
         DB::table('tRegistrations')
             ->where('idRegistrations', $request->idRegis)

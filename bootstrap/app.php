@@ -19,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => RoleMiddleware::class,
             'check.committee' => \App\Http\Middleware\CheckDisplayedCommittee::class,
             'load.committee' => \App\Http\Middleware\LoadCommittee::class,
+            'access.role' => \App\Http\Middleware\AccessRole::class,
             // 'admin' => AdminMiddleware::class,
             // 'user' => UserMiddleware::class,
             // 'guest.multi' => RedirectIfAuthenticatedMulti::class,

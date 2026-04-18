@@ -40,9 +40,8 @@ use Illuminate\Support\Str;
 
     <!-- About Section -->
     <section id="about" class="about section">
-
+      
       <div class="container">
-
         <div class="row gy-4">
 
           <div class="col-lg-6 position-relative align-self-start order-lg-last order-first d-flex justify-content-center" data-aos="fade-up" data-aos-delay="200">
@@ -51,6 +50,14 @@ use Illuminate\Support\Str;
           </div>
 
           <div class="col-lg-6 content order-last  order-lg-first" data-aos="fade-up" data-aos-delay="100">
+            <div class="mb-3">
+              @if($jmlDaftar > 0 && !$daftarDiterima)
+                <span class="badge bg-warning fs-6">Sudah Mendaftar, Lihat status di halaman kepanitiaan</span>
+              @endif
+              @if($daftarDiterima)
+                  <span class="badge bg-primary fs-6">Anggota Panitia</span>
+              @endif
+            </div>
             <h3>{{ $committee->name }}</h3>
             <p>{{ $committee->description }}</p>
             <ul>
@@ -61,26 +68,19 @@ use Illuminate\Support\Str;
                   <p>{{ $committee->requirements }}</p>
                 </div>
               </li>
-              <!-- <li>
-                <i class="bi bi-fullscreen-exit"></i>
-                <div>
-                  <h5>Magnam soluta odio exercitationem reprehenderi</h5>
-                  <p>Quo totam dolorum at pariatur aut distinctio dolorum laudantium illo direna pasata redi</p>
-                </div>
-              </li>
-              <li>
-                <i class="bi bi-broadcast"></i>
-                <div>
-                  <h5>Voluptatem et qui exercitationem</h5>
-                  <p>Et velit et eos maiores est tempora et quos dolorem autem tempora incidunt maxime veniam</p>
-                </div>
-              </li> -->
             </ul>
             <div class="d-grip gap-2">
+              @if($allowedToRegister) 
               <a href="{{ route('regis.committee', ['idCommittee' => $committee->idCommittees]) }}"
                 class="btn btn-primary btn-lg mt-4">
                 Register
               </a>
+              @elseif($isKoor)
+              <a href="#"
+                class="btn btn-primary btn-lg mt-4">
+                Dashboard Panitia
+              </a>
+              @endif
             </div>
           </div>
 
@@ -151,12 +151,6 @@ use Illuminate\Support\Str;
                 <h4>{{ $division->name }}</h4>
                 <span>Web Development</span>
                 <p>{{ Str::limit($division->description, 70, '..') }}</p>
-                <!-- <div class="social">
-                  <a href=""><i class="bi bi-twitter-x"></i></a>
-                  <a href=""><i class="bi bi-facebook"></i></a>
-                  <a href=""><i class="bi bi-instagram"></i></a>
-                  <a href=""><i class="bi bi-linkedin"></i></a>
-                </div> -->
               </div>
             </div>
           </div><!-- End Team Member -->

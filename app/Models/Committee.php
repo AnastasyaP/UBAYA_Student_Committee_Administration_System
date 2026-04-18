@@ -15,12 +15,13 @@ class Committee extends Model
     protected $primaryKey = 'idCommittees';
     protected $fillable = [
         'admin',
+        'committee_name',
         'name',
         'start_period',
         'end_period',
         'description',
         'requirements',
-        'picture',
+        'poster',
         'contact',
         'start_regis',
         'end_regis',

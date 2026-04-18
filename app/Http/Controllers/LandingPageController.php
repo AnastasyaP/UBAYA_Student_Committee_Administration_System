@@ -47,7 +47,50 @@ class LandingPageController extends Controller
     }
 
     public function committee(){
-        return view('pages.landingpage.committee');
+        $committees = DB::table('tRegistrations as r')
+                        ->join('tListDivisions as ld', function($join){
+                            $join->on('r.idCommittees', '=', 'ld.idCommittees');
+                            $join->on('r.idDivisions', '=', 'ld.idDivisions');
+                        })
+                        ->join('tDivisions as d', 'ld.idDivisions', 'd.idDivisions')
+                        ->join('tCommittees as c', 'ld.idCommittees', 'c.idCommittees')
+                        ->join('tUsers as u', 'c.admin', 'u.idUsers')
+                        ->where('r.idUsers', Auth::id())
+                        ->where('r.status', 'diterima')
+                        ->select([
+                            'd.name as division',
+                            'c.name as committee',
+                            'c.idCommittees as idCommittee',
+                            'r.position as position',
+                            'u.picture as picture',
+                            'c.is_active as is_active',
+                            'c.start_period as start_period',
+                            'c.end_period as end_period',
+                            'r.status as status',
+                        ])
+                        ->get();
+
+         $registrations = DB::table('tRegistrations as r')
+                        ->join('tListDivisions as ld', function($join){
+                            $join->on('r.idCommittees', '=', 'ld.idCommittees');
+                            $join->on('r.idDivisions', '=', 'ld.idDivisions');
+                        })
+                        ->join('tDivisions as d', 'ld.idDivisions', 'd.idDivisions')
+                        ->join('tCommittees as c', 'ld.idCommittees', 'c.idCommittees')
+                        ->join('tUsers as u', 'c.admin', 'u.idUsers')
+                        ->where('r.idUsers', Auth::id())
+                        ->select([
+                            'd.name as division',
+                            'c.name as committee',
+                            'c.idCommittees as idCommittee',
+                            'r.position as position',
+                            'u.picture as picture',
+                            'r.status as status',
+                        ])
+                        ->get();
+
+
+        return view('pages.landingpage.committee', compact('committees', 'registrations'));
     }
 
     /**
@@ -272,13 +315,40 @@ class LandingPageController extends Controller
         // dd($idCommittee);
         $committee = DB::table('tCommittees as c')
                     ->join('tUsers as u', 'c.admin', 'u.idUsers')
-                    ->where('idCommittees', $idCommittee)
-                    ->select('*', 'u.picture as picture')
+                    ->where('c.idCommittees', $idCommittee)
+                    ->select([
+                        'c.name as name',
+                        'c.poster as poster',
+                        'c.description as description',
+                        'c.requirements as requirements', 
+                        'c.idCommittees as idCommittees',
+                        'u.picture as picture',
+                    ])
                     ->first();
+        // dd($committee);
 
         if(!$committee){
             abort(404);
         }
+
+        $registrations = DB::table('tRegistrations')
+                        ->where('idCommittees', $committee->idCommittees)
+                        ->where('idUsers', Auth::id())
+                        ->get();
+        
+        $jmlDaftar = $registrations->count();
+
+        $daftarDiterima = $registrations->where('status', 'diterima')->count() > 0;
+        // $daftarDitolak = $registrations->where('status', 'ditolak')->count() > 0;
+        // $daftarDinilai = $registrations->where('status', 'dinilai')->count() > 0;
+        // $daftarMenunggu = $registrations->where('status', 'menunggu')->count() > 0;
+
+        $allowedToRegister = $jmlDaftar < 2 && !$daftarDiterima;
+
+        $isKoor = $registrations->where('status', 'diterima')
+                                ->whereIn('position', ['Koordinator', 'Wakil Koordinator', 'BPH-SC'])
+                                ->count() > 0;
+        
 
         $divisions = DB::table('tListDivisions as ld')
                     ->join('tDivisions as d', 'ld.idDivisions', 'd.idDivisions')
@@ -286,7 +356,14 @@ class LandingPageController extends Controller
                     ->where('ld.is_open', 1)
                     ->select('d.name as name', 'ld.description as description', 'ld.picture as picture')
                     ->get();
-        return view('pages.landingpage.detail-committee', compact('committee', 'divisions'));
+        return view('pages.landingpage.detail-committee', compact(
+            'committee', 
+            'divisions', 
+            'allowedToRegister', 
+            'isKoor',
+            'daftarDiterima',
+            'jmlDaftar'
+            ));
     }
 
     public function editProfilePicture(Request $request){

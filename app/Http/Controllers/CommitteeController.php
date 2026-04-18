@@ -14,35 +14,6 @@ use Illuminate\Support\Facades\Storage;
 
 class CommitteeController extends Controller
 {
-
-    // protected $admin;
-    // protected $committee;
-
-    // public function __construct(){
-    //     $this->admin = null;
-    //     $this->committee = null;
-    // }
-
-    // function init(){
-    //     $user = Auth::user();
-
-    //     if($user->role != 'admin'){
-    //         return redirect()->back()->with('warning', "this account doesn't have an authority");
-    //     }
-
-    //     $this->admin = $user;
-
-    //     $idCommittee = session('displayed_committee');
-
-    //     if(!$idCommittee){
-    //         return redirect('/kepanitiaan')->with('warning', 'Pilih kepanitiaan dulu');
-    //     }
-
-    //     $this->committee = DB::table('tCommittees')
-    //         ->where('idCommittees', $idCommittee)
-    //         ->first();
-    // }
-
     // set session displayed committtee
     public function setCommittee($idCommittee){
         session(['displayed_committee' => $idCommittee]);
@@ -114,8 +85,30 @@ class CommitteeController extends Controller
                         ->join('tOrganizerUnits as o', 'a.idOrganizerUnits', 'o.idOrganizerUnits')
                         ->where('c.admin', Auth::id())
                         ->select('u.email as email', 'o.name as organizerName')
-                        ->first();        
-        return view('pages.committee.add-committees', compact('committee'));
+                        ->first();   
+        
+        $master_committee = DB::table('tCommittees')
+                            ->select('committee_name')
+                            ->where('admin', Auth::id())
+                            ->distinct()
+                            ->pluck('committee_name');
+
+        return view('pages.committee.add-committees', compact('committee', 'master_committee'));
+    }
+
+    public function getTemplate($name){
+        $committee = Committee::where('committee_name', $name)
+                        ->orderBy('end_period', 'desc')
+                        ->first();
+
+        if($committee){
+            return response()->json([
+                'description' => $committee->description,
+                'requirement' => $committee->requirements,
+            ]);
+        }
+
+        return response()->json(null);
     }
 
     /**
@@ -134,6 +127,8 @@ class CommitteeController extends Controller
             'end_period' => 'required|date',
             'start_regis' => 'required|date',
             'end_regis' => 'required|date',
+            'committee_name' => 'nullable',
+            'master_committee' => 'nullable',
             'description' => 'required|string|max:600',
             'requirement' => 'required|string|max:500',
         ], [
@@ -144,6 +139,15 @@ class CommitteeController extends Controller
             'mimes' => 'Format file harus jpg, jpeg, atau png.',
         ]);
 
+        // dd($request->committee_name);
+        $committee_name = "";
+        if($request->master_committee){
+            $committee_name = $request->master_committee;
+        } else if($request->committee_name){
+            $committee_name = $request->committee_name;
+        }
+
+        // dd($committee_name);
         $filePath = null;
         if($request->hasFile('poster')){
             $file = $request->file('poster');
@@ -154,6 +158,7 @@ class CommitteeController extends Controller
         // dd($admin->idUsers);
         Committee::create([
             'admin' => Auth::id(),
+            'committee_name' => $committee_name,
             'name' => $request->name,
             'start_period' => $request->start_period,
             'end_period' => $request->end_period,

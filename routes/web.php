@@ -56,7 +56,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 });
 
 Route::middleware(['auth', 'role:admin', 'check.committee', 'load.committee'])->group( function () {
-	Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+	Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard')->middleware(['auth', 'access.role']);
 	Route::get('/virtual-reality', [PageController::class, 'vr'])->name('virtual-reality');
 	Route::get('/rtl', [PageController::class, 'rtl'])->name('rtl');
 	Route::get('/profile', [UserProfileController::class, 'show'])->name('profile');
@@ -68,18 +68,19 @@ Route::middleware(['auth', 'role:admin', 'check.committee', 'load.committee'])->
 	Route::get('/committees', [CommitteeController::class, 'index'])->name('committees');
 	Route::get('/profile', [CommitteeController::class, 'profile'])->name('committees.profile');
 	Route::get('/add-committees', [CommitteeController::class, 'create'])->name('committees.add');
+	Route::get('/committee/get-template/{name}', [CommitteeController::class, 'getTemplate'])->name('committee.template');
 	Route::post('/store-committees', [CommitteeController::class, 'store'])->name('committees.store');
 	Route::get('/edit-committees/{idCommittees}', [CommitteeController::class, 'show'])->name('committees.show');
 	Route::put('/committees/{idCommittees}', [CommitteeController::class, 'update'])->name('committees.update');
 	// division
-	Route::get('/divisions', [DivisionController::class, 'index'])->name('divisions');
+	Route::get('/divisions', [DivisionController::class, 'index'])->name('divisions')->middleware(['auth', 'access.role']);
 	Route::get('/add-divisions', [DivisionController::class, 'create'])->name('divisions.add');
 	Route::post('/store-divisions', [DivisionController::class, 'store'])->name('division.store');
 	Route::delete('/divisions/{idDivisions}/committees/{idCommittees}', [DivisionController::class, 'destroy'])->name('division.destroy');
 	Route::get('/edit-divisions/{idDivisions}/{idCommittees}', [DivisionController::class, 'edit'])->name('division.edit');
 	Route::put('/divisions/{idDivisions}/{idCommittees}', [DivisionController::class, 'update'])->name('division.update');
 	// regis
-	Route::get('registrations', [RegistrationController::class, 'index'])->name('registration');
+	Route::get('registrations', [RegistrationController::class, 'index'])->name('registration')->middleware(['auth', 'access.role']);
 	Route::get('/registration/division/{idDivision}', [RegistrationController::class, 'getRegByDivision'])->name('reg.division');
 	Route::get('/registration/{status?}', [RegistrationController::class, 'getRegByStatus'])->name('reg.status');
 	Route::get('/view-registrations/{idRegis}', [RegistrationController::class, 'show'])->name('view.regis');
@@ -87,12 +88,12 @@ Route::middleware(['auth', 'role:admin', 'check.committee', 'load.committee'])->
 	Route::put('/registrations/rejected/{idRegis}', [RegistrationController::class, 'reject'])->name('reject.regis');
 	// interview schedule
 	// Route::get('schedule-interviews',[InterviewScheduleController::class, 'index'])->name('intv');
-	Route::get('/schedules',[InterviewScheduleController::class, 'calendar'])->name('intv.calendar');
+	Route::get('/schedules',[InterviewScheduleController::class, 'calendar'])->name('intv.calendar')->middleware(['auth', 'access.role']);
 	Route::get('/add-schedule', [InterviewScheduleController::class, 'create'])->name('intv.add');
 	Route::post('/store-schedule',[InterviewScheduleController::class, 'store'])->name('intv.store');
 	Route::put('/update-schedule/{idSchedule}', [InterviewScheduleController::class, 'update'])->name('intv.update');
 	// members
-	Route::get('/members', [RegistrationController::class, 'members'])->name('member');
+	Route::get('/members', [RegistrationController::class, 'members'])->name('member')->middleware(['auth', 'access.role']);
 	Route::put('/update-position/{memberId}/{divisionId}/{newPosition}', [RegistrationController::class, 'updatePosition'])->name('position.update');
 	Route::get('/add-members/{divisionId}', [RegistrationController::class, 'create'])->name('member.add');
 	Route::post('/invite-members', [RegistrationController::class, 'store'])->name('member.invite');
@@ -101,16 +102,16 @@ Route::middleware(['auth', 'role:admin', 'check.committee', 'load.committee'])->
 	Route::post('/invitation/accept/{token}', [EmailController::class,'accept']);
 	// Route::post('/invitation/reject/{token}', [EmailController::class,'reject']);
 	// interview criteria
-	Route::get('/intv-criteria', [InterviewCriteriaController::class, 'index'])->name('intvcriteria');
+	Route::get('/intv-criteria', [InterviewCriteriaController::class, 'index'])->name('intvcriteria')->middleware(['auth', 'access.role']);
 	Route::get('/add-intvcriterias/{idDivision}', [InterviewCriteriaController::class, 'create'])->name('intvcriteria.add');
 	Route::post('/store-intvcriterias', [InterviewCriteriaController::class, 'store'])->name('intvcriteria.store');
 	// ahp calculation
-	Route::get('/ahp', [AHPCalculationController::class, 'index'])->name('ahpcalc');
+	Route::get('/ahp', [AHPCalculationController::class, 'index'])->name('ahpcalc')->middleware(['auth', 'access.role']);
 	Route::get('/ahp/division/{idDivision}/criterias', [AHPCalculationController::class, 'getCriteriasByDivision'])->name('ahp.division.criterias');
 	Route::post('/ahp/normalize', [AHPCalculationController::class, 'normalize'])->name('normalize');
 	// interview scoring
-	Route::post('/intv-scoring', [InterviewScoringController::class, 'index'])->name('intvscoring');
-	Route::get('/intvscoring/{idMahasiswa}/{idRegis}/{idDivision}', [InterviewScoringController::class, 'index'])->name('intvscoring.get');
+	Route::post('/intv-scoring', [InterviewScoringController::class, 'index'])->name('intvscoring')->middleware(['auth', 'access.role']);
+	// Route::get('/intvscoring/{idMahasiswa}/{idRegis}/{idDivision}', [InterviewScoringController::class, 'index'])->name('intvscoring.get');
 	Route::post('/score', [InterviewScoringController::class, 'store'])->name('intvscoring.score');
 	
 	Route::get('/{page}', [PageController::class, 'index'])->name('page');

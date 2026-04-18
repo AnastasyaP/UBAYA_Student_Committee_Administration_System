@@ -17,6 +17,27 @@
                         </div>
                         <div class="card-body">
                             <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Pilih Nama Umum Yang Tersedia</label>
+                                        <select class="form-control" id="master_committee" name="master_committee">
+                                            <option value="">-- Pilih  Nama Umum --</option>
+                                            @foreach ($master_committee as $item)
+                                                <option value="{{ $item }}">{{ $item }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                          <label class="form-control-label">Atau Tambah Nama Umum Baru</label>
+                                            <input class="form-control" type="text" id="committee_name" name="committee_name"
+                                           placeholder="Masukkan AHP Criteria baru">
+                                           @error('committee_name')
+                                           <div class="text-danger small">{{ $message }}</div>
+                                           @enderror
+                                    </div>
+                                </div>
                                 <div class="col-md-4">
                                     <div class="form-group">
                                         <label class="form-control-label">Nama</label>
@@ -187,6 +208,33 @@
         @include('layouts.footers.auth.footer')
     </div>
     <script>
+         document.getElementById('master_committee').addEventListener('change', function(){
+            const selectedOption = this.options[this.selectedIndex]; // ambil value yg di pilih 
+            const nameInput = document.getElementById('committee_name'); // tempat untuk taruh valuenya
+
+            if(this.value){
+                nameInput.value = selectedOption.text;
+                nameInput.setAttribute('disabled', true); // kalo milih dari combobox text inputnya di disable
+            } else{
+                nameInput.value = '';
+                nameInput.removeAttribute('disabled');
+            }
+
+            // template description & requirement
+            let selected = this.value;
+            
+            if(selected){
+                fetch(`/committee/get-template/${selected}`)
+                .then(res => res.json())
+                .then(data => {
+                    if(data){
+                        document.getElementById('description').value = data.description;
+                        document.getElementById('requirement').value = data.requirement;
+                    }
+                });
+            }
+        });
+
         document.getElementById('poster').addEventListener('change', function(){
             const preview = document.getElementById('preview');
             const file = event.target.files[0];
