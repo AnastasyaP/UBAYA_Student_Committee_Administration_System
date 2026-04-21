@@ -22,7 +22,7 @@
                     </div>
                 @endif
                 <div class="card">
-                    <form method="POST" action="{{ route('member.invite') }}" enctype="multipart/form-data">
+                    <form method="POST" action="{{ route(routeForMember('member.invite', 'members.member.invite')) }}" enctype="multipart/form-data">
                         @csrf
                         <div class="card-header pb-0">
                             <div class="d-flex align-items-center">
@@ -51,9 +51,9 @@
                                         <label class="form-control-label">Posisi</label>
                                         <select name="position" id="position" class="form-control">
                                             <option value="BPH-SC">BPH-SC</option>
-                                            <option value="Coordinator">Koordinator</option>
-                                            <option value="Vice Coordinator">Wakil Koordinator</option>
-                                            <option value="Member">Anggota</option>
+                                            <option value="Koordinator">Koordinator</option>
+                                            <option value="Wakil Koordinator">Wakil Koordinator</option>
+                                            <option value="Anggota">Anggota</option>
                                         </select>
                                         @error('position')
                                         <div class="text-danger small">{{ $message }}</div>

@@ -46,6 +46,46 @@ Route::middleware(['auth', 'role:mahasiswa'])->group(function (){
 	Route::put('/lp-profile/change-password', [LandingPageController::class, 'changePassword'])->name('lp.pwd.change');
 	Route::put('/lp-profile/save-files', [LandingPageController::class, 'saveFiles'])->name('lp.save.files');
 	Route::get('/committee', [LandingPageController::class, 'committee'])->name('lp.committee');
+	Route::get('/members/set-committee/{idCommittee}', function($idCommittee){
+		session(['idCommittee' => $idCommittee]);
+		return redirect()->route('members.dashboard');
+	})->name('members.set.committee')->middleware('auth');
+});
+
+Route::middleware(['auth', 'access.role'])->group(function(){
+	Route::get('/members/dashboard', [DashboardController::class, 'index'])->name('members.dashboard');
+	// members
+	Route::get('/members/list-members', [RegistrationController::class, 'members'])->name('members.member');
+	Route::get('/members/add-members/{divisionId}', [RegistrationController::class, 'create'])->name('members.member.add');
+	Route::post('/members/invite-members', [RegistrationController::class, 'store'])->name('members.member.invite');
+	// regis
+	Route::get('/members/registrations', [RegistrationController::class, 'index'])->name('members.registrations');
+	Route::get('/members/registration/division/{idDivision}', [RegistrationController::class, 'getRegByDivision'])->name('members.reg.division');
+	Route::get('/members/registration/{status?}', [RegistrationController::class, 'getRegByStatus'])->name('members.reg.status');
+	Route::get('/members/view-registrations/{idRegis}', [RegistrationController::class, 'show'])->name('members.view.regis');
+	Route::put('/members/registrations/accepted/{idRegis}', [RegistrationController::class, 'accept'])->name('members.accept.regis');
+	Route::put('/members/registrations/rejected/{idRegis}', [RegistrationController::class, 'reject'])->name('members.reject.regis');
+	// interview schedule
+	Route::get('/members/schedules',[InterviewScheduleController::class, 'calendar'])->name('members.intv.calendar');
+	Route::get('/members/add-schedule', [InterviewScheduleController::class, 'create'])->name('members.intv.add');
+	Route::post('/members/store-schedule',[InterviewScheduleController::class, 'store'])->name('members.intv.store');
+	Route::put('/members/update-schedule/{idSchedule}', [InterviewScheduleController::class, 'update'])->name('members.intv.update');
+	// interview criteria
+	Route::get('/members/intv-criteria', [InterviewCriteriaController::class, 'index'])->name('members.intvcriteria');
+	Route::get('/members/add-intvcriterias/{idDivision}', [InterviewCriteriaController::class, 'create'])->name('members.intvcriteria.add');
+	Route::post('/members/store-intvcriterias', [InterviewCriteriaController::class, 'store'])->name('members.intvcriteria.store');
+	// ahp calculation
+	Route::get('/members/ahp', [AHPCalculationController::class, 'index'])->name('members.ahpcalc');
+	Route::get('/members/ahp/division/{idDivision}/criterias', [AHPCalculationController::class, 'getCriteriasByDivision'])->name('members.ahp.division.criterias');
+	Route::post('/members/ahp/normalize', [AHPCalculationController::class, 'normalize'])->name('members.normalize');
+	// interview scoring
+	Route::post('/members/intv-scoring', [InterviewScoringController::class, 'index'])->name('members.intvscoring');
+	Route::post('/members/score', [InterviewScoringController::class, 'store'])->name('members.intvscoring.score');
+	// logout dashboard
+	Route::get('/exit-member', function () {
+		session()->forget('idCommittee');
+		return redirect()->route('home');
+	})->name('exit.member');
 });
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
@@ -56,7 +96,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 });
 
 Route::middleware(['auth', 'role:admin', 'check.committee', 'load.committee'])->group( function () {
-	Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard')->middleware(['auth', 'access.role']);
+	Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 	Route::get('/virtual-reality', [PageController::class, 'vr'])->name('virtual-reality');
 	Route::get('/rtl', [PageController::class, 'rtl'])->name('rtl');
 	Route::get('/profile', [UserProfileController::class, 'show'])->name('profile');
@@ -73,14 +113,14 @@ Route::middleware(['auth', 'role:admin', 'check.committee', 'load.committee'])->
 	Route::get('/edit-committees/{idCommittees}', [CommitteeController::class, 'show'])->name('committees.show');
 	Route::put('/committees/{idCommittees}', [CommitteeController::class, 'update'])->name('committees.update');
 	// division
-	Route::get('/divisions', [DivisionController::class, 'index'])->name('divisions')->middleware(['auth', 'access.role']);
+	Route::get('/divisions', [DivisionController::class, 'index'])->name('divisions');
 	Route::get('/add-divisions', [DivisionController::class, 'create'])->name('divisions.add');
 	Route::post('/store-divisions', [DivisionController::class, 'store'])->name('division.store');
 	Route::delete('/divisions/{idDivisions}/committees/{idCommittees}', [DivisionController::class, 'destroy'])->name('division.destroy');
 	Route::get('/edit-divisions/{idDivisions}/{idCommittees}', [DivisionController::class, 'edit'])->name('division.edit');
 	Route::put('/divisions/{idDivisions}/{idCommittees}', [DivisionController::class, 'update'])->name('division.update');
 	// regis
-	Route::get('registrations', [RegistrationController::class, 'index'])->name('registration')->middleware(['auth', 'access.role']);
+	Route::get('registrations', [RegistrationController::class, 'index'])->name('registration');
 	Route::get('/registration/division/{idDivision}', [RegistrationController::class, 'getRegByDivision'])->name('reg.division');
 	Route::get('/registration/{status?}', [RegistrationController::class, 'getRegByStatus'])->name('reg.status');
 	Route::get('/view-registrations/{idRegis}', [RegistrationController::class, 'show'])->name('view.regis');
@@ -88,12 +128,12 @@ Route::middleware(['auth', 'role:admin', 'check.committee', 'load.committee'])->
 	Route::put('/registrations/rejected/{idRegis}', [RegistrationController::class, 'reject'])->name('reject.regis');
 	// interview schedule
 	// Route::get('schedule-interviews',[InterviewScheduleController::class, 'index'])->name('intv');
-	Route::get('/schedules',[InterviewScheduleController::class, 'calendar'])->name('intv.calendar')->middleware(['auth', 'access.role']);
+	Route::get('/schedules',[InterviewScheduleController::class, 'calendar'])->name('intv.calendar');
 	Route::get('/add-schedule', [InterviewScheduleController::class, 'create'])->name('intv.add');
 	Route::post('/store-schedule',[InterviewScheduleController::class, 'store'])->name('intv.store');
 	Route::put('/update-schedule/{idSchedule}', [InterviewScheduleController::class, 'update'])->name('intv.update');
 	// members
-	Route::get('/members', [RegistrationController::class, 'members'])->name('member')->middleware(['auth', 'access.role']);
+	Route::get('/members', [RegistrationController::class, 'members'])->name('member');
 	Route::put('/update-position/{memberId}/{divisionId}/{newPosition}', [RegistrationController::class, 'updatePosition'])->name('position.update');
 	Route::get('/add-members/{divisionId}', [RegistrationController::class, 'create'])->name('member.add');
 	Route::post('/invite-members', [RegistrationController::class, 'store'])->name('member.invite');
@@ -102,15 +142,15 @@ Route::middleware(['auth', 'role:admin', 'check.committee', 'load.committee'])->
 	Route::post('/invitation/accept/{token}', [EmailController::class,'accept']);
 	// Route::post('/invitation/reject/{token}', [EmailController::class,'reject']);
 	// interview criteria
-	Route::get('/intv-criteria', [InterviewCriteriaController::class, 'index'])->name('intvcriteria')->middleware(['auth', 'access.role']);
+	Route::get('/intv-criteria', [InterviewCriteriaController::class, 'index'])->name('intvcriteria');
 	Route::get('/add-intvcriterias/{idDivision}', [InterviewCriteriaController::class, 'create'])->name('intvcriteria.add');
 	Route::post('/store-intvcriterias', [InterviewCriteriaController::class, 'store'])->name('intvcriteria.store');
 	// ahp calculation
-	Route::get('/ahp', [AHPCalculationController::class, 'index'])->name('ahpcalc')->middleware(['auth', 'access.role']);
+	Route::get('/ahp', [AHPCalculationController::class, 'index'])->name('ahpcalc');
 	Route::get('/ahp/division/{idDivision}/criterias', [AHPCalculationController::class, 'getCriteriasByDivision'])->name('ahp.division.criterias');
 	Route::post('/ahp/normalize', [AHPCalculationController::class, 'normalize'])->name('normalize');
 	// interview scoring
-	Route::post('/intv-scoring', [InterviewScoringController::class, 'index'])->name('intvscoring')->middleware(['auth', 'access.role']);
+	Route::post('/intv-scoring', [InterviewScoringController::class, 'index'])->name('intvscoring');
 	// Route::get('/intvscoring/{idMahasiswa}/{idRegis}/{idDivision}', [InterviewScoringController::class, 'index'])->name('intvscoring.get');
 	Route::post('/score', [InterviewScoringController::class, 'store'])->name('intvscoring.score');
 	

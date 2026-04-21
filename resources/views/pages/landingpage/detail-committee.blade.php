@@ -76,7 +76,7 @@ use Illuminate\Support\Str;
                 Register
               </a>
               @elseif($isKoor)
-              <a href="#"
+              <a href="{{ route('members.set.committee', ['idCommittee' => $committee->idCommittees]) }}"
                 class="btn btn-primary btn-lg mt-4">
                 Dashboard Panitia
               </a>

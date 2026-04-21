@@ -129,23 +129,21 @@ use Illuminate\Support\Str;
                                             @endif
                                         </td>
                                         <td class="align-middle">
-                                            <form action="{{ route('view.regis', ['idRegis' => $regis->idRegis]) }}" method="GET">
+                                            <form action="{{ route(routeForMember('view.regis', 'members.view.regis'), ['idRegis' => $regis->idRegis]) }}" method="GET">
                                                 <button type="submit" class="btn btn-warning btn-sm">Detail</button>
                                             </form>
                                         </td>
-                                        @if($regis->status == 'menunggu')
                                         <td class="align-middle">
-                                            <form action="{{ route('intvscoring') }}" method="POST">
+                                            @if($regis->status == 'menunggu')
+                                            <form action="{{ route(routeForMember('intvscoring', 'members.intvscoring')) }}" method="POST">
                                                 @csrf
                                                 <input type="hidden" value="{{ $regis->idMahasiswa }}" name="idMahasiswa">
                                                 <input type="hidden" value="{{ $regis->idDivision }}" name="idDivision">
                                                 <input type="hidden" value="{{ $regis->idRegis }}" name="idRegis">
                                                 <button type="submit" class="btn btn-success btn-sm">Nilai</button>
                                             </form>
-                                        </td>
                                         @elseif($regis->status == 'dinilai')
-                                        <td class="align-middle">
-                                            <form id="acceptForm-{{ $regis->idRegis }}" action="{{ route('accept.regis', ['idRegis' => $regis->idRegis]) }}" method="POST">
+                                            <form id="acceptForm-{{ $regis->idRegis }}" action="{{ route(routeForMember('accept.regis', 'members.accept.regis'), ['idRegis' => $regis->idRegis]) }}" method="POST">
                                                 @csrf
                                                 @method('PUT')
                                                 <button 
@@ -162,10 +160,9 @@ use Illuminate\Support\Str;
                                                     data-message="Apakah anda yakin untuk menerima"
                                                 >Terima</button>                                                
                                             </form>                                         
-                                        </td>
-                                        
+                                        </td>                                        
                                         <td class="align-middle">
-                                            <form id="rejectForm-{{ $regis->idRegis }}" action="{{ route('reject.regis', ['idRegis' => $regis->idRegis]) }}" method="POST">
+                                            <form id="rejectForm-{{ $regis->idRegis }}" action="{{ route(routeForMember('reject.regis', 'members.reject.regis'), ['idRegis' => $regis->idRegis]) }}" method="POST">
                                                 @csrf
                                                 @method('PUT')
                                                 <button 
@@ -184,6 +181,7 @@ use Illuminate\Support\Str;
                                             </form>
                                         </td>
                                         @endif
+                                        
                                     </tr>
                                     @empty
                                         <tr>
@@ -232,9 +230,21 @@ use Illuminate\Support\Str;
                 const selectedText = select.options[select.selectedIndex].text;
                 title.textContent = "Rekomendasi Divisi " + selectedText;
 
-                fetch(`/registration/division/${select.value}`)
+                const baseRegUrl = "{{ session()->has('idCommittee') 
+                    ? url('/members') 
+                    : url('') }}";
+                    
+                fetch(`${baseRegUrl}/registration/division/${select.value}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin' // 🔥 INI WAJIB
+                })
                     .then(res => res.json())
                     .then(data =>{
+                         console.log(data); // 🔥 tambahan
+                        console.log(data.regByDivision); // 🔥 tambahan
+                        console.log(Array.isArray(data.regByDivision)); // 🔥 tambahan
                         renderTable(data)
                     });
             }
@@ -244,7 +254,7 @@ use Illuminate\Support\Str;
             const tbody = document.getElementById('reg-division-body');
             tbody.innerHTML = '';
 
-            if (!data.regByDivision || data.regByDivision.length === 0) {
+            if (!data.regByDivision || Object.keys(data.regByDivision).length === 0) {
                 tbody.innerHTML = `<tr>
                     <td colspan="8" class="text-center">
                         Belum ada data kandidat di divisi ini
@@ -266,6 +276,8 @@ use Illuminate\Support\Str;
                     statusBadge = `<span class="badge bg-danger">Ditolak</span>`;
                 }
 
+                const baseRegUrl = "{{ session()->has('idCommittee') ? url('/members') : url('') }}";
+
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                             <td class="text-center">${index+1}</td>
@@ -277,11 +289,11 @@ use Illuminate\Support\Str;
                             <td>${row.division}</td>
                             <td>${statusBadge}</td>
                             <td>
-                                <a href="/registration/${row.idRegis}" 
+                                <a href="${baseRegUrl}/view-registrations/${row.idRegis}" 
                                 class="btn btn-warning btn-sm">Detail</a>
                             </td>
                             <td class="align-middle">
-                                <form id="acceptForm-${row.idRegis}" action="/registrations/accepted/${row.idRegis}" method="POST">
+                                <form id="acceptForm-${row.idRegis}" action="${baseRegUrl}/registrations/accepted/${row.idRegis}" method="POST">
                                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                     <input type="hidden" name="_method" value="PUT">
                                     <button 
@@ -300,7 +312,7 @@ use Illuminate\Support\Str;
                                 </form>                                         
                             </td>                                        
                             <td class="align-middle">
-                                <form id="rejectForm-${row.idRegis}" action="/registrations/rejected/${row.idRegis}" method="POST">
+                                <form id="rejectForm-${row.idRegis}" action="${baseRegUrl}/registrations/rejected/${row.idRegis}" method="POST">
                                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                     <input type="hidden" name="_method" value="PUT">
                                     <button 
@@ -328,6 +340,10 @@ use Illuminate\Support\Str;
         document.querySelectorAll('.division-select').forEach(select => {
             select.addEventListener('change', function() {
 
+            const baseRegUrl = "{{ session()->has('idCommittee') 
+                ? url('/members') 
+                : url('') }}";
+
                 const idDivision = this.value;
 
                 const card = this.closest('.card');
@@ -335,15 +351,24 @@ use Illuminate\Support\Str;
                 const selectedText = this.options[this.selectedIndex].text;
                 title.textContent = "Rekomendasi Divisi " + selectedText;
 
-                fetch(`/registration/division/${idDivision}`)
+                
+                fetch(`${baseRegUrl}/registration/division/${idDivision}`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'same-origin' // 🔥 INI WAJIB
+                })
                 .then(res => res.json())
                 .then(data => {
+                    console.log(data); // 🔥 tambahan
+                    console.log(data.regByDivision); // 🔥 tambahan
+                    console.log(Array.isArray(data.regByDivision)); // 🔥 tambahan
 
                     const tbody = this.closest('.card').querySelector('tbody');
 
                     tbody.innerHTML = '';
 
-                    if (!data.regByDivision || data.regByDivision.length === 0) {
+                    if (!data.regByDivision || Object.keys(data.regByDivision).length === 0) {
                         tbody.innerHTML = `<tr><td colspan="8" class="text-center">Belum ada data kandidat di divisi ini</td></tr>`;
                         return;
                     }
@@ -374,11 +399,11 @@ use Illuminate\Support\Str;
                             <td>${row.division}</td>
                             <td>${statusBadge}</td>
                             <td>
-                                <a href="/registration/${row.idRegis}" 
+                                <a href="${baseRegUrl}/view-registrations/${row.idRegis}" 
                                 class="btn btn-warning btn-sm">Detail</a>
                             </td>
                             <td class="align-middle">
-                                <form id="acceptForm-${row.idRegis}" action="/registrations/accepted/${row.idRegis}" method="POST">
+                                <form id="acceptForm-${row.idRegis}" action="${baseRegUrl}/registrations/accepted/${row.idRegis}" method="POST">
                                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                     <input type="hidden" name="_method" value="PUT">
                                     <button 
@@ -397,7 +422,7 @@ use Illuminate\Support\Str;
                                 </form>                                         
                             </td>                                        
                             <td class="align-middle">
-                                <form id="rejectForm-${row.idRegis}" action="/registrations/rejected/${row.idRegis}" method="POST">
+                                <form id="rejectForm-${row.idRegis}" action="${baseRegUrl}/registrations/rejected/${row.idRegis}" method="POST">
                                     <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                     <input type="hidden" name="_method" value="PUT">
                                     <button 
@@ -428,10 +453,12 @@ use Illuminate\Support\Str;
             select.addEventListener('change', function(){
                 const status = this.value;
 
-                let url = '/registration';
+                let url = "{{ session()->has('idCommittee') 
+                    ? url('/members/registration') 
+                    : url('/registration') }}";
 
                 if(status){
-                    url += `/${status}`;
+                    url += `?status=${status}`;
                 }
 
                 fetch(url)
@@ -458,6 +485,10 @@ use Illuminate\Support\Str;
                         } else {
                             statusBadge = `<span class="badge bg-danger">Ditolak</span>`;
                         }
+
+                        const baseRegUrl = "{{ session()->has('idCommittee') 
+                            ? url('/members') 
+                            : url('') }}";
                                         
                         const tr = document.createElement('tr');
                         tr.innerHTML = `
@@ -469,12 +500,12 @@ use Illuminate\Support\Str;
                             <td>${row.division}</td>
                             <td>${statusBadge}</td>
                             <td>
-                                <a href="/registration/${row.idRegis}" 
+                                <a href="${baseRegUrl}/view-registrations/${row.idRegis}" 
                                 class="btn btn-warning btn-sm">Detail</a>
                             </td>
                             <td>
                                 ${row.status === 'menunggu' ? `
-                                    <form action="/intv-scoring" method="POST">
+                                    <form action="${baseRegUrl}/intv-scoring" method="POST">
                                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                         <input type="hidden" value="${row.idMahasiswa}" name="idMahasiswa">
                                         <input type="hidden" value="${row.idDivision}" name="idDivision">
@@ -482,10 +513,8 @@ use Illuminate\Support\Str;
                                         <button type="submit" class="btn btn-success btn-sm">Nilai</button>
                                     </form>
                                 ` : ''} 
-                            </td>
                             ${row.status === 'dinilai' ? `
-                                <td class="align-middle">
-                                    <form id="acceptForm-${row.idRegis}" action="/registrations/accepted/${row.idRegis}" method="POST">
+                                    <form id="acceptForm-${row.idRegis}" action="${baseRegUrl}/registrations/accepted/${row.idRegis}" method="POST">
                                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                         <input type="hidden" name="_method" value="PUT">
                                         <button 
@@ -504,7 +533,7 @@ use Illuminate\Support\Str;
                                     </form>                                         
                                 </td>                                        
                                 <td class="align-middle">
-                                    <form id="rejectForm-${row.idRegis}" action="/registrations/rejected/${row.idRegis}" method="POST">
+                                    <form id="rejectForm-${row.idRegis}" action="${baseRegUrl}/registrations/rejected/${row.idRegis}" method="POST">
                                         <input type="hidden" name="_token" value="{{ csrf_token() }}">
                                         <input type="hidden" name="_method" value="PUT">
                                         <button 

@@ -20,7 +20,11 @@ class RegistrationController extends Controller
     public function index(Request $request)
     {
         // $this->init();
-        $committee = $request->get('displayed_committee');
+        $idCommittee = getCurrentCommitteeId($request);
+     
+        if(!$idCommittee){
+            abort(403);
+        }
 
         $registrations = DB::table('tMahasiswas as m')
         ->join('tUsers as u', 'm.idUsers', 'u.idUsers')
@@ -31,8 +35,19 @@ class RegistrationController extends Controller
         })        
         ->join('tCommittees as c', 'ld.idCommittees', 'c.idCommittees')
         ->join('tDivisions as d', 'ld.idDivisions', 'd.idDivisions')
-        ->where('c.admin', Auth::id())
-        ->where('c.idCommittees', $committee->idCommittees)
+        ->where(function($query) use ($idCommittee){
+            $query->where('c.admin', Auth::id())
+                ->orWhereExists(function($q) use ($idCommittee){
+                    $q->select(DB::raw(1))
+                        ->from('tRegistrations as r2')
+                        ->whereColumn('r2.idCommittees', 'c.idCommittees')
+                        ->where('r2.idUsers', Auth::id())
+                        ->whereIn('r2.position', ['Koordinator', 'Wakil Koordinator', 'BPH-SC'])
+                        ->where('r2.status', 'diterima');
+                });
+        })
+        ->where('c.idCommittees', $idCommittee)
+        // ->where('r.motivation', '!=', '-')
         ->select(
             DB::raw("concat(u.firstname, ' ', u.lastname) as name"),
             'u.email as email',
@@ -48,8 +63,8 @@ class RegistrationController extends Controller
         ->get();
 
         // list registrations yang sudah dinilai, ditampilkan per divisi
-       $regisByDiv = DB::table('tAHPResults as ar')
-            ->join('tRegistrations as r', 'ar.idRegistrations', 'r.idRegistrations')
+       $regisByDiv = DB::table('tRegistrations as r')
+            ->leftJoin('tAHPResults as ar', 'ar.idRegistrations', 'r.idRegistrations')
             ->join('tUsers as u', 'r.idUsers', '=', 'u.idUsers')
             ->join('tMahasiswas as m', 'u.idUsers', '=', 'm.idUsers')
             ->join('tListDivisions as ld', function($join){
@@ -58,21 +73,19 @@ class RegistrationController extends Controller
             })
             ->join('tDivisions as d', 'ld.idDivisions', '=', 'd.idDivisions')
             ->join('tCommittees as c', 'ld.idCommittees', '=', 'c.idCommittees')
-            ->where('c.admin', Auth::id())
-            ->where('r.idCommittees', $committee->idCommittees)
-            ->where('r.status', 'dinilai') // 🔥 penting
-            ->select(
-                DB::raw("concat(u.firstname, ' ', u.lastname) as name"),
-                'u.email',
-                'm.nrp',
-                'm.cv',
-                'm.portofolio',
-                'r.status',
-                'd.name as division',
-                'r.idRegistrations as idRegis',
-                'r.idUsers as idMahasiswa',
-                'ar.final_score as final_score'
-            )
+            ->where(function($query) use ($idCommittee){
+                $query->where('c.admin', Auth::id())
+                    ->orWhereExists(function($q) use ($idCommittee){
+                        $q->select(DB::raw(1))
+                            ->from('tRegistrations as r2')
+                            ->whereColumn('r2.idCommittees', 'c.idCommittees')
+                            ->where('r2.idUsers', Auth::id())
+                            ->whereIn('r2.position', ['Koordinator', 'Wakil Koordinator', 'BPH-SC'])
+                            ->where('r2.status', 'diterima');
+                    });
+            })
+            ->where('r.idCommittees', $idCommittee)
+            ->where('r.status', 'dinilai')
             ->orderBy('ar.final_score', 'desc')
             ->get()
             ->groupBy('division');
@@ -81,9 +94,11 @@ class RegistrationController extends Controller
                 return $items->sortByDesc('final_score')->values();
             });
 
+            // dd($regisByDiv);
+
             $masterDivision = DB::table('tDivisions as d')
                             ->join('tListDivisions as ld', 'd.idDivisions', 'ld.idDivisions')
-                            ->where('ld.idCommittees', $committee->idCommittees)
+                            ->where('ld.idCommittees', $idCommittee)
                             ->get();
 
             // kalo belum ada data dengan status dinilai maka akan return nama2 divisinya aja
@@ -92,18 +107,20 @@ class RegistrationController extends Controller
                     $div->name => $regisByDiv[$div->name] ?? collect()
                 ];
             });
-        // dd($regisByDiv);
 
         return view('pages.registration.registrations', compact('registrations', 'regisByDiv', 'masterDivision'));
     }
     
     public function getRegByDivision($idDivision, Request $request){
-        // $this->init();
-        $committee = $request->get('displayed_committee');
+        $idCommittee = getCurrentCommitteeId($request);
+     
+        if(!$idCommittee){
+            abort(403);
+        }
 
         $masterDivision = DB::table('tDivisions as d')
                             ->join('tListDivisions as ld', 'd.idDivisions', 'ld.idDivisions')
-                            ->where('ld.idCommittees', $committee->idCommittees)
+                            ->where('ld.idCommittees', $idCommittee)
                             ->get();
         
         $query = DB::table('tRegistrations as r')
@@ -116,8 +133,18 @@ class RegistrationController extends Controller
             })
             ->join('tDivisions as d', 'ld.idDivisions', '=', 'd.idDivisions')
             ->join('tCommittees as c', 'ld.idCommittees', '=', 'c.idCommittees')
-            ->where('c.admin', Auth::id())
-            ->where('r.idCommittees', $committee->idCommittees)
+            ->where(function($query) use ($idCommittee){
+                $query->where('c.admin', Auth::id())
+                    ->orWhereExists(function($q) use ($idCommittee){
+                        $q->select(DB::raw(1))
+                            ->from('tRegistrations as r2')
+                            ->whereColumn('r2.idCommittees', 'c.idCommittees')
+                            ->where('r2.idUsers', Auth::id())
+                            ->whereIn('r2.position', ['Koordinator', 'Wakil Koordinator', 'BPH-SC'])
+                            ->where('r2.status', 'diterima');
+                    });
+            })
+            ->where('r.idCommittees', $idCommittee)
             ->where('r.status', 'dinilai');
 
         // 🔥 filter berdasarkan dropdown
@@ -139,15 +166,19 @@ class RegistrationController extends Controller
         ->get();
 
         return response()->json([
-            'regByDivision' => $regByDivision
+            'regByDivision' => $regByDivision->values()
         ]);
 
 
     }
 
-    public function getRegByStatus($status=null, Request $request){
-        //  $this->init();
-        $committee = $request->get('displayed_committee');
+    public function getRegByStatus(Request $request){
+        $idCommittee = getCurrentCommitteeId($request);
+        $status = $request->status;
+     
+        if(!$idCommittee){
+            abort(403);
+        }
 
         $query = DB::table('tMahasiswas as m')
         ->join('tUsers as u', 'm.idUsers', 'u.idUsers')
@@ -158,8 +189,19 @@ class RegistrationController extends Controller
         })        
         ->join('tCommittees as c', 'ld.idCommittees', 'c.idCommittees')
         ->join('tDivisions as d', 'ld.idDivisions', 'd.idDivisions')
-        ->where('c.admin', Auth::id())
-        ->where('c.idCommittees', $committee->idCommittees);
+        ->where(function($query) use ($idCommittee){
+            $query->where('c.admin', Auth::id())
+                ->orWhereExists(function($q) use ($idCommittee){
+                    $q->select(DB::raw(1))
+                        ->from('tRegistrations as r2')
+                        ->whereColumn('r2.idCommittees', 'c.idCommittees')
+                        ->where('r2.idUsers', Auth::id())
+                        ->whereIn('r2.position', ['Koordinator', 'Wakil Koordinator', 'BPH-SC'])
+                        ->where('r2.status', 'diterima');
+                });
+        })
+        ->where('c.idCommittees', $idCommittee);
+        // ->where('r.motivation', '!=', '-');
         
         if(!empty($status)){
             $query->where('r.status', $status);
@@ -190,12 +232,19 @@ class RegistrationController extends Controller
      */
     public function create($divisionId, Request $request)
     {
-        // $this->init();
-        $committee = $request->get('displayed_committee');
+        $idCommittee = getCurrentCommitteeId($request);
+        if(!$idCommittee){
+            abort(403);
+        }
+
+        if(!manageDivision($divisionId)){
+            return redirect()->back()->with('warning', 
+                'Anda hanya dapat mengelola divisi Anda sendiri.');
+        }
 
         $division = DB::table('tDivisions as d')
                             ->join('tListDivisions as ld', 'd.idDivisions', 'ld.idDivisions')
-                            ->where('ld.idCommittees', $committee->idCommittees)
+                            ->where('ld.idCommittees', $idCommittee)
                             ->where('ld.idDivisions', $divisionId)
                             ->select([
                                 'd.idDivisions as idDivision',
@@ -208,7 +257,7 @@ class RegistrationController extends Controller
         
         $invitationList = DB::table('tRegistrations as r')
                             ->join('tUsers as u', 'r.idUsers', 'u.idUsers')
-                            ->where('r.idCommittees', $committee->idCommittees)
+                            ->where('r.idCommittees', $idCommittee)
                             ->where('r.idDivisions', $divisionId)
                             ->where('r.idInterviewSchedules', null)
                             ->select([
@@ -226,8 +275,15 @@ class RegistrationController extends Controller
      */
     public function store(Request $request)
     {
-        // $this->init();
-        $committee = $request->get('displayed_committee');
+        $idCommittee = getCurrentCommitteeId($request);
+     
+        if(!$idCommittee){
+            abort(403);
+        }
+
+        $committee = DB::table('tCommittees')
+                    ->where('idCommittees', $idCommittee)
+                    ->first();
 
         $request->validate([
             'idDivision' => 'required',
@@ -261,8 +317,8 @@ class RegistrationController extends Controller
         Registration::create([
             'idUsers' => $userID->idUsers,
             'idDivisions' => $request->idDivision,
-            'idCommittees' => $committee->idCommittees,
-            'status' => 'pending',
+            'idCommittees' => $idCommittee,
+            'status' => 'menunggu',
             'percentage' => 100,
             'position' => $request->position,
             'motivation' => "-",
@@ -283,9 +339,9 @@ class RegistrationController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($idRegis)
+    public function show($idRegis, Request $request)
     {
-        // $this->init();
+        $idCommittee = getCurrentCommitteeId($request);
 
         $registration = DB::table('tMahasiswas as m')
         ->join('tUsers as u', 'm.idUsers', 'u.idUsers')
@@ -296,7 +352,17 @@ class RegistrationController extends Controller
         })        
         ->join('tCommittees as c', 'ld.idCommittees', 'c.idCommittees')
         ->join('tDivisions as d', 'ld.idDivisions', 'd.idDivisions')
-        ->where('c.admin', Auth::id())
+        ->where(function($query) use ($idCommittee){
+            $query->where('c.admin', Auth::id())
+                ->orWhereExists(function($q) use ($idCommittee){
+                    $q->select(DB::raw(1))
+                        ->from('tRegistrations as r2')
+                        ->whereColumn('r2.idCommittees', 'c.idCommittees')
+                        ->where('r2.idUsers', Auth::id())
+                        ->whereIn('r2.position', ['Koordinator', 'Wakil Koordinator', 'BPH-SC'])
+                        ->where('r2.status', 'diterima');
+                });
+        })
         ->where('r.idRegistrations', $idRegis)
         ->whereColumn('r.idCommittees', 'c.idCommittees')
         ->select(
@@ -322,6 +388,12 @@ class RegistrationController extends Controller
                 ->select('*')
                 ->first();
 
+        
+        if(!manageDivision($mhs->idDivisions)){
+            return redirect()->back()->with('warning', 
+                'Anda hanya dapat menerima pendaftar pada divisi Anda sendiri.');
+        }
+
         $exist = DB::table('tRegistrations')
                 ->where('idUsers', '=', $mhs->idUsers)
                 ->where('status','=', 'accepted')
@@ -341,7 +413,12 @@ class RegistrationController extends Controller
         } elseif($mhs->status === 'ditolak'){
             return redirect()->back()->with('warning', 'Pendaftar ini sudah ditolak');
         }
-        return redirect()->route('registration')->with('success', 'Status updated!');
+
+        if (session()->has('idCommittee')) {
+            return redirect()->route('members.registrations')->with('success', 'Status updated!');
+        }else{
+            return redirect()->route('registration')->with('success', 'Status updated!');
+        }
     }
 
     public function reject($idRegis){
@@ -349,6 +426,13 @@ class RegistrationController extends Controller
                 ->where('idRegistrations', $idRegis)
                 ->select('*')
                 ->first();
+
+        
+        if(!manageDivision($mhs->idDivisions)){
+            return redirect()->back()->with('warning', 
+                'Anda hanya dapat menolak pendaftar pada divisi Anda sendiri.');
+        }
+
         if($mhs->status === "dinilai"){
             DB::table('tRegistrations')
                 ->where('idRegistrations', $idRegis)
@@ -358,18 +442,29 @@ class RegistrationController extends Controller
         } elseif($mhs->status === 'ditolak'){
             return redirect()->back()->with('warning', 'Pendaftar ini sudah ditolak');
         }
-        return redirect()->route('registration')->with('success', 'Status updated!');
+
+        if (session()->has('idCommittee')) {
+            return redirect()->route('members.registrations')->with('success', 'Status updated!');
+        }else{
+            return redirect()->route('registration')->with('success', 'Status updated!');
+        }
     }
 
     public function members(Request $request){
-        // $this->init();
+        $idCommittee = getCurrentCommitteeId($request);
+     
+        if(!$idCommittee){
+            abort(403);
+        }
 
-        $committee = $request->get('displayed_committee');
+        //  $committee = DB::table('tCommittees')
+        //             ->where('idCommittees', $idCommittee)
+        //             ->first();
 
         $members = DB::table('tDivisions as d')
-                    ->leftJoin('tListDivisions as ld',function($join) use ($committee){
+                    ->leftJoin('tListDivisions as ld',function($join) use ($idCommittee){
                         $join->on( 'd.idDivisions', '=', 'ld.idDivisions');
-                        $join->where('ld.idCommittees', '=', $committee->idCommittees);
+                        $join->where('ld.idCommittees', '=', $idCommittee);
                     })
                     ->leftJoin('tRegistrations as r', function($join){
                         $join->on('r.idDivisions', '=', 'ld.idDivisions');
@@ -377,7 +472,7 @@ class RegistrationController extends Controller
                         $join->where('r.status', 'diterima');
                     })
                     ->leftJoin('tUsers as u', 'r.idUsers','u.idUsers')
-                    ->where('ld.idCommittees', $committee->idCommittees)
+                    ->where('ld.idCommittees', $idCommittee)
                     ->select(
                         'r.idUsers as idUser',
                         DB::raw("concat(u.firstname, ' ', u.lastname) as name"),
@@ -394,7 +489,11 @@ class RegistrationController extends Controller
     }
 
     public function updatePosition($memberId, $divisionId, $newPosition, Request $request){
-        $committee = $request->get('displayed_committee');
+        $idCommittee = getCurrentCommitteeId($request);
+     
+        if(!$idCommittee){
+            abort(403);
+        }
 
         $user = Auth::user();
         $admin = null;
@@ -404,19 +503,19 @@ class RegistrationController extends Controller
         } else{
             return response()->json([
                 'success' => false,
-                'message' => "This user doesn't have authority!"
+                'message' => "Anda tidak memiliki akses untuk mengubah posisi."
             ], 403);
         }
 
         DB::table('tRegistrations as r')
-                ->where('idCommittees', $committee->idCommittees)
+                ->where('idCommittees', $idCommittee)
                 ->where('idUsers', $memberId)
                 ->where('idDivisions', $divisionId)
                 ->update(['position' => $newPosition]);
         
         return response()->json([
             'success' => true,
-            'message' => 'Position updated successfully'
+            'message' => 'Berhasil merubah posisi'
         ]);
     }
 

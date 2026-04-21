@@ -12,13 +12,29 @@ use Illuminate\Support\Str;
 
         <div class="row">
             <div class="col-12">
-                    
+                    @if(session('success'))
+                        <div>
+                            <div class="alert alert-success auto-close-alert alert-dismissible fade show" role="alert">
+                                <strong>Success!</strong> {{ session('success') }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        </div>
+                    @elseif(session('warning'))
+                        <div>
+                            <div class="alert alert-warning auto-close-alert alert-dismissible fade show" role="alert">
+                                <strong>Warning!</strong> {{ session('warning') }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        </div>
+                    @endif
                 @foreach($members as $divisionNames => $divisionMembers)
                 <div class="card mb-4">
                     <div class="card-header pb-0 d-flex justify-content-between align-items-center" >
                         <h6>{{ $divisionNames }}</h6>
                         
-                        <a href="{{ route('member.add', ['divisionId' => $divisionMembers->first()->idDivision]) }}"
+                        <a href="{{ route(routeForMember('member.add', 'members.member.add'), [
+                                'divisionId' => $divisionMembers->first()->idDivision
+                            ]) }}"
                             class="btn btn-dark btn-add w-15 mb-3">
                             Tambah Anggota
                         </a>
@@ -105,11 +121,13 @@ use Illuminate\Support\Str;
                         'Accept': 'application/json'
                     }
                 })
-                .then(res => {
+                .then(async res => {
+                    const data = await res.json();
+
                     if(!res.ok){
-                        throw new Error('Network response was not ok');
+                        throw new Error(data.message || 'Anda tidak memiliki akses untuk mengubah posisi!');
                     }
-                    return res.json();
+                    return data;
                 })
                 .then(data => {
                     console.log(data);
@@ -132,10 +150,23 @@ use Illuminate\Support\Str;
                 })
                 .catch(err => {
                     console.error(err);
-                    alert('Error updating position');
+                    // alert('Error updating position');
+                    location.reload();
+                     // error dari backend
+                    document.getElementById('alert-container').innerHTML = `
+                        <div class="alert alert-danger alert-dismissible fade show">
+                            <strong>Error!</strong> ${err.message}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    `;
                 });
             });
         });
      
+        setTimeout(()=>{
+            document.querySelectorAll('.auto-close-alert').forEach(a => {
+                new bootstrap.Alert(a).close();
+            });
+        }, 3000); // auto close 3 detik
     </script>
 @endsection

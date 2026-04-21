@@ -14,14 +14,17 @@ class InterviewScoringController extends Controller
      */
     public function index(Request $request)
     {
-        $committee = $request->get('displayed_committee');
+        $idCommittee = getCurrentCommitteeId($request);
 
-        //kirim id pendaftar
-        //id evaluator ambil dari yg lg login
-        //kirim id divisi
         $idMahasiswa = $request->idMahasiswa;
         $idRegistrations = $request->idRegis;
         $idDivision = $request->idDivision;
+
+        
+        if(!manageDivision($idDivision)){
+            return redirect()->back()->with('warning', 
+                'Anda hanya dapat menilai pendaftar pada divisi Anda sendiri.');
+        }
 
         $idEvaluator = Auth::user();
 
@@ -37,7 +40,7 @@ class InterviewScoringController extends Controller
                         $join->on('ic.idInterviewCriterias', '=', 'ies.idInterviewCriterias')
                             ->on('ies.idInterviewEvaluations', '=', 'ie.idInterviewEvaluations');
                     })
-                    ->where('la.idCommittees', $committee->idCommittees)
+                    ->where('la.idCommittees', $idCommittee)
                     ->where('la.idDivisions', $idDivision)
                     ->select(
                         'ic.idInterviewCriterias as idCriterias',
@@ -87,9 +90,6 @@ class InterviewScoringController extends Controller
      */
     public function store(Request $request)
     {
-        // dd($request->all());
-
-        // dd($request->idDivision);
         //buat tInterviewEvaluations
         $exist = DB::table('tInterviewEvaluations')
             ->where('idEvaluator', Auth::id())
@@ -144,8 +144,6 @@ class InterviewScoringController extends Controller
             )
             ->get();
 
-// dd($request->idRegis);
-
         // foreach avgScores as row
         $finalScore = $avgScores->sum(function ($row) {
             return $row->avg_score * $row->average_weight;
@@ -166,13 +164,7 @@ class InterviewScoringController extends Controller
         // dd($avgScores, $finalScore);
 
         return redirect()->route('registration')->with('success', 'Penilaian berhasil disimpan dan final score berhasil dihitung.');
-        // return redirect()->back()->with('success', 'Penilaian berhasil disimpan dan final score berhasil dihitung.');
-        // return redirect()->route('intvscoring.get', [
-        //     'idMahasiswa' => $request->idMahasiswa,
-        //     'idRegis' => $request->idRegis,
-        //     'idDivision' => $request->idDivision
-        // ])->with('success', 'Penilaian berhasil disimpan dan final score berhasil dihitung.');
-}
+    }
 
     /**
      * Display the specified resource.

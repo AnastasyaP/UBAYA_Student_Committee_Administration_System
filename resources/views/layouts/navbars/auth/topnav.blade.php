@@ -18,6 +18,15 @@
                 </div>
             </div>
             <ul class="navbar-nav  justify-content-end">
+                @if(session()->has('idCommittee'))
+                <li class="nav-item d-flex align-items-center">
+                        <a href="{{ route('exit.member') }}"
+                            class="nav-link text-white font-weight-bold px-0">
+                            <i class="fa fa-arrow-left me-sm-1"></i>
+                            <span class="d-sm-inline d-none">Kembali ke Mahasiswa</span>
+                        </a>
+                </li>
+                @else
                 <li class="nav-item d-flex align-items-center">
                     <form role="form" method="post" action="{{ route('logout') }}" id="logout-form">
                         @csrf
@@ -29,6 +38,7 @@
                         </a>
                     </form>
                 </li>
+                @endif
                 <li class="nav-item d-xl-none ps-3 d-flex align-items-center">
                     <a href="javascript:;" class="nav-link text-white p-0" id="iconNavbarSidenav">
                         <div class="sidenav-toggler-inner">

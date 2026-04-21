@@ -17,15 +17,20 @@ class AccessRole
      */
     public function handle(Request $request, Closure $next): Response
     {
+        $idCommittee = session('idCommittee');
+
         $isAllowed = DB::table('tRegistrations')
-                        ->where('idCommittees', $request->idCommittee)
-                        ->where('isUsers', Auth::id())
+                        ->where('idCommittees', $idCommittee)
+                        ->where('idUsers', Auth::id())
                         ->whereIn('position', ['BPH-SC', 'Koordinator', 'Wakil Koordinator'])
                         ->where('status', 'diterima')
                         ->exists();
 
         if(!$isAllowed){
-            abort(403, 'Akses Ditolak');
+            return response()->json([
+                'success' => false,
+                'message' => 'Akses ditolak.'
+            ], 403);
         }
         
         return $next($request);

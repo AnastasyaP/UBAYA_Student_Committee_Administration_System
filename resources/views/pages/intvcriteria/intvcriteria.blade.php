@@ -29,7 +29,7 @@ use Illuminate\Support\Str;
                 <div class="card mb-4">
                     <div class="card-header pb-0 d-flex justify-content-between align-items-center" >
                         <h6>{{ $criterias->first()->division }}</h6>
-                        <a href="{{ route('intvcriteria.add', ['idDivision' => $idDivision]) }}" target=""
+                        <a href="{{ route(routeForMember('intvcriteria.add', 'members.intvcriteria.add'), ['idDivision' => $idDivision]) }}" target=""
                             class="btn btn-dark btn-add ms-auto">Tambah Kriteria</a>
                     </div>
                     <div class="card-body px-0 pt-0 pb-2">

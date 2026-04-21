@@ -22,7 +22,7 @@
                         </div>
                     @endif
                 <div class="card">
-                    <form method="POST" action="{{ route('intvcriteria.store') }}" enctype="multipart/form-data">
+                    <form method="POST" action="{{ route(routeForMember('intvcriteria.store', 'members.intvcriteria.store')) }}" enctype="multipart/form-data">
                         @csrf
                         <div class="card-header pb-0">
                             <div class="d-flex align-items-center">

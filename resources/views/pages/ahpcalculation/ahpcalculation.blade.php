@@ -161,7 +161,9 @@ use Illuminate\Support\Str;
         document.getElementById('division').addEventListener('change', function(){
             const idDivision = this.value;
 
-            fetch(`/ahp/division/${idDivision}/criterias`)
+            const baseRegUrl = "{{ session()->has('idCommittee') ? url('/members') : url('') }}";
+
+            fetch(`${baseRegUrl}/ahp/division/${idDivision}/criterias`)
             .then(res => res.json())
             .then(data => {
                 console.log(data.pairwise);
@@ -229,7 +231,9 @@ use Illuminate\Support\Str;
                 });
             });
 
-            fetch(`/ahp/normalize`,{
+            const baseRegUrl = "{{ session()->has('idCommittee') ? url('/members') : url('') }}";
+
+            fetch(`${baseRegUrl}/ahp/normalize`,{
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

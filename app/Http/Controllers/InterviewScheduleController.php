@@ -15,9 +15,7 @@ class InterviewScheduleController extends Controller
     {
         $events = [];
 
-        $admin = Auth::user();
-
-        $committee = $request->get('displayed_committee');
+        $idCommittee = getCurrentCommitteeId($request);
  
         $intvs = DB::table('tInterviewSchedules as i')
                     ->select(
@@ -40,7 +38,7 @@ class InterviewScheduleController extends Controller
                             ->on('i.idCommittees', '=', 'ld.idCommittees');
                     })
                     ->join('tDivisions as d', 'ld.idDivisions', 'd.idDivisions')
-                    ->where('i.idCommittees', $committee->idCommittees)
+                    ->where('i.idCommittees', $idCommittee)
                     ->get();
 
         foreach ($intvs as $intv) {
@@ -89,7 +87,7 @@ class InterviewScheduleController extends Controller
 
         $masterDivisions = DB::table('tDivisions as d')
                         ->join('tListDivisions as ld', 'd.idDivisions', 'ld.idDivisions')
-                        ->where('ld.idCommittees', $committee->idCommittees)
+                        ->where('ld.idCommittees', $idCommittee)
                         ->where('ld.is_open', 1)
                         ->get();
  
@@ -108,11 +106,11 @@ class InterviewScheduleController extends Controller
      */
     public function create(Request $request)
     {
-        $committee = $request->get('displayed_committee');
+        $idCommittee = getCurrentCommitteeId($request);
 
         $divisions = DB::table('tDivisions as d')
                         ->join('tListDivisions as ld', 'd.idDivisions', 'ld.idDivisions')
-                        ->where('ld.idCommittees', $committee->idCommittees)
+                        ->where('ld.idCommittees', $idCommittee)
                         ->where('ld.is_open', 1)
                         ->get();
 
@@ -140,7 +138,13 @@ class InterviewScheduleController extends Controller
             'mimes' => 'Format file harus jpg, jpeg, atau png.',
         ]);
 
-        $committee = $request->get('displayed_committee');
+        $idCommittee = getCurrentCommitteeId($request);
+
+        
+        if(!manageDivision($request->division)){
+            return redirect()->back()->with('warning', 
+                'Anda hanya bisa menambahkan jadwal divisi Anda sendiri.');
+        }
 
         // cek apakah uda ada jadwal divisi yang sama di tgl & jam yg sama (jangan sampe bentrok)
         $existingSchedule = DB::table('tInterviewSchedules')
@@ -148,10 +152,10 @@ class InterviewScheduleController extends Controller
                                 ->where('start_time', '<', $request->end_time)
                                 ->where('end_time', '>', $request->start_time)
                                 ->where('idDivisions', $request->division)
-                                ->where('idCommittees', $committee->idCommittees)
+                                ->where('idCommittees', $idCommittee)
                                 ->first();
         if($existingSchedule){
-            return redirect()->back()->with('warning', 'This division already has a schedule in this time!');
+            return redirect()->back()->with('warning', 'Divisi ini telah memiliki jadwal pada jam tersebut!');
         } else{
             if($request->start_time >= $request->end_time){
                 return redirect()->back()->with('warning', 'Time Invalid!');
@@ -164,10 +168,14 @@ class InterviewScheduleController extends Controller
                 'place' => $request->place ? $request->place : '',
                 'link' => $request->link ? $request->link : '',
                 'idDivisions' => $request->division,
-                'idCommittees' => $committee->idCommittees
+                'idCommittees' => $idCommittee
             ]);
 
-            return redirect()->route('intv.calendar')->with('success', 'Interview Schedule added Successfully!');
+            if(session()->has('idCommittee')){
+                return redirect()->route('members.intv.calendar')->with('success', 'Berhasil menambahkan jadwal interview!');
+            }else{
+                return redirect()->route('intv.calendar')->with('success', 'Berhasil menambahkan jadwal interview!');
+            }
         }
 
     }
@@ -210,21 +218,20 @@ class InterviewScheduleController extends Controller
             'mimes' => 'Format file harus jpg, jpeg, atau png.',
         ]);
         // cek di divisi itu pada tlg n jam itu uda ada jadwal atau belom\
-        $committee = $request->get('displayed_committee');
-        dd($committee);
+        $idCommittee = getCurrentCommitteeId($request);
 
         $exists = DB::table('tInterviewSchedules')
                     ->where('idDivisions', $request->division)
                     ->where('date', $request->date)
                     ->where('start_time', '<', $request->end_time)
                     ->where('end_time', '>', $request->start_time)
-                    ->where('idCommittees', $committee->idCommittees)
+                    ->where('idCommittees', $idCommittee)
                     ->where('idInterviewSchedules', '!=', $idSchedule)
                     ->first();
 
         // klo aman update, klo nga kasi warning uda ada jadwalnya
         if($exists){
-            return redirect()->back()->with('warning', 'This division already has a schedule in this time!');
+            return redirect()->back()->with('warning', 'Divisi ini telah memiliki jadwal pada jam tersebut!');
         }else{
             if($request->start_time >= $request->end_time){
                 return redirect()->back()->with('warning', 'Time Invalid!');
@@ -239,9 +246,14 @@ class InterviewScheduleController extends Controller
                 'place' => $request->place ? $request->place : '',
                 'link' => $request->link ? $request->link : '',
                 'idDivisions' => $request->division,
-                'idCommittees' => $committee->idCommittees
+                'idCommittees' => $idCommittee
             ]);
-            return redirect()->route('intv.calendar')->with('success', 'Interview Schedule updated Successfully!');
+
+            if(session()->has('idCommittee')){
+                return redirect()->route('members.intv.calendar')->with('success', 'Berhasil mengubah jadwal interview!');
+            }else{
+                return redirect()->route('intv.calendar')->with('success', 'Berhasil mengubah jadwal interview!');
+            }
         }
     }
 

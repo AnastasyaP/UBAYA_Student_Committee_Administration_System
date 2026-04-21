@@ -9,8 +9,79 @@
             <span class="ms-1 font-weight-bold">Dashboard Kepanitiaan</span>
         </a>
     </div>
-    <hr class="horizontal dark mt-0">
+    <hr class="horizontal dark mt-0">   
     <div class="collapse navbar-collapse  w-auto " id="sidenav-collapse-main">
+        @if(session('idCommittee'))
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link {{ Route::currentRouteName() == 'members/dashboard' ? 'active' : '' }}" href="{{ route('members.dashboard') }}">
+                    <div
+                        class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                        <i class="ni ni-tv-2 text-primary text-sm opacity-10"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item mt-3 d-flex align-items-center">
+                <div class="ps-4">
+                    <i class="fab fa-laravel" style="color: #f4645f;"></i>
+                </div>
+                <h6 class="ms-2 text-uppercase text-xs font-weight-bolder opacity-6 mb-0">Data Kepanitiaan</h6>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ str_contains(request()->url(), 'members/member') == true ? 'active' : '' }}" href="{{ route('members.member') }}">
+                    <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                        <i class="ni ni-bullet-list-67 text-dark text-sm opacity-10"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Daftar Anggota</span>
+                </a>
+            </li>
+            <li class="nav-item mt-3 d-flex align-items-center">
+                <div class="ps-4">
+                    <i class="fab fa-laravel" style="color: #f4645f;"></i>
+                </div>
+                <h6 class="ms-2 text-uppercase text-xs font-weight-bolder opacity-6 mb-0">Interview</h6>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ str_contains(request()->url(), 'interview-schedules') == true ? 'active' : '' }}" href="{{ route('members.intv.calendar') }}">
+                    <div
+                        class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                        <i class="ni ni-calendar-grid-58 text-warning text-sm opacity-10"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Jadwal Interview</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ str_contains(request()->url(), 'intvcriteria') == true ? 'active' : '' }}" href="{{ route('members.intvcriteria') }}">
+                    <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                        <i class="ni ni-bullet-list-67 text-dark text-sm opacity-10"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Kriteria Interview</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ str_contains(request()->url(), 'ahpcalculation') == true ? 'active' : '' }}" href="{{ route('members.ahpcalc') }}">
+                    <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                        <i class="ni ni-fat-add text-dark text-sm opacity-10"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Bobot AHP</span>
+                </a>
+            </li>
+            <li class="nav-item mt-3 d-flex align-items-center">
+                <div class="ps-4">
+                    <i class="fab fa-laravel" style="color: #f4645f;"></i>
+                </div>
+                <h6 class="ms-2 text-uppercase text-xs font-weight-bolder opacity-6 mb-0">Registrasi</h6>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link {{ str_contains(request()->url(), 'registration-list') == true ? 'active' : '' }}" href="{{ route('members.registrations') }}">
+                    <div class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                        <i class="ni ni-bullet-list-67 text-dark text-sm opacity-10"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Daftar Registrasi</span>
+                </a>
+            </li>
+        @else
         <ul class="navbar-nav">
             <li class="nav-item">
                 <a class="nav-link {{ Route::currentRouteName() == 'dashboard' ? 'active' : '' }}" href="{{ route('dashboard') }}">
@@ -185,6 +256,7 @@
                 </a>
             </li>
         </ul>
+        @endif
     </div>
     <!-- <div class="sidenav-footer mx-3 ">
         <a href="/docs/bootstrap/overview/argon-dashboard/index.html" target="_blank"

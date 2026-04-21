@@ -16,7 +16,7 @@ class InterviewCriteriaController extends Controller
      */
     public function index(Request $request)
     {
-        $committee = $request->get('displayed_committee');
+        $idCommittee = getCurrentCommitteeId($request);
 
         $intvCriteria = DB::table('tListDivisions as ld')
                         ->join('tDivisions as d', 'ld.idDivisions', '=', 'd.idDivisions')
@@ -33,7 +33,7 @@ class InterviewCriteriaController extends Controller
                         ->leftJoin('tInterviewCriterias as ic',
                             'dc.idInterviewCriterias', '=', 'ic.idInterviewCriterias')
 
-                        ->where('ld.idCommittees', $committee->idCommittees)
+                        ->where('ld.idCommittees', $idCommittee)
                         ->select(
                             'd.name as division',
                             'd.idDivisions as idDivision',
@@ -54,11 +54,17 @@ class InterviewCriteriaController extends Controller
      */
     public function create($idDivision)
     {
+        
+        if(!manageDivision($idDivision)){
+            return redirect()->back()->with('warning', 
+                'Anda hanya dapat mengelola divisi Anda sendiri.');
+        }
+
         $masterAHPcriteria = AHPCriteria::all();
+
         $division = DB::table('tDivisions')
                         ->where('idDivisions', $idDivision)
                         ->first();
-
 
         return view('pages.intvcriteria.add-intvcriteria', compact('masterAHPcriteria', 'division'));
     }
@@ -68,7 +74,7 @@ class InterviewCriteriaController extends Controller
      */
     public function store(Request $request)
     {
-        $committee = $request->get('displayed_committee');
+        $idCommittee = getCurrentCommitteeId($request);
 
         $request->validate([
             'ahp_criteria' => 'required|string|max:45',
@@ -104,14 +110,14 @@ class InterviewCriteriaController extends Controller
         // batesin 1 divisi di masing2 committee max 5 ahp criteria biar pairwisenya nga kebanyakan
         $mapping = DB::table('tListDivisionAHPCriterias')
             ->where('idDivisions', $request->idDivision)
-            ->where('idCommittees', $committee->idCommittees)
+            ->where('idCommittees', $idCommittee)
             ->where('idAHPCriterias', $ahpID)
             ->first();
 
         if(!$mapping){
             $ahpCount = DB::table('tListDivisionAHPCriterias')
                 ->where('idDivisions', $request->idDivision)
-                ->where('idCommittees', $committee->idCommittees)
+                ->where('idCommittees', $idCommittee)
                 ->count();
 
             if($ahpCount >= 5){
@@ -125,7 +131,7 @@ class InterviewCriteriaController extends Controller
             $ListDivisionAHPCriteriasID = DB::table('tListDivisionAHPCriterias')
                 ->insertGetId([
                     'idDivisions'    => $request->idDivision,
-                    'idCommittees'   => $committee->idCommittees,
+                    'idCommittees'   => $idCommittee,
                     'idAHPCriterias' => $ahpID,
                     'average_weight' => 0,
                     'created_at' => now(),
@@ -150,7 +156,11 @@ class InterviewCriteriaController extends Controller
             'idListDivisionAHPCriterias' => $ListDivisionAHPCriteriasID
         ]);
 
-        return redirect()->route('intvcriteria')->with('success', 'Interview criteria successfully added.');
+        if(session()->has('idCommittee')){
+            return redirect()->route('members.intvcriteria')->with('success', 'Interview criteria successfully added.');
+        }else{
+            return redirect()->route('intvcriteria')->with('success', 'Interview criteria successfully added.');
+        }
     }
 
     /**

@@ -27,7 +27,7 @@ use Illuminate\Support\Str;
                 <div class="card mb-4">
                     <div class="card-header pb-0 d-flex justify-content-between align-items-center" >
                         <h6>Daftar Jadwal Interview</h6>
-                        <a href="{{ route('intv.add') }}" target=""
+                        <a href="{{ route(routeForMember('intv.add', 'members.intv.add')) }}" target=""
                             class="btn btn-dark btn-add ms-auto">Tambah Jadwal</a>
                     </div>
                     <div class="card-body px-0 pt-0 pb-2">
