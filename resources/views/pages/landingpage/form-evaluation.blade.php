@@ -22,12 +22,12 @@
     <!-- Page Title -->
     <div class="page-title dark-background" data-aos="fade" style="background-image: url(assets/img/page-title-bg.jpg);">
       <div class="container position-relative">
-        <h1>Contact</h1>
+        <h1>Form Evaluasi</h1>
         <p>Esse dolorum voluptatum ullam est sint nemo et est ipsa porro placeat quibusdam quia assumenda numquam molestias.</p>
         <nav class="breadcrumbs">
           <ol>
-            <li><a href="index.html">Home</a></li>
-            <li class="current">Contact</li>
+            <li><a href="index.html">Beranda</a></li>
+            <li class="current">Evaluasi</li>
           </ol>
         </nav>
       </div>
@@ -38,68 +38,148 @@
 
       <div class="container" data-aos="fade-up" data-aos-delay="100">
 
-        <div class="mb-4" data-aos="fade-up" data-aos-delay="200">
-          <iframe style="border:0; width: 100%; height: 270px;" src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d48389.78314118045!2d-74.006138!3d40.710059!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c25a22a3bda30d%3A0xb89d1fe6bc499443!2sDowntown%20Conference%20Center!5e0!3m2!1sen!2sus!4v1676961268712!5m2!1sen!2sus" frameborder="0" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-        </div><!-- End Google Maps -->
-
         <div class="row gy-4">
 
-          <div class="col-lg-4">
-            <div class="info-item d-flex" data-aos="fade-up" data-aos-delay="300">
-              <i class="bi bi-geo-alt flex-shrink-0"></i>
-              <div>
-                <h3>Address</h3>
-                <p>A108 Adam Street, New York, NY 535022</p>
-              </div>
-            </div><!-- End Info Item -->
+            @php
+                $icons = [
+                    'user' => 'bi-person',
+                    'committee' => 'bi-calendar-event',
+                    'division' => 'bi-diagram-3',
+                ];
+            @endphp
+            <div class="col-lg-4">
+                @foreach($masterTarget as $value => $label)
+                <a href="{{ route('lp.eval', [$idCommittee, $value]) }}"
+                    class="info-item d-flex"
+                    style="text-decoration:none; color:inherit;"
+                    data-aos="fade-up" data-aos-delay="300">
 
-            <div class="info-item d-flex" data-aos="fade-up" data-aos-delay="400">
-              <i class="bi bi-telephone flex-shrink-0"></i>
-              <div>
-                <h3>Call Us</h3>
-                <p>+1 5589 55488 55</p>
-              </div>
-            </div><!-- End Info Item -->
+                    <i class="bi {{ $icons[$value] ?? 'bi-circle' }}"></i>
 
-            <div class="info-item d-flex" data-aos="fade-up" data-aos-delay="500">
-              <i class="bi bi-envelope flex-shrink-0"></i>
-              <div>
-                <h3>Email Us</h3>
-                <p>info@example.com</p>
-              </div>
-            </div><!-- End Info Item -->
-
-          </div>
+                    <div>
+                        <h3>{{ $label }}</h3>
+                        <p>Berikan evaluasi untuk {{ $label }}</p>
+                    </div>
+                </a>
+                @endforeach
+            </div>
 
           <div class="col-lg-8">
-            <form action="forms/contact.php" method="post" class="php-email-form" data-aos="fade-up" data-aos-delay="200">
-              <div class="row gy-4">
+            <!-- INFO TARGET -->
+             @php
+                $targetLabels = [
+                    'committee' => 'Kepanitiaan',
+                    'division' => 'Divisi',
+                    'user' => 'Panitia',
+                ];
 
-                <div class="col-md-6">
-                  <input type="text" name="name" class="form-control" placeholder="Your Name" required="">
+                $currentTarget = $target ?? 'committee';
+            @endphp
+            <div class="mb-3">
+                <h4>
+                    Evaluasi: 
+                    <span class="badge bg-primary">
+                        {{ $targetLabels[$currentTarget] ?? 'Kepanitiaan' }}
+                    </span>
+                </h4>
+            </div>
+            <form action="#" method="POST">
+                @csrf
+                 @if($target == 'division')
+                <div class="mb-3">
+                    <label>Pilih Divisi</label>
+                    <select name="target_division" id="target_division" class="form-control" required>
+                        <option value="">-- Pilih Divisi --</option>
+                        @foreach($divisions as $index => $div)
+                        <option value="{{ $div->idDivisions }}"
+                            {{ $index == 0 ? 'selected' : '' }}>
+                            {{ $div->name }}
+                        </option>
+                        @endforeach
+                    </select>
+                </div>
+                @endif
+                @if($target == 'user')
+                <div class="mb-3">
+                    <label>Pilih Panitia</label>
+                    <select name="target_user" class="form-control" required>
+                        <option value="">-- Pilih Panitia --</option>
+                        @foreach($users as $user)
+                            <option value="{{ $user->idUsers }}">
+                                {{ $user->firstname }} {{ $user->lastname }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                @endif
+                <div id="criteria-container">
+                    @forelse($criterias as $criteria)
+                    <div class="card mb-3 p-3 shadow-sm">
+
+                        <!-- NAMA KRITERIA -->
+                        <h5>
+                            {{ $criteria->name }}
+
+                            <!-- LABEL TARGET -->
+                            <!-- <span class="badge bg-secondary">
+                                {{ $criteria->target_type }}
+                            </span> -->
+                        </h5>
+
+                        <!-- DESKRIPSI -->
+                        <small class="text-muted">
+                            {{ $criteria->description }}
+                        </small>
+
+                        <!-- JIKA ADA DIVISI -->
+                        @if($criteria->division_name)
+                            <div class="mt-2">
+                                <span class="badge bg-info">
+                                    Divisi: {{ $criteria->division_name }}
+                                </span>
+                            </div>
+                        @endif
+
+                        <!-- RATING -->
+                        <div class="mt-3">
+                            <label>Nilai:</label><br>
+
+                            @for($i = 1; $i <= 5; $i++)
+                                <label style="cursor:pointer; margin-right:10px;">
+                                    <input type="radio" 
+                                        name="scores[{{ $criteria->idEvaluationCriterias }}][score]" 
+                                        value="{{ $i }}" required>
+                                    {{ $i }}
+                                </label>
+                            @endfor
+                        </div>
+
+                        <!-- KOMENTAR -->
+                        <textarea 
+                            name="scores[{{ $criteria->idEvaluationCriterias }}][comment]" 
+                            class="form-control mt-2" 
+                            placeholder="Komentar (opsional)">
+                        </textarea>
+
+                    </div>
+                    @empty
+                        <div class="alert alert-warning">
+                            Tidak ada kriteria untuk target ini.
+                        </div>
+                    @endforelse
+
                 </div>
 
-                <div class="col-md-6 ">
-                  <input type="email" class="form-control" name="email" placeholder="Your Email" required="">
+                <!-- KOMENTAR UMUM -->
+                <div class="mt-3">
+                    <label>Komentar Umum</label>
+                    <textarea name="overall_comment" class="form-control"></textarea>
                 </div>
 
-                <div class="col-md-12">
-                  <input type="text" class="form-control" name="subject" placeholder="Subject" required="">
-                </div>
+                <button type="submit" class="btn btn-primary mt-3">
+                    Simpan Evaluasi
+                </button>
 
-                <div class="col-md-12">
-                  <textarea class="form-control" name="message" rows="6" placeholder="Message" required=""></textarea>
-                </div>
-
-                <div class="col-md-12 text-center">
-                  <div class="loading">Loading</div>
-                  <div class="error-message"></div>
-                  <div class="sent-message">Your message has been sent. Thank you!</div>
-
-                  <button type="submit">Send Message</button>
-                </div>
-
-              </div>
             </form>
           </div><!-- End Contact Form -->
 
@@ -108,4 +188,74 @@
       </div>
 
     </section><!-- /Contact Section -->
+
+    <script>
+        function loadCriteria(idDivision) {
+            const idCommittee = "{{ $idCommittee }}";
+
+            fetch(`/form-evaluation/get-criteria/${idCommittee}/${idDivision}`)
+            .then(res => res.json())
+            .then(data => {
+
+                const container = document.getElementById('criteria-container');
+                container.innerHTML = '';
+
+                data.criterias.forEach(item => {
+
+                    let ratingHTML = '';
+
+                    for (let i = 1; i <= 5; i++) {
+                        ratingHTML += `
+                            <label style="margin-right:10px;">
+                                <input type="radio" 
+                                    name="scores[${item.idEvaluationCriterias}][score]" 
+                                    value="${i}" required> ${i}
+                            </label>
+                        `;
+                    }
+
+                    container.innerHTML += `
+                        <div class="card mb-3 p-3 shadow-sm">
+
+                            <h5>${item.name}</h5>
+
+                            <small class="text-muted">${item.description}</small>
+
+                            ${item.division_name ? 
+                                `<div class="mt-2">
+                                    <span class="badge bg-info">
+                                        Divisi: ${item.division_name}
+                                    </span>
+                                </div>` 
+                            : ''}
+
+                            <div class="mt-3">
+                                ${ratingHTML}
+                            </div>
+
+                            <textarea 
+                                name="scores[${item.idEvaluationCriterias}][comment]" 
+                                class="form-control mt-2"
+                                placeholder="Komentar (opsional)">
+                            </textarea>
+
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        // 🔥 change event (CUMA 1)
+        document.getElementById('target_division').addEventListener('change', function(){
+            loadCriteria(this.value);
+        });
+
+        // 🔥 default load
+        document.addEventListener('DOMContentLoaded', function () {
+            const select = document.getElementById('target_division');
+            if (select && select.value) {
+                loadCriteria(select.value);
+            }
+        });
+    </script>
 @endsection

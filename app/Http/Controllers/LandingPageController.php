@@ -496,6 +496,76 @@ class LandingPageController extends Controller
         return redirect()->back()->with('success', 'File berhasil di upload!');
     }
 
+    public function evaluationForm(Request $request, $idCommittee, $target = 'committee'){
+        $masterTarget = [
+            'committee' => 'Kepanitiaan',
+            'division' => 'Divisi',
+            'user' => 'Panitia',
+        ];
+
+        $criterias = DB::table('tEvaluationCriterias as ec')
+                    ->leftJoin('tEvaluationCriteriaScopes as es', function($join) use ($idCommittee) {
+                        $join->on('es.idEvaluationCriterias', '=', 'ec.idEvaluationCriterias')
+                            ->where('es.idCommittees', '=', $idCommittee);
+                    })
+                    ->leftJoin('tDivisions as d', 'es.idDivisions', 'd.idDivisions')
+                    ->where('ec.target_type', $target)
+                    ->select([
+                        'ec.name',
+                        'ec.description',
+                        'ec.target_type',
+                        'es.idDivisions as division',
+                        'd.name as division_name',
+                        'ec.idEvaluationCriterias'
+                    ])
+                    ->get();
+        // dd($criterias);
+
+        $divisions = DB::table('tDivisions as d')
+        ->join('tListDivisions as ld', 'd.idDivisions', '=', 'ld.idDivisions')
+        ->where('ld.idCommittees', $idCommittee)
+        ->get();
+
+        $users = DB::table('tUsers as u')
+        ->join('tRegistrations as r', 'u.idUsers', '=', 'r.idUsers')
+        ->where('r.idCommittees', $idCommittee)
+        ->where('r.status', 'diterima')
+        ->select('u.idUsers', 'u.firstname', 'u.lastname')
+        ->get();
+
+        return view('pages.landingpage.form-evaluation', compact(
+            'masterTarget', 
+            'criterias', 
+            'divisions', 
+            'users', 
+            'target',
+            'idCommittee'));
+    }
+
+    public function getEvalCriteria($idCommittee, $idDivision){
+        $criterias = DB::table('tEvaluationCriterias as ec')
+                    ->leftJoin('tEvaluationCriteriaScopes as es', function($join) use ($idCommittee) {
+                        $join->on('es.idEvaluationCriterias', '=', 'ec.idEvaluationCriterias')
+                            ->where('es.idCommittees', '=', $idCommittee);
+                    })        
+                    ->leftJoin('tDivisions as d', 'es.idDivisions', 'd.idDivisions')
+                    ->where('ec.target_type', 'division')
+                    ->where('es.idDivisions', $idDivision)
+                    ->select([
+                        'ec.name',
+                        'ec.description',
+                        'ec.target_type',
+                        'es.idDivisions as division',
+                        'd.name as division_name',
+                        'ec.idEvaluationCriterias'
+                    ])
+                    ->get();
+
+        return response()->json([
+            'criterias' => $criterias
+            ]);
+    }
+
     /**
      * Show the form for editing the specified resource.
      */

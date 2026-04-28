@@ -88,7 +88,7 @@ class EvaluationsSeeder extends Seeder
             ],
         ]);
 
-        $committeeId = 2;
+        $committeeId = 1;
 
         DB::table('tEvaluationCriteriaScopes')->insert([
 
@@ -138,12 +138,12 @@ class EvaluationsSeeder extends Seeder
             [
                 'idEvaluationCriterias' => 7,
                 'idCommittees' => $committeeId,
-                'idDivisions' => 4
+                'idDivisions' => 1
             ],
             [
                 'idEvaluationCriterias' => 8,
                 'idCommittees' => $committeeId,
-                'idDivisions' => 4
+                'idDivisions' => 1
             ],
 
             // ======================
@@ -152,17 +152,17 @@ class EvaluationsSeeder extends Seeder
             [
                 'idEvaluationCriterias' => 6,
                 'idCommittees' => $committeeId,
-                'idDivisions' => 3
+                'idDivisions' => 2
             ],
             [
                 'idEvaluationCriterias' => 7,
                 'idCommittees' => $committeeId,
-                'idDivisions' => 3
+                'idDivisions' => 2
             ],
             [
                 'idEvaluationCriterias' => 8,
                 'idCommittees' => $committeeId,
-                'idDivisions' => 3
+                'idDivisions' => 2
             ],
         ]);
     }

@@ -2203,6 +2203,20 @@ section,
 }
 
 /*--------------------------------------------------------------
+# Starter Section Form Evaluasi Landing Page
+--------------------------------------------------------------*/
+.info-item {
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.info-item:hover {
+  transform: translateY(-3px);
+  background: #f5f9ff;
+}
+
+
+/*--------------------------------------------------------------
 # Starter Section Section
 --------------------------------------------------------------*/
 .starter-section {

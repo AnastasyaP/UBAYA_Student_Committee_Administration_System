@@ -38,19 +38,25 @@ Route::get('/', function(){ return redirect('/login'); });
 
 Route::middleware(['auth', 'role:mahasiswa'])->group(function (){
 	Route::get('/home', [LandingPageController::class, 'index'])->name('home'); 
+	// regis
 	Route::get('/detail-committee/{idCommittee}', [LandingPageController::class, 'show'])->name('detail.committee');
 	Route::get('/regis-committee/{idCommittee}', [LandingPageController::class, 'create'])->name('regis.committee');
 	Route::get('/intv-schedule/{idCommittee}/{idDivision}', [LandingPageController::class, 'intv'])->name('view.scheduleintv');
 	Route::post('/submit-regis', [LandingPageController::class, 'store'])->name('regis.store');
+	// profile
 	Route::get('/lp-profile', [LandingPageController::class, 'profile'])->name('lp.profile');
 	Route::put('/lp-profile/edit', [LandingPageController::class, 'editProfilePicture'])->name('lp.profile.edit');
 	Route::put('/lp-profile/change-password', [LandingPageController::class, 'changePassword'])->name('lp.pwd.change');
 	Route::put('/lp-profile/save-files', [LandingPageController::class, 'saveFiles'])->name('lp.save.files');
+	// committee
 	Route::get('/committee', [LandingPageController::class, 'committee'])->name('lp.committee');
 	Route::get('/members/set-committee/{idCommittee}', function($idCommittee){
 		session(['idCommittee' => $idCommittee]);
 		return redirect()->route('members.dashboard');
 	})->name('members.set.committee')->middleware('auth');
+	// evaluation
+	Route::get('/form-evaluation/{idCommittee}/{target?}', [LandingPageController::class, 'evaluationForm'])->name('lp.eval');
+	Route::get('/form-evaluation/get-criteria/{idCommittee}/{idDivision}', [LandingPageController::class, 'getEvalCriteria'])->name('lp.get.eval');
 });
 
 Route::middleware(['auth', 'access.role'])->group(function(){

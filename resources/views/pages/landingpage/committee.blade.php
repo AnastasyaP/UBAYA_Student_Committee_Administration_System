@@ -136,7 +136,7 @@
           </div>
             <div class="col-lg-3 d-flex align-items-center justify-content-center">
                 @if($committee->is_active === 0)
-                    <a href="#" class="buy-btn">Evaluasi</a>
+                    <a href="{{ route('lp.eval', ['idCommittee' => $committee->idCommittee]) }}" class="buy-btn">Evaluasi</a>
                 @else
                     <a href="{{ route('detail.committee', ['idCommittee' => $committee->idCommittee]) }}" class="buy-btn ">Detail</a>
                 @endif

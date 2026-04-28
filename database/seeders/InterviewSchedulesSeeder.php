@@ -15,6 +15,17 @@ class InterviewSchedulesSeeder extends Seeder
     {
         DB::table('tInterviewSchedules')->insert([
             [
+                'date' => '2022-11-20',
+                'start_time' => '09:00:00',
+                'end_time' => '10:00:00',
+                'place' => 'Ruang Rapat Lantai 2',
+                'link' => 'https://zoom.us/testinterview1',
+                'idDivisions' => 1,   // sesuaikan dengan data di tListDivisions
+                'idCommittees' => 1, // sesuaikan dengan data di tCommittees
+                'created_at' =>  now(),
+                'updated_at' =>  now(),
+            ],
+            [
                 'date' => '2025-11-20',
                 'start_time' => '09:00:00',
                 'end_time' => '10:00:00',
