@@ -86,7 +86,7 @@ class DivisionController extends Controller
 
         // ambil id committee yg ditampilkan
         $admin = Auth::user();
-        $committeeId = $request->get('displayed_committee');
+        $idCommittee = getCurrentCommitteeId($request);
         
         $name = $request->name; // ambil nama dari text input
         $master_division = $request->master_division; //ambil nama dari combobox
@@ -109,7 +109,7 @@ class DivisionController extends Controller
 
         // pengecekan klo committee itu uda punya divisi yg mau ditambah or belom
         $exists = ListDivision::where('idDivisions', $divisionId)
-                ->where('idCommittees', $committeeId->idCommittees)
+                ->where('idCommittees', $idCommittee)
                 ->exists();
 
         if ($exists) {
@@ -118,7 +118,7 @@ class DivisionController extends Controller
 
         ListDivision::create([
             'idDivisions' => $divisionId,
-            'idCommittees' => $committeeId->idCommittees,
+            'idCommittees' => $idCommittee,
             'is_open' => $request->is_open,
             'description' => $request->description,
             'picture' => $filePath

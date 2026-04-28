@@ -1,6 +1,6 @@
 @extends('layouts.main')
 
-@section('title', 'Registration Form')
+@section('title', 'Form Registrasi')
 @section('content')
     @if(session('success'))
       <div class="flash-message success">

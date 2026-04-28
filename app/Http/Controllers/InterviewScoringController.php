@@ -21,7 +21,7 @@ class InterviewScoringController extends Controller
         $idDivision = $request->idDivision;
 
         
-        if(!manageDivision($idDivision)){
+        if(!manageDivision($idDivision, $request)){
             return redirect()->back()->with('warning', 
                 'Anda hanya dapat menilai pendaftar pada divisi Anda sendiri.');
         }

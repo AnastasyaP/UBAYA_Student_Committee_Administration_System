@@ -52,10 +52,10 @@ class InterviewCriteriaController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create($idDivision)
+    public function create($idDivision, Request $request)
     {
         
-        if(!manageDivision($idDivision)){
+        if(!manageDivision($idDivision, $request)){
             return redirect()->back()->with('warning', 
                 'Anda hanya dapat mengelola divisi Anda sendiri.');
         }

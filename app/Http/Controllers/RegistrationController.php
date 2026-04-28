@@ -237,7 +237,7 @@ class RegistrationController extends Controller
             abort(403);
         }
 
-        if(!manageDivision($divisionId)){
+        if(!manageDivision($divisionId, $request)){
             return redirect()->back()->with('warning', 
                 'Anda hanya dapat mengelola divisi Anda sendiri.');
         }
@@ -382,14 +382,14 @@ class RegistrationController extends Controller
         return view('pages.registration.view-registrations', compact('registration'));
     }
 
-    public function accept($idRegis){
+    public function accept($idRegis, Request $request){
         $mhs = DB::table('tRegistrations')
                 ->where('idRegistrations', $idRegis)
                 ->select('*')
                 ->first();
 
         
-        if(!manageDivision($mhs->idDivisions)){
+        if(!manageDivision($mhs->idDivisions, $request)){
             return redirect()->back()->with('warning', 
                 'Anda hanya dapat menerima pendaftar pada divisi Anda sendiri.');
         }
@@ -428,7 +428,7 @@ class RegistrationController extends Controller
                 ->first();
 
         
-        if(!manageDivision($mhs->idDivisions)){
+        if(!manageDivision($mhs->idDivisions, $request)){
             return redirect()->back()->with('warning', 
                 'Anda hanya dapat menolak pendaftar pada divisi Anda sendiri.');
         }

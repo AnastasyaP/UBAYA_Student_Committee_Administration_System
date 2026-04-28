@@ -84,10 +84,10 @@
 
             if(this.value){
                 nameInput.value = selectedOption.text;
-                nameinput.setAttribute('disabled', true); // kalo milih dari combobox text inputnya di disable
+                nameInput.setAttribute('disabled', true); // kalo milih dari combobox text inputnya di disable
             } else{
                 nameInput.value = '';
-                nameinput.removeAttribute('disabled');
+                nameInput.removeAttribute('disabled');
             }
         });
 

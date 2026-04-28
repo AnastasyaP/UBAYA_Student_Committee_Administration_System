@@ -63,6 +63,23 @@ class CommitteesSeeder extends Seeder
                 'is_active' => 1,
                 'created_at' => now(),
                 'updated_at' => now(),
+            ],
+            [
+                'admin' => 11,
+                'committee_name' => 'Mini ILPC',
+                'name' => 'Mini ILPC 2023',
+                'start_period' => '2021-03-01',
+                'end_period' => '2021-07-01',
+                'description' => 'Mini ILPC is a preparation before a real ILPC.',
+                'requirements' => 'Mampu bekerja dalam tim dan berkomitmen.',
+                'poster' => 'img/committee/poster/99f6e3ac-ebca-40aa-a05a-7bc053cb991d.jpeg',
+                'contact' => '08987654321',
+                'start_regis' => '2021-02-01',
+                'end_regis' => '2021-02-15',
+                'evaluation' => null,
+                'is_active' => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
             ]
         ]);
     }

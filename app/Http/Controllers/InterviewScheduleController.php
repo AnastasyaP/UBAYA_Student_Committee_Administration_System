@@ -141,7 +141,7 @@ class InterviewScheduleController extends Controller
         $idCommittee = getCurrentCommitteeId($request);
 
         
-        if(!manageDivision($request->division)){
+        if(!manageDivision($request->division, $request)){
             return redirect()->back()->with('warning', 
                 'Anda hanya bisa menambahkan jadwal divisi Anda sendiri.');
         }

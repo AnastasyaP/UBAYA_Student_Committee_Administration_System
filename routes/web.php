@@ -22,6 +22,7 @@ use App\Http\Controllers\InterviewCriteriaController;
 use App\Http\Controllers\AHPCalculationController;
 use App\Http\Controllers\EmailController;
 use App\Http\Controllers\InterviewScoringController;
+use App\Http\Controllers\EvaluationController;
 
 
 Route::get('/', function(){ return redirect('/login'); });
@@ -93,6 +94,9 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 	// committee session
 	Route::post('set-committee/{idCommittee}', [CommitteeController::class, 'setCommittee'])->name('set.committee');
 
+	Route::get('/add-committees', [CommitteeController::class, 'create'])->name('committees.add');
+	Route::post('/store-committees', [CommitteeController::class, 'store'])->name('committees.store');
+
 });
 
 Route::middleware(['auth', 'role:admin', 'check.committee', 'load.committee'])->group( function () {
@@ -107,9 +111,7 @@ Route::middleware(['auth', 'role:admin', 'check.committee', 'load.committee'])->
 	// committee
 	Route::get('/committees', [CommitteeController::class, 'index'])->name('committees');
 	Route::get('/profile', [CommitteeController::class, 'profile'])->name('committees.profile');
-	Route::get('/add-committees', [CommitteeController::class, 'create'])->name('committees.add');
 	Route::get('/committee/get-template/{name}', [CommitteeController::class, 'getTemplate'])->name('committee.template');
-	Route::post('/store-committees', [CommitteeController::class, 'store'])->name('committees.store');
 	Route::get('/edit-committees/{idCommittees}', [CommitteeController::class, 'show'])->name('committees.show');
 	Route::put('/committees/{idCommittees}', [CommitteeController::class, 'update'])->name('committees.update');
 	// division
@@ -153,6 +155,10 @@ Route::middleware(['auth', 'role:admin', 'check.committee', 'load.committee'])->
 	Route::post('/intv-scoring', [InterviewScoringController::class, 'index'])->name('intvscoring');
 	// Route::get('/intvscoring/{idMahasiswa}/{idRegis}/{idDivision}', [InterviewScoringController::class, 'index'])->name('intvscoring.get');
 	Route::post('/score', [InterviewScoringController::class, 'store'])->name('intvscoring.score');
+	//evaluation
+	Route::get('/evaluation-criteria/{target?}', [EvaluationController::class, 'index'])->name('evalcriteria');
+	Route::get('/add/evaluation-criteria', [EvaluationController::class, 'create'])->name('evalcriteria.add');
+	Route::post('/store/evaluation-criteria', [EvaluationController::class, 'store'])->name('evalcriteria.store');
 	
 	Route::get('/{page}', [PageController::class, 'index'])->name('page');
 });

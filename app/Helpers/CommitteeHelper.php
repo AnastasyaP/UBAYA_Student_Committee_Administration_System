@@ -6,7 +6,7 @@ if (!function_exists('getCurrentCommitteeId')) {
     function getCurrentCommitteeId($request = null)
     {
         // mode koor (session)
-        if (session()->has('idCommittee')) {
+        if (session()->has('idCommittee') && Auth::user()->role !== 'admin') {
             return session('idCommittee');
         }
 
@@ -23,7 +23,7 @@ if (!function_exists('getCurrentCommitteeId')) {
             function routeForMember($adminRoute, $memberRoute)
             {
                 // kalau sedang di mode koor (punya session idCommittee)
-                if (session()->has('idCommittee')) {
+                if (session()->has('idCommittee') && Auth::user()->role !== 'admin') {
                     return $memberRoute;
                 }
 

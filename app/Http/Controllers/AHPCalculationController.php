@@ -129,7 +129,7 @@ class AHPCalculationController extends Controller
         $comparisons = $request->comparisons;
         $division = $request->division;
 
-        if(!manageDivision($division)){
+        if(!manageDivision($division, $request)){
             return response()->json([
                 'message' => 'Anda hanya dapat mengelola divisi anda sendiri',
                 'type' => 'warning'
