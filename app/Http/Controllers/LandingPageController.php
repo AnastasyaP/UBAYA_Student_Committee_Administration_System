@@ -503,7 +503,28 @@ class LandingPageController extends Controller
             'user' => 'Panitia',
         ];
 
-        $criterias = DB::table('tEvaluationCriterias as ec')
+        if ($target == 'division') {
+            $selectedDivision = old('target_division') ?? $request->target_division;
+
+            $criterias = DB::table('tEvaluationCriterias as ec')
+                    ->leftJoin('tEvaluationCriteriaScopes as es', function($join) use ($idCommittee) {
+                        $join->on('es.idEvaluationCriterias', '=', 'ec.idEvaluationCriterias')
+                            ->where('es.idCommittees', '=', $idCommittee);
+                    })
+                    ->leftJoin('tDivisions as d', 'es.idDivisions', 'd.idDivisions')
+                    ->where('target_type', 'division')
+                    ->where('es.idDivisions', $selectedDivision)
+                    ->select([
+                        'ec.name',
+                        'ec.description',
+                        'ec.target_type',
+                        'es.idDivisions as division',
+                        'd.name as division_name',
+                        'ec.idEvaluationCriterias'
+                    ])
+                    ->get();
+        }else{
+            $criterias = DB::table('tEvaluationCriterias as ec')
                     ->leftJoin('tEvaluationCriteriaScopes as es', function($join) use ($idCommittee) {
                         $join->on('es.idEvaluationCriterias', '=', 'ec.idEvaluationCriterias')
                             ->where('es.idCommittees', '=', $idCommittee);
@@ -519,19 +540,46 @@ class LandingPageController extends Controller
                         'ec.idEvaluationCriterias'
                     ])
                     ->get();
+        }
+
+        
         // dd($criterias);
+
+        $evaluatedDivisions = DB::table('tEvaluations')
+            ->where('evaluator_id', Auth::id())
+            ->where('target_committee', $idCommittee)
+            ->whereNotNull('target_division')
+            ->pluck('target_division')
+            ->toArray();
+
+        $evaluatedUsers = DB::table('tEvaluations')
+            ->where('evaluator_id', Auth::id())
+            ->where('target_committee', $idCommittee)
+            ->whereNotNull('target_user')
+            ->pluck('target_user')
+            ->toArray();
 
         $divisions = DB::table('tDivisions as d')
         ->join('tListDivisions as ld', 'd.idDivisions', '=', 'ld.idDivisions')
         ->where('ld.idCommittees', $idCommittee)
+        ->whereNotIn('d.idDivisions', $evaluatedDivisions)
         ->get();
 
         $users = DB::table('tUsers as u')
         ->join('tRegistrations as r', 'u.idUsers', '=', 'r.idUsers')
         ->where('r.idCommittees', $idCommittee)
         ->where('r.status', 'diterima')
+        ->where('u.idUsers', '!=', Auth::id())
+        ->whereNotIn('u.idUsers', $evaluatedUsers)
         ->select('u.idUsers', 'u.firstname', 'u.lastname')
         ->get();
+
+        $isEvaluatedCommittee = DB::table('tEvaluations')
+            ->where('evaluator_id', Auth::id())
+            ->where('target_committee', $idCommittee)
+            ->whereNull('target_division')
+            ->whereNull('target_user')
+            ->exists();
 
         return view('pages.landingpage.form-evaluation', compact(
             'masterTarget', 
@@ -539,7 +587,8 @@ class LandingPageController extends Controller
             'divisions', 
             'users', 
             'target',
-            'idCommittee'));
+            'idCommittee',
+            'isEvaluatedCommittee'));
     }
 
     public function getEvalCriteria($idCommittee, $idDivision){
@@ -564,6 +613,59 @@ class LandingPageController extends Controller
         return response()->json([
             'criterias' => $criterias
             ]);
+    }
+
+    public function storeEvaluation(Request $request){
+        $request->validate([
+            'scores' => 'required|array|min:1',
+            'scores.*.score' => 'required|integer|min:1|max:5',
+            'overall_score' => 'required|integer|min:1|max:5',
+            'target_committee' => 'required',
+            'target_division' => 'required_if:target,division',
+            'target_user' => 'required_if:target,user',
+        ]);
+
+        // target
+        $targetUser = $request->target_user;
+        $targetDivision = $request->target_division;
+        $targetCommittee = $request->target_committee;
+
+        // db transaction ->  semua proses harus berhasil or gagal semua (do or die)
+        DB::beginTransaction();
+        try{
+            $idEvaluation = DB::table('tEvaluations')
+                            ->insertGetId([
+                                'evaluator_id' => Auth::id(),
+                                'target_committee' => $targetCommittee,
+                                'target_division' => $targetDivision,
+                                'target_user' => $targetUser,
+                                'comment' => $request->overall_comment,
+                                'ratings' => $request->overall_score,
+                                'created_at' => now(),
+                                'updated_at' => now(),
+                            ]);
+            
+            foreach($request->scores as $idCriteria => $data){
+                DB::table('tEvaluationScores')
+                ->insert([
+                    'idEvaluations' => $idEvaluation,
+                    'idEvaluationCriterias' =>$idCriteria,
+                    'score' => $data['score'],
+                    'comment' => $data['comment'] ?? null,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+
+            DB::commit(); // kalo pakai transaction harus di commit biar kesimpan semua, klo insert doang nanti ketahan
+
+            return redirect()->back()->with('success', 'Berhasil menyimpan evaluasi!');
+        }catch(\Exception $ex){
+            DB::rollback();
+
+            return redirect()->back()->with('error', 'Gagal menyimpan evaluasi!');
+        }
+
     }
 
     /**

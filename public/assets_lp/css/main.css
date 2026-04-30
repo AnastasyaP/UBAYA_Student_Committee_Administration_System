@@ -2215,6 +2215,31 @@ section,
   background: #f5f9ff;
 }
 
+.star-rating {
+    direction: rtl;
+    display: inline-flex;
+}
+
+.star-rating input {
+    display: none;
+}
+
+.star-rating label {
+    font-size: 30px;
+    color: #ccc;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+    color: gold;
+}
+
+.star-rating input:checked ~ label {
+    color: gold;
+}
+
 
 /*--------------------------------------------------------------
 # Starter Section Section

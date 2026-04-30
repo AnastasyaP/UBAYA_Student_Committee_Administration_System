@@ -15,10 +15,25 @@ class RegistrationsSeeder extends Seeder
     {
         
         DB::table('tRegistrations')->insert([
+            // ILPC 2022
             [
                 'idUsers' => 1,                 
-                'idDivisions' => 3,           
-                'idCommittees' => 2,           
+                'idDivisions' => 1,           
+                'idCommittees' => 1,           
+                'status' => 'diterima',
+                'percentage' => 0,
+                'position' => 'Anggota',
+                'motivation' => 'Ingin mencoba hal baru',
+                'idInterviewSchedules' => 2,   
+                'invitation_token' => '',
+                'invitation_expired' => now()->addDays(3),
+                'created_at' =>  now(),
+                'updated_at' =>  now(),
+            ],
+            [
+                'idUsers' => 2,                 
+                'idDivisions' => 1,           
+                'idCommittees' => 1,           
                 'status' => 'diterima',
                 'percentage' => 0,
                 'position' => 'Koordinator',
@@ -30,12 +45,27 @@ class RegistrationsSeeder extends Seeder
                 'updated_at' =>  now(),
             ],
             [
-                'idUsers' => 1,                 
-                'idDivisions' => 1,           
+                'idUsers' => 3,                 
+                'idDivisions' => 2,           
                 'idCommittees' => 1,           
                 'status' => 'diterima',
                 'percentage' => 0,
                 'position' => 'Anggota',
+                'motivation' => 'Ingin mencoba hal baru',
+                'idInterviewSchedules' => 2,   
+                'invitation_token' => '',
+                'invitation_expired' => now()->addDays(3),
+                'created_at' =>  now(),
+                'updated_at' =>  now(),
+            ],
+            // ILPC 2023
+            [
+                'idUsers' => 1,                 
+                'idDivisions' => 3,           
+                'idCommittees' => 2,           
+                'status' => 'diterima',
+                'percentage' => 0,
+                'position' => 'Koordinator',
                 'motivation' => 'Ingin mencoba hal baru',
                 'idInterviewSchedules' => 2,   
                 'invitation_token' => '',

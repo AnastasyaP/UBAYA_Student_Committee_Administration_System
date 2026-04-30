@@ -83,7 +83,21 @@
                     </span>
                 </h4>
             </div>
-            <form action="#" method="POST">
+            @php
+                $scoreLabels = [
+                    1 => 'Sangat Buruk',
+                    2 => 'Buruk',
+                    3 => 'Cukup',
+                    4 => 'Baik',
+                    5 => 'Sangat Baik',
+                ];
+            @endphp
+            @if($target == 'committee' && $isEvaluatedCommittee)
+                <div class="alert alert-warning">
+                    ⚠️ Kamu sudah mengisi evaluasi untuk kepanitiaan ini.
+                </div>
+            @endif
+            <form action="{{ route('lp.store.eval') }}" method="POST">
                 @csrf
                  @if($target == 'division')
                 <div class="mb-3">
@@ -92,7 +106,7 @@
                         <option value="">-- Pilih Divisi --</option>
                         @foreach($divisions as $index => $div)
                         <option value="{{ $div->idDivisions }}"
-                            {{ $index == 0 ? 'selected' : '' }}>
+                            {{ old('target_division') == $div->idDivisions ? 'selected' : '' }}>
                             {{ $div->name }}
                         </option>
                         @endforeach
@@ -112,9 +126,18 @@
                     </select>
                 </div>
                 @endif
+
+                @if(!($target == 'committee' && $isEvaluatedCommittee))
                 <div id="criteria-container">
+
+                    <!-- forelse -> loop kaya foreach klo ada data -> klo ngaada masuk ke empty -->
                     @forelse($criterias as $criteria)
-                    <div class="card mb-3 p-3 shadow-sm">
+                    @php
+                        $hasError = $errors->has('scores.' . $criteria->idEvaluationCriterias . '.score');
+                    @endphp
+
+                    <div class="card mb-3 p-3 shadow-sm criteria-card 
+                        {{ $hasError ? 'border border-danger' : '' }}">
 
                         <!-- NAMA KRITERIA -->
                         <h5>
@@ -142,16 +165,29 @@
 
                         <!-- RATING -->
                         <div class="mt-3">
-                            <label>Nilai:</label><br>
+                            <label class="mb-3 d-block">Penilaian:</label>
 
-                            @for($i = 1; $i <= 5; $i++)
-                                <label style="cursor:pointer; margin-right:10px;">
-                                    <input type="radio" 
-                                        name="scores[{{ $criteria->idEvaluationCriterias }}][score]" 
-                                        value="{{ $i }}" required>
-                                    {{ $i }}
-                                </label>
-                            @endfor
+                            <div class="d-flex justify-content-between">
+                                @for($i = 1; $i <= 5; $i++)
+                                    <label class="text-center" style="cursor:pointer;">
+                                        <input type="radio" 
+                                            name="scores[{{ $criteria->idEvaluationCriterias }}][score]" 
+                                            value="{{ $i }}"
+                                            {{ old('scores.' . $criteria->idEvaluationCriterias . '.score') == $i ? 'checked' : '' }}>
+
+                                        <div class="mt-1">
+                                            <strong>{{ $i }}</strong><br>
+                                            <small>{{ $scoreLabels[$i] }}</small>
+                                        </div>
+                                    </label>
+                                @endfor
+                            </div>
+                            <!-- ERROR PER KRITERIA -->
+                            @error('scores.' . $criteria->idEvaluationCriterias . '.score')
+                                <div class="text-danger small mt-1">
+                                    ⚠️ Penilaian belum diisi
+                                </div>
+                            @enderror
                         </div>
 
                         <!-- KOMENTAR -->
@@ -166,23 +202,69 @@
                         <div class="alert alert-warning">
                             Tidak ada kriteria untuk target ini.
                         </div>
-                    @endforelse
 
+                    @endforelse
                 </div>
 
-                <!-- KOMENTAR UMUM -->
+                <!-- OVERALL RATING -->
+                <div class="mt-4">
+                    <label class="mb-2 d-block">
+                        Rating {{ $targetLabels[$currentTarget] ?? 'Kepanitiaan' }} Secara Keseluruhan
+                    </label>
+
+                    <div class="star-rating">
+                        @for($i = 5; $i >= 1; $i--)
+                            <input type="radio" 
+                                id="overall-star{{ $i }}" 
+                                name="overall_score" 
+                                value="{{ $i }}"
+                                {{ old('overall_score') == $i ? 'checked' : '' }}>
+
+                            <label for="overall-star{{ $i }}">★</label>
+                        @endfor
+                    </div>
+                    @error('overall_score')
+                        <div class="text-danger small">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <!-- KOMENTAR KESELURUHAN -->
                 <div class="mt-3">
-                    <label>Komentar Umum</label>
+                    <label>Evaluasi {{ $targetLabels[$currentTarget] ?? 'Kepanitiaan' }} Keseluruhan</label>
                     <textarea name="overall_comment" class="form-control"></textarea>
                 </div>
 
-                <button type="submit" class="btn btn-primary mt-3">
-                    Simpan Evaluasi
-                </button>
+                <input type="hidden" name="target_committee" value="{{ $idCommittee }}">
+                <input type="hidden" name="target" value="{{ $target }}">
 
+                <button type="submit" class="btn btn-primary mt-3"
+                    {{ ($target == 'committee' && $isEvaluatedCommittee) ? 'disabled' : '' }}
+                    data-bs-toggle="modal" data-bs-target="#confirmModal">
+                    Kirim Evaluasi
+                </button>
+                @endif
             </form>
           </div><!-- End Contact Form -->
 
+          <!-- confrim modal -->
+            <div class="modal fade" id="confirmModal">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                    <div class="modal-header">
+                        <h5>Konfirmasi</h5>
+                    </div>
+                    <div class="modal-body">
+                        Setelah submit, evaluasi tidak bisa diubah lagi.
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button class="btn btn-primary" onclick="document.querySelector('form').submit()">
+                            Ya, Submit
+                        </button>
+                    </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
       </div>
@@ -202,20 +284,36 @@
 
                 data.criterias.forEach(item => {
 
-                    let ratingHTML = '';
+                    let labels = {
+                        1: 'Sangat Buruk',
+                        2: 'Buruk',
+                        3: 'Cukup',
+                        4: 'Baik',
+                        5: 'Sangat Baik'
+                    };
+
+                    let ratingHTML = `
+                        <div class="d-flex justify-content-between">
+                    `;
 
                     for (let i = 1; i <= 5; i++) {
                         ratingHTML += `
-                            <label style="margin-right:10px;">
+                            <label style="cursor:pointer; text-align:center;">
                                 <input type="radio" 
                                     name="scores[${item.idEvaluationCriterias}][score]" 
-                                    value="${i}" required> ${i}
+                                    value="${i}">
+                                <div>
+                                    <strong>${i}</strong><br>
+                                    <small>${labels[i]}</small>
+                                </div>
                             </label>
                         `;
                     }
 
+                    ratingHTML += `</div>`;
+
                     container.innerHTML += `
-                        <div class="card mb-3 p-3 shadow-sm">
+                        <div class="card mb-3 p-3 shadow-sm criteria-card">
 
                             <h5>${item.name}</h5>
 
@@ -246,15 +344,56 @@
         }
 
         // 🔥 change event (CUMA 1)
-        document.getElementById('target_division').addEventListener('change', function(){
-            loadCriteria(this.value);
-        });
+        const divisionSelect = document.getElementById('target_division');
+        if (divisionSelect) {
+            divisionSelect.addEventListener('change', function(){
+                loadCriteria(this.value);
+            });
+        }
 
         // 🔥 default load
         document.addEventListener('DOMContentLoaded', function () {
             const select = document.getElementById('target_division');
-            if (select && select.value) {
+                        // cek apakah ada error dari Laravel
+            const hasError = {{ $errors->any() ? 'true' : 'false' }};
+
+            if (select && select.value && !hasError) {
                 loadCriteria(select.value);
+            }
+        });
+
+        document.querySelector("form").addEventListener("submit", function(e) {
+
+            let valid = true;
+
+            document.querySelectorAll('.criteria-card').forEach(card => {
+
+                let radios = card.querySelectorAll('input[type="radio"][name^="scores"]');
+                let checked = Array.from(radios).some(r => r.checked);
+
+                let errorMsg = card.querySelector('.client-error');
+
+                if (!checked) {
+                    valid = false;
+
+                    card.classList.add('border', 'border-danger');
+
+                    if (!errorMsg) {
+                        let div = document.createElement('div');
+                        div.classList.add('text-danger', 'small', 'mt-2', 'client-error');
+                        div.innerText = "⚠️ Penilaian belum diisi";
+                        card.appendChild(div);
+                    }
+
+                } else {
+                    card.classList.remove('border', 'border-danger');
+
+                    if (errorMsg) errorMsg.remove();
+                }
+            });
+
+            if (!valid) {
+                e.preventDefault();
             }
         });
     </script>
