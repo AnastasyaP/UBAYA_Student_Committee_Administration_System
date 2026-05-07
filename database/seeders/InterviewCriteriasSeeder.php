@@ -23,8 +23,8 @@ class InterviewCriteriasSeeder extends Seeder
         ]);
 
         DB::table('tListDivisionAHPCriterias')->insert([
-            ['idDivisions' => 4,'idCommittees' =>2, 'idAHPCriterias'=> 5, 'average_weight' => 0, 'created_at' => now(), 'updated_at' => now()],
-            ['idDivisions' => 4,'idCommittees' =>2, 'idAHPCriterias'=> 1, 'average_weight' => 0, 'created_at' => now(), 'updated_at' => now()],
+            ['idDivisions' => 9,'idCommittees' =>2, 'idAHPCriterias'=> 5, 'average_weight' => 0, 'created_at' => now(), 'updated_at' => now()],
+            ['idDivisions' => 9,'idCommittees' =>2, 'idAHPCriterias'=> 1, 'average_weight' => 0, 'created_at' => now(), 'updated_at' => now()],
             ['idDivisions' => 3,'idCommittees' =>2, 'idAHPCriterias'=> 3, 'average_weight' => 0, 'created_at' => now(), 'updated_at' => now()],
             ['idDivisions' => 3,'idCommittees' =>2, 'idAHPCriterias'=> 4, 'average_weight' => 0, 'created_at' => now(), 'updated_at' => now()],
             ['idDivisions' => 3,'idCommittees' =>2, 'idAHPCriterias'=> 5, 'average_weight' => 0, 'created_at' => now(), 'updated_at' => now()],

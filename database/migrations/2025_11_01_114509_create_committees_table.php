@@ -18,14 +18,18 @@ return new class extends Migration
             $table->string('name', 45);
             $table->date('start_period')->nullable();
             $table->date('end_period')->nullable();
+            $table->date('end_evaluation');
             $table->string('description', 600)->nullable();
             $table->string('requirements', 500)->nullable();
             $table->string('contact', 45)->nullable();
             $table->date('start_regis')->nullable();
             $table->date('end_regis')->nullable();
             $table->text('evaluation')->nullable();  
-            $table->string('poster', 1000)->dafault('/img/noimage');  
+            $table->string('poster', 1000)->default('/img/noimage');  
+            $table->string('picture', 1000)->default('/img/noimage');  
             $table->tinyInteger('is_active')->default(0);
+            $table->tinyInteger('is_published')->default(0);
+
             $table->timestamps();
 
             $table->foreign('admin')->references('idUsers')->on('tUsers')->onDelete('cascade');

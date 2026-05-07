@@ -56,7 +56,7 @@ class CommitteeController extends Controller
                     DB::raw("'". $user->email . "'as email"), 
                     'a.idOrganizerUnits as idOrganizerUnits', 
                     'o.name as organizerName', 
-                    'u.picture as picture'
+                    'c.picture as picture'
                 ])
                 ->get();
                 
@@ -209,7 +209,7 @@ class CommitteeController extends Controller
             DB::raw("'". Auth::user()->email . "'as email"), 
             'a.idOrganizerUnits as idOrganizerUnits', 
             'o.name as organizerName', 
-            'u.picture as picture'
+            'c.picture as picture'
         ])
         ->first();
 

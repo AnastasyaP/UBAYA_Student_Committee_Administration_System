@@ -106,7 +106,7 @@ use Illuminate\Support\Str;
     </section>/Featured Services Section -->
 
     <!-- Pricing Section -->
-    <section id="pricing" class="pricing section">
+    <section id="services" class="services section">
 
       <!-- Section Title -->
       <div class="container section-title" data-aos="fade-up">
@@ -119,50 +119,44 @@ use Illuminate\Support\Str;
 
         <div class="row gy-4">
 
-          <div class="col-lg-4" data-aos="zoom-in" data-aos-delay="100">
-            <div class="pricing-item">
-              <h3>Free Plan</h3>
-              <h4><sup>$</sup>0<span> / month</span></h4>
-              <ul>
-                <li><i class="bi bi-check"></i> <span>Quam adipiscing vitae proin</span></li>
-                <li><i class="bi bi-check"></i> <span>Nec feugiat nisl pretium</span></li>
-                <li><i class="bi bi-check"></i> <span>Nulla at volutpat diam uteera</span></li>
-                <li class="na"><i class="bi bi-x"></i> <span>Pharetra massa massa ultricies</span></li>
-                <li class="na"><i class="bi bi-x"></i> <span>Massa ultricies mi quis hendrerit</span></li>
-              </ul>
-              <a href="#" class="buy-btn">Buy Now</a>
-            </div>
-          </div><!-- End Pricing Item -->
+          <div class="container">
+            @if($needPreferences)
+              <div class="text-center my-5">
+                  <h4>Belum ada rekomendasi 😢</h4>
+                  @if($hasHistory)
+                      <p>
+                          Isi evaluasi atau pilih minat kamu untuk mendapatkan rekomendasi kepanitiaan
+                      </p>
+                  @else
+                      <p>
+                          Pilih minat kamu dulu untuk mendapatkan rekomendasi kepanitiaan
+                      </p>
+                  @endif
+                  <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#preferenceModal">
+                      Pilih Minat Kepanitiaan
+                  </button>
+              </div>
+            @else
+              <div class="row gy-4">
+                @foreach($recommendations as $committee)
+                  <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                    <a href="{{ route('detail.committee', ['idCommittee' => $committee->idCommittees]) }}">
+                      
+                      <div class="card committee-card">
+                        <div class="committee-img-wrapper">
+                          <img src="{{ $committee->picture ? asset('storage/' . $committee->picture) : asset('/img/profile-default.png') }}" class="committee-img">
+                        </div>
 
-          <div class="col-lg-4" data-aos="zoom-in" data-aos-delay="200">
-            <div class="pricing-item featured">
-              <h3>Business Plan</h3>
-              <h4><sup>$</sup>29<span> / month</span></h4>
-              <ul>
-                <li><i class="bi bi-check"></i> <span>Quam adipiscing vitae proin</span></li>
-                <li><i class="bi bi-check"></i> <span>Nec feugiat nisl pretium</span></li>
-                <li><i class="bi bi-check"></i> <span>Nulla at volutpat diam uteera</span></li>
-                <li><i class="bi bi-check"></i> <span>Pharetra massa massa ultricies</span></li>
-                <li><i class="bi bi-check"></i> <span>Massa ultricies mi quis hendrerit</span></li>
-              </ul>
-              <a href="#" class="buy-btn">Buy Now</a>
-            </div>
-          </div><!-- End Pricing Item -->
+                        <h3>{{ $committee->name }}</h3>
+                        <p>{{ Str::limit($committee->description, 150, '..') }}</p>
+                      </div>
 
-          <div class="col-lg-4" data-aos="zoom-in" data-aos-delay="300">
-            <div class="pricing-item">
-              <h3>Developer Plan</h3>
-              <h4><sup>$</sup>49<span> / month</span></h4>
-              <ul>
-                <li><i class="bi bi-check"></i> <span>Quam adipiscing vitae proin</span></li>
-                <li><i class="bi bi-check"></i> <span>Nec feugiat nisl pretium</span></li>
-                <li><i class="bi bi-check"></i> <span>Nulla at volutpat diam uteera</span></li>
-                <li><i class="bi bi-check"></i> <span>Pharetra massa massa ultricies</span></li>
-                <li><i class="bi bi-check"></i> <span>Massa ultricies mi quis hendrerit</span></li>
-              </ul>
-              <a href="#" class="buy-btn">Buy Now</a>
-            </div>
-          </div><!-- End Pricing Item -->
+                    </a>
+                  </div>
+                @endforeach
+              </div>
+            @endif
+          </div>
 
         </div>
 
@@ -358,7 +352,7 @@ use Illuminate\Support\Str;
     
 
     <!-- Testimonials Section -->
-    <section id="testimonials" class="testimonials section dark-background">
+    <!-- <section id="testimonials" class="testimonials section dark-background">
 
       <img src="{{ asset('assets_lp/img/testimonials-bg.jpg') }}" class="testimonials-bg" alt="">
 
@@ -396,8 +390,7 @@ use Illuminate\Support\Str;
                   <i class="bi bi-quote quote-icon-right"></i>
                 </p>
               </div>
-            </div><!-- End testimonial item -->
-
+            </div>
             <div class="swiper-slide">
               <div class="testimonial-item">
                 <img src="{{ asset('assets_lp/img/testimonials/testimonials-2.jpg') }}" class="testimonial-img" alt="">
@@ -412,8 +405,7 @@ use Illuminate\Support\Str;
                   <i class="bi bi-quote quote-icon-right"></i>
                 </p>
               </div>
-            </div><!-- End testimonial item -->
-
+            </div>
             <div class="swiper-slide">
               <div class="testimonial-item">
                 <img src="{{ asset('assets_lp/img/testimonials/testimonials-3.jpg') }}" class="testimonial-img" alt="">
@@ -428,8 +420,7 @@ use Illuminate\Support\Str;
                   <i class="bi bi-quote quote-icon-right"></i>
                 </p>
               </div>
-            </div><!-- End testimonial item -->
-
+            </div>
             <div class="swiper-slide">
               <div class="testimonial-item">
                 <img src="{{ asset('assets_lp/img/testimonials/testimonials-4.jpg') }}" class="testimonial-img" alt="">
@@ -444,8 +435,7 @@ use Illuminate\Support\Str;
                   <i class="bi bi-quote quote-icon-right"></i>
                 </p>
               </div>
-            </div><!-- End testimonial item -->
-
+            </div>
             <div class="swiper-slide">
               <div class="testimonial-item">
                 <img src="{{ asset('assets_lp/img/testimonials/testimonials-5.jpg') }}" class="testimonial-img" alt="">
@@ -460,25 +450,24 @@ use Illuminate\Support\Str;
                   <i class="bi bi-quote quote-icon-right"></i>
                 </p>
               </div>
-            </div><!-- End testimonial item -->
-
+            </div>
           </div>
           <div class="swiper-pagination"></div>
         </div>
 
       </div>
 
-    </section><!-- /Testimonials Section -->
+    </section> -->
+    <!-- /Testimonials Section -->
 
     <!-- Faq Section -->
-    <section id="faq" class="faq section">
+    <!-- <section id="faq" class="faq section">
 
-      <!-- Section Title -->
       <div class="container section-title" data-aos="fade-up">
         <span>Frequently Asked Questions</span>
         <h2>Frequently Asked Questions</h2>
         <p>Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit</p>
-      </div><!-- End Section Title -->
+      </div>
 
       <div class="container">
 
@@ -495,7 +484,7 @@ use Illuminate\Support\Str;
                   <p>Feugiat pretium nibh ipsum consequat. Tempus iaculis urna id volutpat lacus laoreet non curabitur gravida. Venenatis lectus magna fringilla urna porttitor rhoncus dolor purus non.</p>
                 </div>
                 <i class="faq-toggle bi bi-chevron-right"></i>
-              </div><!-- End Faq item-->
+              </div>
 
               <div class="faq-item" data-aos="fade-up" data-aos-delay="300">
                 <i class="faq-icon bi bi-question-circle"></i>
@@ -504,7 +493,7 @@ use Illuminate\Support\Str;
                   <p>Dolor sit amet consectetur adipiscing elit pellentesque habitant morbi. Id interdum velit laoreet id donec ultrices. Fringilla phasellus faucibus scelerisque eleifend donec pretium. Est pellentesque elit ullamcorper dignissim. Mauris ultrices eros in cursus turpis massa tincidunt dui.</p>
                 </div>
                 <i class="faq-toggle bi bi-chevron-right"></i>
-              </div><!-- End Faq item-->
+              </div>
 
               <div class="faq-item" data-aos="fade-up" data-aos-delay="400">
                 <i class="faq-icon bi bi-question-circle"></i>
@@ -513,7 +502,7 @@ use Illuminate\Support\Str;
                   <p>Eleifend mi in nulla posuere sollicitudin aliquam ultrices sagittis orci. Faucibus pulvinar elementum integer enim. Sem nulla pharetra diam sit amet nisl suscipit. Rutrum tellus pellentesque eu tincidunt. Lectus urna duis convallis convallis tellus. Urna molestie at elementum eu facilisis sed odio morbi quis</p>
                 </div>
                 <i class="faq-toggle bi bi-chevron-right"></i>
-              </div><!-- End Faq item-->
+              </div>
 
               <div class="faq-item" data-aos="fade-up" data-aos-delay="500">
                 <i class="faq-icon bi bi-question-circle"></i>
@@ -522,7 +511,7 @@ use Illuminate\Support\Str;
                   <p>Dolor sit amet consectetur adipiscing elit pellentesque habitant morbi. Id interdum velit laoreet id donec ultrices. Fringilla phasellus faucibus scelerisque eleifend donec pretium. Est pellentesque elit ullamcorper dignissim. Mauris ultrices eros in cursus turpis massa tincidunt dui.</p>
                 </div>
                 <i class="faq-toggle bi bi-chevron-right"></i>
-              </div><!-- End Faq item-->
+              </div>
 
               <div class="faq-item" data-aos="fade-up" data-aos-delay="600">
                 <i class="faq-icon bi bi-question-circle"></i>
@@ -531,7 +520,7 @@ use Illuminate\Support\Str;
                   <p>Molestie a iaculis at erat pellentesque adipiscing commodo. Dignissim suspendisse in est ante in. Nunc vel risus commodo viverra maecenas accumsan. Sit amet nisl suscipit adipiscing bibendum est. Purus gravida quis blandit turpis cursus in</p>
                 </div>
                 <i class="faq-toggle bi bi-chevron-right"></i>
-              </div><!-- End Faq item-->
+              </div>
 
             </div>
 
@@ -541,5 +530,55 @@ use Illuminate\Support\Str;
 
       </div>
 
-    </section><!-- /Faq Section -->
+    </section> -->
+    <!-- /Faq Section -->
+
+    <!-- Modal Choose Preference -->
+    <div class="modal fade" id="preferenceModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+          <form action="{{ route('save.preference') }}" method="POST">
+            @csrf
+
+            <div class="modal-header">
+              <h5 class="modal-title">Pilih Minat Kamu</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+              <p>Pilih bidang yang kamu minati untuk mendapatkan rekomendasi</p>
+
+              @foreach($keywords as $keyword)
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" name="keywords[]" value="{{ $keyword->idKeywords }}">
+                  <label class="form-check-label">
+                    {{ $keyword->name }}
+                  </label>
+                </div>
+              @endforeach
+
+            </div>
+
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-primary">Simpan</button>
+            </div>
+
+          </form>
+
+        </div>
+      </div>
+    </div>
+    
+    <script>
+      document.addEventListener("DOMContentLoaded", function(){
+        let needPreference = {{ $needPreferences ? 'true' : 'false' }};
+        let hasHistory = {{ $hasHistory ? 'true' : 'false' }};
+
+        if (needPreference && !hasHistory) {
+            let modal = new bootstrap.Modal(document.getElementById('preferenceModal'));
+            modal.show();
+        }
+      });
+    </script>
 @endsection

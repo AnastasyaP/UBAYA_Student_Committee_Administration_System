@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
+use App\Services\UBCFService;
 
 
 class LandingPageController extends Controller
@@ -16,22 +17,116 @@ class LandingPageController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(UBCFService $ubcf)
     {
-        $user = Auth::user()->username;
+        $user = Auth::id();
+
+        $needPreferences = false;
+        $hasRatings = DB::table('tEvaluations')->where('evaluator_id', $user)->whereNotNull('target_committee')->exists();
+        $hasPreference = DB::table('tUserPreferences')->where('idUsers', $user)->exists();
+        $hasHistory = DB::table('tRegistrations')->where('idUsers', $user)->where('status', 'diterima')->exists(); 
+
+        $keywords = DB::table('tKeywords')->get();
+
+        if ($hasRatings) {
+            $ubcf->generateRecommendations($user);
+            $recommendations = DB::table('tRecommendations as r')
+                                    ->join('tCommittees as c', 'r.idCommittees', 'c.idCommittees')
+                                    ->where('r.idUsers', $user)
+                                    ->orderByDesc('predicted_score')
+                                    ->select([
+                                        'c.*',
+                                        'r.predicted_score'
+                                    ])
+                                    ->get();
+        } elseif ($hasPreference) {
+            // fallback
+            $recommendations = $this->getColdStartRecommendations($user);
+
+        } else {
+            // benar-benar cold start
+            $recommendations = collect();
+            $needPreferences = true;
+        }
 
         $committees = DB::table('tCommittees as c')
-                    ->join('tUsers as u', 'c.admin', 'u.idUsers')
                     ->where('is_active', 1)
                     ->select([
-                        'c.*',
-                        'u.picture as picture'
+                        'c.*'
                     ])
                     ->get();
 
-        return view('pages.landingpage.index', compact('committees', 'user'));
+
+        return view('pages.landingpage.index', compact(
+            'committees', 
+            'keywords', 
+            'recommendations',
+            'needPreferences', 
+            'hasHistory'
+            ));
     }
 
+    public function getColdStartRecommendations($idUser){
+        $keywords = DB::table('tUserPreferences')
+                    ->where('idUsers', $idUser)
+                    ->pluck('idKeywords');
+
+        if($keywords->isEmpty()){
+            $needPreferences = true;
+            return collect();
+        }
+
+        $committees = DB::table('tCommittees as c')
+                    ->join('tListDivisions as ld', 'c.idCommittees', '=', 'ld.idCommittees')
+                    ->join('tListDivisionKeywords as dk', 'ld.idDivisions', '=', 'dk.idDivisions')
+                    ->whereIn('dk.idKeywords', $keywords)
+                    ->select([
+                        'c.idCommittees',
+                        'c.name',
+                        'c.description',
+                        'c.picture',
+                        'c.admin',
+                        DB::raw('COUNT(dk.idKeywords) as match_score')
+                    ])
+                    ->groupBy([
+                        'c.idCommittees',
+                        'c.name',
+                        'c.description',
+                        'c.picture',
+                        'c.admin'
+                    ])
+                    ->orderByDesc('match_score')
+                    ->limit(6)
+                    ->get();
+
+        return $committees;
+    }
+
+    public function savePreference(Request $request)
+    {
+        $userId = Auth::id();
+
+        $request->validate([
+            'keywords' => 'required|array|min:1'
+        ]);
+
+        // hapus preference lama (biar tidak duplicate)
+        DB::table('tUserPreferences')
+            ->where('idUsers', $userId)
+            ->delete();
+
+        foreach ($request->keywords as $keyword) {
+            DB::table('tUserPreferences')->insert([
+                'idUsers' => $userId,
+                'idKeywords' => $keyword,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        // 🔥 redirect balik ke homepage
+        return redirect()->route('home')->with('success', 'Preferensi berhasil disimpan!');
+    }
     public function profile(){
         $mahasiswa = null;
         if(Auth::user()->role === 'mahasiswa'){

@@ -4,6 +4,7 @@
       <a href="{{ route('home') }}" class="logo d-flex align-items-center me-auto">
         <!-- Uncomment the line below if you also wish to use an image logo -->
         <!-- <img src="assets_lp/img/logo.png" alt=""> -->
+        <img src="{{ asset('img/logo-ubaya.png') }}" alt="Logo UBAYA" style="height: 45px;">
         <h1 class="sitename">Kepanitiaan Mahasiswa</h1>
       </a>
 

@@ -28,6 +28,7 @@ class DatabaseSeeder extends Seeder
         $this->call(OrganizerUnitsSeeder::class);
         $this->call(AdminsSeeder::class);
         $this->call(CommitteesSeeder::class);
+        $this->call(KeywordsSeeder::class);
         $this->call(DivisionsSeeder::class);
         $this->call(InterviewSchedulesSeeder::class);
         $this->call(RegistrationsSeeder::class);

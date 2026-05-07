@@ -22,11 +22,13 @@ class Committee extends Model
         'description',
         'requirements',
         'poster',
+        'picture',
         'contact',
         'start_regis',
         'end_regis',
         'evaluation',
         'is_active',
+        'is_published'
     ];
 
     // public function admins(){

@@ -11,22 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tListDivisions', function (Blueprint $table) {
-            $table->unsignedBigInteger('idDivisions');
+        Schema::create('tListDivisionKeywords', function (Blueprint $table) {
             $table->unsignedBigInteger('idCommittees');
+            $table->unsignedBigInteger('idDivisions');
+            $table->unsignedBigInteger('idKeywords');
 
-            $table->tinyInteger('is_open')->default(0);
-            $table->string('description', 600);
-            $table->string('picture', 255);
-            $table->tinyInteger('is_consistent')->default(0);
-            $table->integer('num_member')->default(2);
+            $table->primary(['idCommittees', 'idDivisions', 'idKeywords']);
 
             $table->timestamps();
 
             $table->foreign('idCommittees')->references('idCommittees')->on('tCommittees')->onDelete('cascade');
             $table->foreign('idDivisions')->references('idDivisions')->on('tDivisions')->onDelete('cascade');
-
-            $table->primary(['idCommittees', 'idDivisions']);
+            $table->foreign('idKeywords')->references('idKeywords')->on('tKeywords')->onDelete('cascade');
         });
     }
 
@@ -35,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tListDivisions');
+        Schema::dropIfExists('tListDivisionKeywords');
     }
 };

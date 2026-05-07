@@ -23,12 +23,12 @@
     <!-- Page Title -->
     <div class="page-title dark-background" data-aos="fade" style="background-image: url(assets/img/page-title-bg.jpg);">
       <div class="container position-relative">
-        <h1>Registration Form</h1>
-        <p>Esse dolorum voluptatum ullam est sint nemo et est ipsa porro placeat quibusdam quia assumenda numquam molestias.</p>
+        <h1>Form Registrasi</h1>
+        <p>Lengkapi formulir pendaftaran sebagai langkah awal untuk bergabung dalam kepanitiaan yang kamu pilih.</p>
         <nav class="breadcrumbs">
           <ol>
             <li><a href="{{ url()->previous() }}">Detail</a></li>
-            <li class="current">Registration Form</li>
+            <li class="current">Form Registrasi</li>
           </ol>
         </nav>
       </div>

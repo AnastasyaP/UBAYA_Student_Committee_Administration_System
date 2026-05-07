@@ -22,6 +22,8 @@ class ListDivision extends Model
         'is_open',
         'description',
         'picture',
+        'is_consistent',
+        'num_member'
     ];
 
     public function committees(){

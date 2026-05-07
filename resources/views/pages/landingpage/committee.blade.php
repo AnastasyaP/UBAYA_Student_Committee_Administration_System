@@ -29,7 +29,7 @@
     <div class="page-title dark-background" data-aos="fade" style="background-image: url(assets/img/page-title-bg.jpg);">
       <div class="container position-relative">
         <h1>Kepanitiaan</h1>
-        <p>Esse dolorum voluptatum ullam est sint nemo et est ipsa porro placeat quibusdam quia assumenda numquam molestias.</p>
+        <p>Lihat riwayat pendaftaran dan kepanitiaan yang pernah Anda ikuti</p>        
         <nav class="breadcrumbs">
           <ol>
             <li><a href="{{  route('home') }}">Beranda</a></li>
@@ -45,7 +45,7 @@
       <div class="container section-title" data-aos="fade-up">
         <span>Riwayat Pendaftaran<br></span>
         <h2>Riwayat Pendaftaran</h2>
-        <p>Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit</p>
+        <p>Pantau status pendaftaran Anda pada berbagai kepanitiaan yang diikuti</p>      
       </div><!-- End Section Title -->
 
       <div class="container">
@@ -89,7 +89,7 @@
       <div class="container section-title" data-aos="fade-up">
         <span>Riwayat Kepanitiaan<br></span>
         <h2>Riwayat Kepanitiaan</h2>
-        <p>Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit</p>
+        <p>Lihat riwayat kepanitiaan yang pernah Anda ikuti beserta detailnya</p>      
       </div><!-- End Section Title -->
 
       <div class="container">

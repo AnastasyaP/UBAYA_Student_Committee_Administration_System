@@ -11,10 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tOrganizerUnits', function (Blueprint $table) {
-            $table->id('idOrganizerUnits');
-            $table->string('name', 45);
-            $table->enum('level', ['universitas', 'fakultas', 'program studi']);
+        Schema::create('tKeywords', function (Blueprint $table) {
+            $table->id('idKeywords');
+            $table->string('name', 50);
             
             $table->timestamps();
         });
@@ -25,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tOrganizerUnits');
+        Schema::dropIfExists('tKeywords');
     }
 };

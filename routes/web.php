@@ -58,6 +58,8 @@ Route::middleware(['auth', 'role:mahasiswa'])->group(function (){
 	Route::get('/form-evaluation/{idCommittee}/{target?}', [LandingPageController::class, 'evaluationForm'])->name('lp.eval');
 	Route::get('/form-evaluation/get-criteria/{idCommittee}/{idDivision}', [LandingPageController::class, 'getEvalCriteria'])->name('lp.get.eval');
 	Route::post('/form-evaluation/store', [LandingPageController::class, 'storeEvaluation'])->name('lp.store.eval');
+	// cold start preference
+	Route::post('/save-preference', [LandingPageController::class, 'savePreference'])->name('save.preference');
 });
 
 Route::middleware(['auth', 'access.role'])->group(function(){
