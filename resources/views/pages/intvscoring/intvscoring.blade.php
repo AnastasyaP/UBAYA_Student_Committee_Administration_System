@@ -43,6 +43,9 @@ use Illuminate\Support\Str;
                                                 Nilai</th>
                                         </tr>
                                     </thead>
+                                    @php
+                                        $maxScale = $criterias->count() > 0 ? floor(100 / $criterias->count()) : 0;
+                                    @endphp
                                     <tbody>
                                         @foreach($criterias as $criteria)
                                         <tr>
@@ -51,14 +54,57 @@ use Illuminate\Support\Str;
                                                     <h6 class="mb-0 text-sm">{{ $criteria->kriteria }}</h6>
                                                 </div>
                                             </td>
+                                            @php
+                                                $index = $loop->index;
+                                            @endphp
                                             <td>
                                                 <div class="d-flex flex-column justify-content-center">
-                                                    <input type="number" class="form-control intv-score" name="scores[{{ $loop->index }}][score]" value="{{ $criteria->score ?? 0 }}">
-                                                    <input type="hidden" class="form-control intv-score" name="scores[{{ $loop->index }}][idInterviewCriteria]" value="{{ $criteria->idCriterias ?? 0 }}">
+                                                    @php
+                                                        $labels = [
+                                                            1 => 'Sangat Tidak Baik',
+                                                            2 => 'Tidak Baik',
+                                                            3 => 'Cukup',
+                                                            4 => 'Baik',
+                                                            5 => 'Sangat Baik'
+                                                        ];
+
+                                                        $scoreMap = [
+                                                            1 => floor($maxScale * 0.2),
+                                                            2 => floor($maxScale * 0.4),
+                                                            3 => floor($maxScale * 0.6),
+                                                            4 => floor($maxScale * 0.8),
+                                                            5 => $maxScale
+                                                        ];
+                                                    @endphp
+
+                                                     <div class="d-flex justify-content-center gap-4 flex-wrap">
+
+                                                        @foreach($labels as $key => $label)
+                                                        <div class="form-check form-check-inline">
+                                                            <input 
+                                                                class="form-check-input"
+                                                                type="radio"
+                                                                name="scores[{{ $index }}][score]"
+                                                                value="{{ $scoreMap[$key] }}"
+                                                                id="score_{{ $index }}_{{ $key }}"
+                                                                {{ ($criteria->score ?? 0) == $scoreMap[$key] ? 'checked' : '' }}
+                                                            >
+                                                            <label 
+                                                                class="form-check-label"
+                                                                for="score_{{ $index }}_{{ $key }}"
+                                                            >
+                                                                {{ $label }}
+                                                            </label>
+                                                        </div>
+
+                                                        @endforeach
+
+                                                    </div>
+                                                    <input type="hidden" class="form-control intv-score" name="scores[{{ $index }}][idInterviewCriteria]" value="{{ $criteria->idCriterias ?? 0 }}">
                                                 </div>
                                             </td>
                                         </tr>
-                                    @endforeach
+                                        @endforeach
                                     </tbody>
                                 </table>
                                 <div class="col-md-12">

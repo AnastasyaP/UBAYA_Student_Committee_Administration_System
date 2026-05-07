@@ -90,6 +90,13 @@ class InterviewScoringController extends Controller
      */
     public function store(Request $request)
     {
+        $request->validate([
+            'scores' => 'required|array',
+            'scores.*.score' => 'required|numeric|min:0',
+            'scores.*.idInterviewCriteria' => 'required',
+            'comment' => 'nullable|string'
+        ]);
+        
         //buat tInterviewEvaluations
         $exist = DB::table('tInterviewEvaluations')
             ->where('idEvaluator', Auth::id())
@@ -134,6 +141,7 @@ class InterviewScoringController extends Controller
             ->where('ie.idRegistrations', $request->idRegis)
             ->select(
                 'ie.idRegistrations',
+                'ldac.idListDivisionAHPCriterias',
                 'ldac.average_weight',
                 DB::raw('AVG(ies.score) as avg_score')
             )
