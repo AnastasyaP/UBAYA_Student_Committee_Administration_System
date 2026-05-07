@@ -93,7 +93,7 @@ use Illuminate\Support\Str;
                                                                 class="form-check-label"
                                                                 for="score_{{ $index }}_{{ $key }}"
                                                             >
-                                                                {{ $label }}
+                                                                {{ $label }} ({{ $scoreMap[$key] }})
                                                             </label>
                                                         </div>
 

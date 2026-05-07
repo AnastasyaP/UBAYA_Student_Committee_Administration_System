@@ -379,7 +379,44 @@ class RegistrationController extends Controller
         )
         ->first();
 
-        return view('pages.registration.view-registrations', compact('registration'));
+        $avgPerAhp = DB::table('tInterviewEvaluations as ie')
+                        ->join('tInterviewEvaluationScores as ies', 'ie.idInterviewEvaluations', '=', 'ies.idInterviewEvaluations')
+                        ->join('tInterviewCriterias as ic', 'ies.idInterviewCriterias', '=', 'ic.idInterviewCriterias')
+                        ->join('tInterviewDivisionAHPCriterias as idc', 'ic.idInterviewCriterias', '=', 'idc.idInterviewCriterias')
+                        ->join('tListDivisionAHPCriterias as ldc', 'idc.idListDivisionAHPCriterias', '=', 'ldc.idListDivisionAHPCriterias')
+                        ->where('ie.idRegistrations', $idRegis)
+                        ->groupBy('ldc.idAHPCriterias')
+                        ->select(
+                            'ldc.idAHPCriterias',
+                            DB::raw('AVG(ies.score) as avg_score')
+                        );
+
+        $ahpCalcs = DB::table('tInterviewEvaluations as ie')
+            ->join('tInterviewEvaluationScores as ies', 'ie.idInterviewEvaluations', '=', 'ies.idInterviewEvaluations')
+            ->join('tInterviewCriterias as ic', 'ies.idInterviewCriterias', '=', 'ic.idInterviewCriterias')
+            ->join('tInterviewDivisionAHPCriterias as idc', 'ic.idInterviewCriterias', '=', 'idc.idInterviewCriterias')
+            ->join('tListDivisionAHPCriterias as ldc', 'idc.idListDivisionAHPCriterias', '=', 'ldc.idListDivisionAHPCriterias')
+            ->join('tAHPCriterias as ac', 'ldc.idAHPCriterias', '=', 'ac.idAHPCriterias')
+            ->joinSub($avgPerAhp, 'avg_table', function ($join) {
+                $join->on('ldc.idAHPCriterias', '=', 'avg_table.idAHPCriterias');
+            })
+            ->where('ie.idRegistrations', $idRegis)
+            ->select([
+                'ldc.idAHPCriterias',
+                'ac.name as ahp',
+                'ldc.average_weight',
+                'ic.name as intv_criteria',
+                'ies.score as raw_score',
+                'avg_table.avg_score',
+                DB::raw('avg_table.avg_score * ldc.average_weight as score')
+            ])
+            ->get();
+
+        $final_score = $ahpCalcs
+                        ->unique('idAHPCriterias')
+                        ->sum('score');
+
+        return view('pages.registration.view-registrations', compact('registration', 'ahpCalcs', 'final_score'));
     }
 
     public function accept($idRegis, Request $request){
@@ -401,7 +438,7 @@ class RegistrationController extends Controller
                 ->first();
         
         if($exist){
-            return redirect()->back()->with('warning', "This Applicant is already accepted in another division!");
+            return redirect()->back()->with('warning', "Calon ini sudah diterima di divisi lain!");
         }
 
         if($mhs->status === "dinilai"){

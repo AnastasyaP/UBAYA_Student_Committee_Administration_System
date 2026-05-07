@@ -141,13 +141,13 @@ class InterviewScoringController extends Controller
             ->where('ie.idRegistrations', $request->idRegis)
             ->select(
                 'ie.idRegistrations',
-                'ldac.idListDivisionAHPCriterias',
+                'ldac.idAHPCriterias',
                 'ldac.average_weight',
                 DB::raw('AVG(ies.score) as avg_score')
             )
             ->groupBy(
                 'ie.idRegistrations',
-                'ldac.idListDivisionAHPCriterias',
+                'ldac.idAHPCriterias',
                 'ldac.average_weight'
             )
             ->get();
