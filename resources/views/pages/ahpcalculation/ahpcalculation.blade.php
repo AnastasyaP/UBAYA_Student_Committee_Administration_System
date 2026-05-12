@@ -13,15 +13,20 @@ use Illuminate\Support\Str;
                 
                 <div class="card mb-4">
                     <div class="card-header pb-0 d-flex justify-content-between align-items-center" >
-                        <div class="badge-select-wrapper">
+                        <div class="badge-select-wrapper d-flex align-items-center gap-2">
                             <select name="division" id="division" class="badge-select text-sm division-select">
                                 @foreach($masterDivision as $division)
-                                <option value="{{ $division->idDivisions }}" @selected($division->idDivisions == $default)>{{ $division->name }}</option>
+                                <option value="{{ $division->idDivisions }}" @selected($division->idDivisions == $default)>
+                                    {{ $division->name }}
+                                </option>
                                 @endforeach
                             </select>
-                            <!-- <span class="badge bg-success">valid</span> -->
+
+                            <span id="consistency-badge" class="badge bg-secondary">
+                                Belum dicek
+                            </span>
                         </div>
-                        <button id="btn-normalize" target="" class="btn btn-dark btn-add ms-auto">Cek Bobot</button>
+                        <button type="button" id="btn-normalize" class="btn btn-dark btn-add ms-auto">Cek Bobot</button>
                     </div>
                     <div class="card-body px-2 pt-2 pb-2">
                         <div class="table-responsive p-0">
@@ -86,9 +91,49 @@ use Illuminate\Support\Str;
                                 </tbody>
                             </table>
                             
-                        </div>    
+                        </div> 
+                        <div class="mt-3">
+                            <button class="btn btn-primary toggle-detail collapsed d-inline-flex align-items-center justify-content-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAHP" aria-expanded="false" aria-controls="collapseAHP">
+                                Lihat Rincian Perhitungan <i class="ni ni-bold-right icon-toggle ms-2"></i>
+                            </button>
+
+                            <div class="collapse mt-3" id="collapseAHP">
+
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5 class="mb-0">Rincian Perhitungan AHP</h5>
+                                    </div>
+
+                                    <div class="card-body" id="ahp-result">
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div> 
                     </div>
                 </div>
+                   <!-- modal -->                
+                <div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-scrollable">
+                        <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="confirmModalTitle">Konfirmasi pengubahan bobot</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                        <div class="mb-3">
+                                            <label class="col-form-label" id="confirmModalLabel"></label>
+                                        </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" id="confirmNormalize" class="btn btn-primary">Simpan</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                </div>
+                        </div>
+                    </div>
+                </div>  
             </div>
         </div>
         @include('layouts.footers.auth.footer')
@@ -118,6 +163,19 @@ use Illuminate\Support\Str;
             "4": "Mutlak lebih penting (C2)"
         };
 
+        let originalSliders = [];
+
+        function saveOriginalSliders(){
+            originalSliders = [];
+
+            document.querySelectorAll('.ahp-slider').forEach(slider => {
+                originalSliders.push({
+                    element: slider,
+                    value: slider.value
+                });
+            });
+        }
+        
         document.querySelectorAll('.ahp-slider').forEach(slider => {    
             // set label awal
             const val = slider.value;
@@ -167,6 +225,12 @@ use Illuminate\Support\Str;
             .then(res => res.json())
             .then(data => {
                 console.log(data.pairwise);
+
+                renderAHPResult(data);
+                updateConsistencyBadge(data.is_consistent);
+
+                currentConsistency = data.is_consistent;
+                currentUsed = data.isUsed;
                 
                 const tbody = document.getElementById('pairwise-body');
                 tbody.innerHTML = '';
@@ -212,59 +276,372 @@ use Illuminate\Support\Str;
                         this.closest('td').querySelector('.slider-label').innerText = label;
                     });
                 });
-
+                
+                saveOriginalSliders();
                
             });
         });
 
-        document.getElementById('btn-normalize').addEventListener('click', function(){
-            let comparisons = [];
+        function updateConsistencyBadge(isConsistent = null){
 
-            document.querySelectorAll('.ahp-slider').forEach(slider => {
-                const val = slider.value;
-                const weight = scaleMap[val];
+            const badge = document.getElementById('consistency-badge');
 
-                comparisons.push({
-                    c1: slider.dataset.c1,
-                    c2: slider.dataset.c2,
-                    value: weight
-                });
-            });
+            if(isConsistent === true){
 
-            const baseRegUrl = "{{ session()->has('idCommittee') ? url('/members') : url('') }}";
+                badge.className = 'badge bg-success';
+                badge.innerText = 'Konsisten';
 
-            fetch(`${baseRegUrl}/ahp/normalize`,{
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                },
-                body: JSON.stringify({
-                    division: document.getElementById('division').value,
-                    comparisons: comparisons
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                console.log(data);
+            }else if(isConsistent === false){
 
-                let alertBox = document.getElementById("ahp-alert");
+                badge.className = 'badge bg-danger';
+                badge.innerText = 'Tidak Konsisten';
 
-                alertBox.innerHTML = `
-                    <div class="alert alert-${data.type} alert-dismissible fade show" role="alert">
-                        <strong>${data.type === 'success' ? 'Success!' : 'Warning!'}</strong> ${data.message}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            }else{
+
+                badge.className = 'badge bg-secondary';
+                badge.innerText = 'Belum dicek';
+            }
+        }
+
+        function renderAHPResult(data = null){
+            const resultBox = document.getElementById('ahp-result');
+
+            if(!data || !data.criterias || data.criterias.length === 0){
+
+                resultBox.innerHTML = `
+                    <div class="alert alert-warning mb-0" style="color:white;">
+                        Belum ada perhitungan AHP.
                     </div>
                 `;
+                return;
+            }
 
-                setTimeout(()=>{
-                    const alert = document.querySelector('#ahp-alert .alert');
-                    if(alert){
-                        const bsAlert = new bootstrap.Alert(alert);
-                        bsAlert.close();
-                    }
-                }, 3000); // auto close 3 detik
+            function num(val){
+                if(val === null || val === undefined){
+                    return '-';
+                }
+                return parseFloat(val).toFixed(6);
+            }
+
+            let pairwiseRows = '';
+            let normalizeRows = '';
+            let priorityRows = '';
+            let weightedRows = '';
+            let lambdaRows = '';
+
+            data.criterias.forEach((c, i) => {
+
+                pairwiseRows += `
+                    <tr>
+                        <td>${c.name}</td>
+                        ${(data.matrix?.[i] || []).map(v => `<td>${num(v)}</td>`).join('')}
+                    </tr>
+                `;
+
+                normalizeRows += `
+                    <tr>
+                        <td>${c.name}</td>
+                        ${(data.normalized?.[i] || []).map(v => `<td>${num(v)}</td>`).join('')}
+                    </tr>
+                `;
+
+                priorityRows += `
+                    <tr>
+                        <td>${c.name}</td>
+                        <td>${num(data.priority_vector?.[i])}</td>
+                    </tr>
+                `;
+
+                weightedRows += `
+                    <tr>
+                        <td>${c.name}</td>
+                        <td>${num(data.weighted_sum?.[i])}</td>
+                    </tr>
+                `;
+
+                lambdaRows += `
+                    <tr>
+                        <td>${c.name}</td>
+                        <td>${num(data.lambda_vector?.[i])}</td>
+                    </tr>
+                `;
             });
+
+            let sumColumns = `
+                <tr>
+                    <td><b>Jumlah</b></td>
+                    ${(data.column_sum || [])
+                        .map(v => `<td><b>${num(v)}</b></td>`)
+                        .join('')}
+                </tr>
+            `;
+
+            resultBox.innerHTML = `
+                <h6>Matriks Pairwise</h6>
+
+                <div class="table-responsive mb-4">
+                    <table class="table table-bordered text-center">
+                        <thead>
+                            <tr>
+                                <th>Kriteria</th>
+                                ${data.criterias.map(c => `<th>${c.name}</th>`).join('')}
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            ${pairwiseRows}
+                            ${sumColumns}
+                        </tbody>
+                    </table>
+                </div>
+
+                <h6>Normalisasi Matriks</h6>
+
+                <div class="table-responsive mb-4">
+                    <table class="table table-bordered text-center">
+                        <thead>
+                            <tr>
+                                <th>Kriteria</th>
+                                ${data.criterias.map(c => `<th>${c.name}</th>`).join('')}
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            ${normalizeRows}
+                        </tbody>
+                    </table>
+                </div>
+
+                <h6>Bobot Prioritas</h6>
+
+                <table class="table table-bordered text-center mb-4">
+                    <thead>
+                        <tr>
+                            <th>Kriteria</th>
+                            <th>Bobot</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        ${priorityRows}
+                    </tbody>
+                </table>
+
+                <h6>Weighted Sum</h6>
+
+                <table class="table table-bordered text-center mb-4">
+                    <thead>
+                        <tr>
+                            <th>Kriteria</th>
+                            <th>Nilai</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        ${weightedRows}
+                    </tbody>
+                </table>
+
+                <h6>Lambda Per Kriteria</h6>
+
+                <table class="table table-bordered text-center mb-4">
+                    <thead>
+                        <tr>
+                            <th>Kriteria</th>
+                            <th>Lambda</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        ${lambdaRows}
+                    </tbody>
+                </table>
+
+                <div class="row">
+
+                    <div class="col-md-3">
+                        <div class="alert alert-light">
+                            <p class="text-sm mb-0 text-uppercase font-weight-bold">λ Max</p>
+                            <h5 class="font-weight-bolder">
+                                ${num(data.lambda_max)}
+                            </h5>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="alert alert-light">
+                            <p class="text-sm mb-0 text-uppercase font-weight-bold">CI</p>
+                            <h5 class="font-weight-bolder">
+                                 ${num(data.CI)}
+                            </h5>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="alert alert-light">
+                            <p class="text-sm mb-0 text-uppercase font-weight-bold">RI</p>
+                            <h5 class="font-weight-bolder">
+                                 ${num(data.RI)}
+                            </h5>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="alert alert-${data.is_consistent ? 'success' : 'danger'}">
+                            <p class="text-sm mb-0 text-uppercase font-weight-bold">CR</p>
+                             <h5 class="font-weight-bolder">
+                                 ${num(data.CR)}
+                            </h5>
+                        </div>
+                    </div>
+
+                </div>
+            `;
+        }
+
+        function runNormalize(){
+                let comparisons = [];
+
+                document.querySelectorAll('.ahp-slider').forEach(slider => {
+                    const val = slider.value;
+                    const weight = scaleMap[val];
+
+                    comparisons.push({
+                        c1: slider.dataset.c1,
+                        c2: slider.dataset.c2,
+                        value: weight
+                    });
+                });
+
+                const baseRegUrl = "{{ session()->has('idCommittee') ? url('/members') : url('') }}";
+
+                fetch(`${baseRegUrl}/ahp/normalize`,{
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                    },
+                    body: JSON.stringify({
+                        division: document.getElementById('division').value,
+                        comparisons: comparisons
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    console.log(data);
+
+                    let alertBox = document.getElementById("ahp-alert");
+
+                    alertBox.innerHTML = `
+                        <div class="alert alert-${data.type} alert-dismissible fade show" role="alert" style="color:white;">
+                            <strong>${data.type === 'success' ? 'Success!' : 'Warning!'}</strong> ${data.message}
+                        </div>
+                    `;
+                    
+                    // hanya render kalau data AHP lengkap
+                    if(data.criterias){
+
+                        renderAHPResult(data);
+                        updateConsistencyBadge(data.is_consistent);
+                        currentConsistency = data.is_consistent;
+                        currentUsed = data.is_used;
+
+                        // collapse auto kebuka
+                        const collapseEl = document.getElementById('collapseAHP');
+                        const bsCollapse = bootstrap.Collapse.getOrCreateInstance(collapseEl);
+                        bsCollapse.show();
+                    }
+
+                    setTimeout(()=>{
+                        const alert = document.querySelector('#ahp-alert .alert');
+                        if(alert){
+                            const bsAlert = new bootstrap.Alert(alert);
+                            bsAlert.close();
+                        }
+                    }, 3000); // auto close 3 detik
+                });
+        }
+
+        document.getElementById('btn-normalize').addEventListener('click', function(){
+
+            const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+
+            if(currentUsed === true){
+                    document.getElementById('confirmModalLabel').innerHTML = `
+                        Bobot ini sudah digunakan pada penilaian interview.
+                        <br><br>
+                        Mengubah bobot dapat mempengaruhi hasil penilaian.
+                        <br><br>
+                        Apakah anda yakin ingin menghitung ulang bobot?
+                    `;
+
+                    confirmModal.show();
+                    return;
+            }
+            else if(currentConsistency){
+                    document.getElementById('confirmModalLabel').innerHTML = `
+                        Bobot saat ini sudah <b>konsisten</b>. 
+                        Jika diubah, hasil penilaian bisa berubah.
+                        <br><br>
+                        Apakah anda yakin ingin menghitung ulang bobot?
+                    `;
+
+                    confirmModal.show();
+                    return;
+            }else{
+                runNormalize();
+            }
         });
+
+        // submit btn simpan di modal
+        document.getElementById('confirmNormalize').addEventListener('click', function(){
+
+            const modal = bootstrap.Modal.getInstance(document.getElementById('confirmModal'));
+            modal.hide();
+
+            runNormalize();
+
+        });
+
+        // reset isi scale klo klik btn batal di modal
+        document.querySelector('#confirmModal .btn-secondary').addEventListener('click', function(){
+
+            document.querySelectorAll('.ahp-slider').forEach((slider, index) => {
+
+                const original = originalSliders[index];
+
+                slider.value = original.value;
+                slider.dataset.weight = scaleMap[original.value];
+
+                slider.closest('td')
+                    .querySelector('.slider-label')
+                    .innerText = labelMap[original.value];
+
+            });
+
+        });
+
+        const initialAHP = {
+            criterias: @json($criterias),
+            matrix: @json($result['matrix']),
+            column_sum: @json($result['column_sum']),
+            normalized: @json($result['normalized']),
+            priority_vector: @json($result['priority_vector']),
+            weighted_sum: @json($result['weighted_sum']),
+            lambda_vector: @json($result['lambda_vector']),
+            lambda_max: @json($result['lambda_max']),
+            CI: @json($result['CI']),
+            CR: @json($result['CR']),
+            RI: @json($result['RI']),
+            is_consistent: @json($result['is_consistent']),
+            is_used: @json($isUsed)
+        };
+
+        let currentConsistency = initialAHP.is_consistent;
+        let currentUsed = initialAHP.is_used ?? false;
+
+        renderAHPResult(initialAHP);
+        updateConsistencyBadge(initialAHP.is_consistent);
+        saveOriginalSliders();
     </script>
 @endsection

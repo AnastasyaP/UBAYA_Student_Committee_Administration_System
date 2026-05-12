@@ -3,7 +3,7 @@
 @section('content')
     @include('layouts.navbars.auth.topnav', ['title' => 'Edit Kepanitiaan'])
     @foreach($committees as $committee)
-    <div class="card shadow-lg mx-4 card-profile-bottom">
+    <div class="card shadow-lg mx-4">
         <div class="card-body p-3">
             <div class="row gx-4">
                 <div class="col-auto">
@@ -50,7 +50,7 @@
     </div>
     <div class="container-fluid py-4">
         <div class="row">
-            <div class="col-md-8">
+            <div class="col-md-12">
                 @if(session('warning'))
                     <div>
                         <div class="alert alert-warning alert-dismissible fade show" role="alert">

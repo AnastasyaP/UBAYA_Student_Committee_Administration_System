@@ -5,7 +5,7 @@
 
     <div class="container-fluid py-4">
         <div class="row">
-            <div class="col-md-8">
+            <div class="col-md-12">
                 @if(session('success'))
                         <div>
                             <div class="alert alert-success auto-close-alert alert-dismissible fade show" role="alert">
@@ -84,10 +84,10 @@
 
             if(this.value){
                 nameInput.value = selectedOption.text;
-                nameInput.setAttribute('disabled', true); // kalo milih dari combobox text inputnya di disable
+                nameInput.setAttribute('readonly', true); // kalo milih dari combobox text inputnya di disable
             } else{
                 nameInput.value = '';
-                nameInput.removeAttribute('disabled');
+                nameInput.removeAttribute('readonly');
             }
         });
 

@@ -6,13 +6,14 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use App\Services\AHPService;
 
 class AHPCalculationController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(Request $request, AHPService $ahp)
     {
         $idCommittee = getCurrentCommitteeId($request);
 
@@ -23,51 +24,72 @@ class AHPCalculationController extends Controller
 
         $default = $masterDivision->first()->idDivisions;
 
-        // $default = 3;
         $criterias = DB::table('tListDivisionAHPCriterias as lc')
                         ->join('tAHPCriterias as ac', 'lc.idAHPCriterias', 'ac.idAHPCriterias')
                         ->where('lc.idDivisions', $default)
                         ->where('lc.idCommittees', $idCommittee)
                         ->get();
-        // dd($criterias);
+
         $pairwiseDB = DB::table('tPairwiseComparisons')
                         ->where('idDivisions', $default)
                         ->where('idCommittees', $idCommittee)
                         ->get();
 
+       // buat pairwise tampilan
+        $pairwise = [];
+        for($i = 0; $i < count($criterias); $i++){
+            for($j = $i+1; $j < count($criterias); $j++){
+                $weight = $pairwiseDB
+                        ->where('idCriteria1', $criterias[$i]->idAHPCriterias)
+                        ->where('idCriteria2', $criterias[$j]->idAHPCriterias)
+                        ->first();
+
+                $pairwise[] = [
+                    'c1'=> $criterias[$i],
+                    'c2'=> $criterias[$j],
+                    'weight' => $weight->weight ?? 1,
+                ];
+            }
+        }
+
+        // default
+        $result = [
+            'matrix'=>[],
+            'column_sum'=>[],
+            'normalized'=>[],
+            'priority_vector'=>[],
+            'weighted_sum'=>[],
+            'lambda_vector'=>[],
+            'lambda_max'=>null,
+            'CI'=>null,
+            'CR'=>null,
+            'RI'=>null,
+            'is_consistent'=>null
+        ];
+
         if($pairwiseDB->isNotEmpty()){
-            $pairwise = [];
-            for($i = 0; $i < count($criterias); $i++){
-                for($j = $i+1; $j < count($criterias); $j++){
+            $result = $ahp->calculate($criterias, $pairwiseDB);
+        }
 
-                    $weight = $pairwiseDB
-                            ->where('idCriteria1', $criterias[$i]->idAHPCriterias)
-                            ->where('idCriteria2', $criterias[$j]->idAHPCriterias)
-                            ->first();
+        $isUsed = DB::table('tInterviewEvaluationScores as ies')
+                ->join('tInterviewCriterias as ic', 'ies.idInterviewCriterias', 'ic.idInterviewCriterias')
+		        ->join('tInterviewDivisionAHPCriterias as idac', 'ic.idInterviewCriterias', 'idac.idInterviewCriterias')
+		        ->join('tListDivisionAHPCriterias as ldac', 'idac.idListDivisionAHPCriterias', 'ldac.idListDivisionAHPCriterias')
+                ->where('ldac.idCommittees', $idCommittee)
+                ->where('ldac.idDivisions', $default)
+                ->exists();
 
-                    $pairwise[] = [
-                        'c1'=> $criterias[$i],
-                        'c2'=> $criterias[$j],
-                        'weight' => $weight->weight ?? 1,
-                    ];
-                }
-            }
-        } else{
-            $pairwise = [];
-            for($i = 0; $i < count($criterias); $i++){
-                for($j = $i+1; $j < count($criterias); $j++){
-                    $pairwise[] = [
-                        'c1'=> $criterias[$i],
-                        'c2'=> $criterias[$j],
-                    ];
-                }
-            }
-        } 
-
-        return view('pages.ahpcalculation.ahpcalculation', compact('masterDivision', 'default', 'criterias', 'pairwise'));
+        return view('pages.ahpcalculation.ahpcalculation', compact(
+            'masterDivision', 
+            'default', 
+            'criterias', 
+            'pairwise',
+            'result',
+            'isUsed'
+        ));
     }
 
-    public function getCriteriasByDivision($idDivision, Request $request){
+    public function getCriteriasByDivision($idDivision, Request $request, AHPService $ahp){
         $idCommittee = getCurrentCommitteeId($request);
 
         $masterDivision = DB::table('tDivisions as d')
@@ -75,56 +97,81 @@ class AHPCalculationController extends Controller
                             ->where('ld.idCommittees', $idCommittee)
                             ->get();
 
-        // $default = $masterDivision->first()->idDivisions;
-
         $criterias = DB::table('tListDivisionAHPCriterias as lc')
                         ->join('tAHPCriterias as ac', 'lc.idAHPCriterias', 'ac.idAHPCriterias')
                         ->where('lc.idDivisions', $idDivision)
                         ->where('lc.idCommittees', $idCommittee)
                         ->get();
         
-         $pairwiseDB = DB::table('tPairwiseComparisons')
+        $pairwiseDB = DB::table('tPairwiseComparisons')
                         ->where('idDivisions', $idDivision)
                         ->where('idCommittees', $idCommittee)
                         ->get();
 
+        // buat pairwise tampilan
+        $pairwise = [];
+        for($i = 0; $i < count($criterias); $i++){
+            for($j = $i+1; $j < count($criterias); $j++){
+                $weight = $pairwiseDB
+                        ->where('idCriteria1', $criterias[$i]->idAHPCriterias)
+                        ->where('idCriteria2', $criterias[$j]->idAHPCriterias)
+                        ->first();
+
+                $pairwise[] = [
+                    'c1'=> $criterias[$i],
+                    'c2'=> $criterias[$j],
+                    'weight' => $weight->weight ?? 1,
+                ];
+            }
+        }
+
+        // default
+        $result = [
+            'matrix'=>[],
+            'column_sum'=>[],
+            'normalized'=>[],
+            'priority_vector'=>[],
+            'weighted_sum'=>[],
+            'lambda_vector'=>[],
+            'lambda_max'=>null,
+            'CI'=>null,
+            'CR'=>null,
+            'RI'=>null,
+            'is_consistent'=>null
+        ];
+
         if($pairwiseDB->isNotEmpty()){
-            $pairwise = [];
-            for($i = 0; $i < count($criterias); $i++){
-                for($j = $i+1; $j < count($criterias); $j++){
+            $result = $ahp->calculate($criterias, $pairwiseDB);
+        }
 
-                    $weight = $pairwiseDB
-                            ->where('idCriteria1', $criterias[$i]->idAHPCriterias)
-                            ->where('idCriteria2', $criterias[$j]->idAHPCriterias)
-                            ->first();
-
-                    $pairwise[] = [
-                        'c1'=> $criterias[$i],
-                        'c2'=> $criterias[$j],
-                        'weight' => $weight->weight ?? 1,
-                    ];
-                }
-            }
-        } else{
-            $pairwise = [];
-            for($i = 0; $i < count($criterias); $i++){
-                for($j = $i+1; $j < count($criterias); $j++){
-                    $pairwise[] = [
-                        'c1'=> $criterias[$i],
-                        'c2'=> $criterias[$j],
-                    ];
-                }
-            }
-        } 
+        $isUsed = DB::table('tInterviewEvaluationScores as ies')
+                ->join('tInterviewCriterias as ic', 'ies.idInterviewCriterias', 'ic.idInterviewCriterias')
+		        ->join('tInterviewDivisionAHPCriterias as idac', 'ic.idInterviewCriterias', 'idac.idInterviewCriterias')
+		        ->join('tListDivisionAHPCriterias as ldac', 'idac.idListDivisionAHPCriterias', 'ldac.idListDivisionAHPCriterias')
+                ->where('ldac.idCommittees', $idCommittee)
+                ->where('ldac.idDivisions', $idDivision)
+                ->exists();
 
         return response()->json([
             'criterias' => $criterias,
             'pairwise' => $pairwise,
-            'masterDivision' => $masterDivision
+            'masterDivision' => $masterDivision,
+            'matrix' => $result['matrix'],
+            'column_sum' => $result['column_sum'],
+            'normalized' => $result['normalized'],
+            'priority_vector' => $result['priority_vector'],
+            'weighted_sum' => $result['weighted_sum'],
+            'lambda_vector' => $result['lambda_vector'],
+            'lambda_max' => $result['lambda_max'],
+            'CI' => $result['CI'],
+            'CR' => $result['CR'],
+            'RI' => $result['RI'],
+            'is_consistent' => $result['is_consistent'],
+            'isUsed' => $isUsed
         ]);
     }
 
-    public function normalize(Request $request){
+    public function normalize(Request $request, AHPService $ahp){
         $idCommittee = getCurrentCommitteeId($request);
         $comparisons = $request->comparisons;
         $division = $request->division;
@@ -136,7 +183,16 @@ class AHPCalculationController extends Controller
             ]);;
         }
 
-        // simpan pairwise ke tabel pairwise
+        $isUsed = DB::table('tInterviewEvaluationScores as ies')
+                        ->join('tInterviewCriterias as ic', 'ies.idInterviewCriterias', 'ic.idInterviewCriterias')
+		                ->join('tInterviewDivisionAHPCriterias as idac', 'ic.idInterviewCriterias', 'idac.idInterviewCriterias')
+		                ->join('tListDivisionAHPCriterias as ldac', 'idac.idListDivisionAHPCriterias', 'ldac.idListDivisionAHPCriterias')
+                        ->where('ldac.idCommittees', $idCommittee)
+                        ->where('ldac.idDivisions', $division)
+                        ->exists();
+        
+
+        // simpen pairwise
         foreach($comparisons as $comp){
             DB::table('tPairwiseComparisons')
             ->updateOrInsert([
@@ -150,7 +206,7 @@ class AHPCalculationController extends Controller
             ]);
         }
 
-        // 1️⃣ Ambil semua kriteria pada divisi tersebut
+        // ambil criteria
         $criterias = DB::table('tListDivisionAHPCriterias as lc')
             ->join('tAHPCriterias as ac', 'lc.idAHPCriterias', 'ac.idAHPCriterias')
             ->where('lc.idDivisions', $division)
@@ -159,64 +215,19 @@ class AHPCalculationController extends Controller
             ->get()
             ->values();
 
-        $n = count($criterias);
-
-        // 2️⃣ Buat matriks identitas
-        $matrix = [];
-
-        for ($i = 0; $i < $n; $i++) {
-            for ($j = 0; $j < $n; $j++) {
-                $matrix[$i][$j] = ($i == $j) ? 1 : 0;
-            }
-        }
-
-        // 3️⃣ Ambil pairwise dari database
+        // ambil pairwise
         $pairwise = DB::table('tPairwiseComparisons')
             ->where('idCommittees', $idCommittee)
             ->where('idDivisions', $division)
             ->get();
 
-        foreach ($pairwise as $p) {
+        // hitung ahp
+        $result = $ahp->calculate($criterias, $pairwise);
 
-            $i = $criterias->search(fn($c) => $c->idAHPCriterias == $p->idCriteria1);
-            $j = $criterias->search(fn($c) => $c->idAHPCriterias == $p->idCriteria2);
+        $priority = $result['priority_vector'];
 
-            if ($i !== false && $j !== false) {
-                $matrix[$i][$j] = $p->weight;
-                $matrix[$j][$i] = 1 / $p->weight;
-            }
-        }
-
-        // // 4️⃣ Hitung jumlah kolom
-        $columnSum = [];
-
-        for ($j = 0; $j < $n; $j++) {
-            $sum = 0;
-            for ($i = 0; $i < $n; $i++) {
-                $sum += $matrix[$i][$j];
-            }
-            $columnSum[$j] = $sum;
-        }
-
-        // // 5️⃣ Normalisasi
-        $normalized = [];
-
-        for ($i = 0; $i < $n; $i++) {
-            for ($j = 0; $j < $n; $j++) {
-                $normalized[$i][$j] = $matrix[$i][$j] / $columnSum[$j];
-            }
-        }
-
-        // // 6️⃣ Priority Vector
-        $priority = [];
-
-        for ($i = 0; $i < $n; $i++) {
-            $priority[$i] = array_sum($normalized[$i]) / $n;
-        }
-
-        // // 7️⃣ Simpan bobot ke tListDivisionAHPCriterias
+        // simpan bobot ke tListDivisionAHPCriterias
         foreach ($criterias as $index => $c) {
-
             DB::table('tListDivisionAHPCriterias')
                 ->where('idDivisions', $division)
                 ->where('idCommittees', $idCommittee)
@@ -226,56 +237,35 @@ class AHPCalculationController extends Controller
                 ]);
         }
 
-        // 8️⃣ Hitung lambda max
-        $lambdaVector = [];
+        $isConsistent = $result['is_consistent'];
 
-        for ($i = 0; $i < $n; $i++) {
-            $sum = 0;
-            for ($j = 0; $j < $n; $j++) {
-                $sum += $matrix[$i][$j] * $priority[$j];
-            }
-            $lambdaVector[$i] = $sum / $priority[$i];
+        if($isConsistent == true){
+            DB::table('tListDivisions')
+            ->where('idCommittees', $idCommittee)
+            ->where('idDivisions', $division)
+            ->update([
+                'is_consistent' => 1
+            ]);
         }
 
-        $lambdaMax = array_sum($lambdaVector) / $n;
-
-        // 9️⃣ Hitung CI
-        $CI = ($lambdaMax - $n) / ($n - 1);
-
-        // 🔟 Random Index
-        $RI_table = [
-            1 => 0.00,
-            2 => 0.00,
-            3 => 0.58,
-            4 => 0.90,
-            5 => 1.12,
-            6 => 1.24,
-            7 => 1.32,
-            8 => 1.41,
-            9 => 1.45,
-            10 => 1.49
-        ];
-
-        $RI = $RI_table[$n] ?? 1.49;
-
-        // 1️⃣1️⃣ Hitung CR
-        $CR = ($RI == 0) ? 0 : $CI / $RI;
-
-        // 1️⃣2️⃣ Validasi
-        $isConsistent = $CR < 0.1;
-
         return response()->json([
-            'matrix' => $matrix,
-            'normalized' => $normalized,
+            'criterias' => $criterias,
+            'matrix' => $result['matrix'],
+            'column_sum' => $result['column_sum'],
+            'normalized' => $result['normalized'],
             'priority_vector' => $priority,
-            'lambda_max' => $lambdaMax,
-            'CI' => $CI,
-            'CR' => $CR,
+            'weighted_sum' => $result['weighted_sum'],
+            'lambda_vector' => $result['lambda_vector'],
+            'lambda_max' => $result['lambda_max'],
+            'CI' => $result['CI'],
+            'CR' => $result['CR'],
+            'RI' => $result['RI'],
             'is_consistent' => $isConsistent,
+            'is_used' => $isUsed,
             'message' => $isConsistent 
                 ? 'Bobot konsisten dan siap digunakan untuk penilaian.' 
                 : 'Perbandingan tidak konsisten, silakan atur ulang bobot.',
-            'type' => $isConsistent ? 'success' : 'warning'
+            'type' => $isConsistent ? 'success' : 'danger',
         ]);
     }
 
