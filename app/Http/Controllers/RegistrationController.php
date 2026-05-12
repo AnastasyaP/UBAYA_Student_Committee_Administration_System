@@ -59,8 +59,11 @@ class RegistrationController extends Controller
             'd.name as division',
             'r.idRegistrations as idRegis',
             'r.idUsers as idMahasiswa',
+            'ld.is_consistent'
         )
         ->get();
+
+        // dd($registrations);
 
         // list registrations yang sudah dinilai, ditampilkan per divisi
        $regisByDiv = DB::table('tRegistrations as r')
@@ -160,7 +163,8 @@ class RegistrationController extends Controller
             'd.name as division',
             'r.idRegistrations as idRegis',
             'r.idUsers as idMahasiswa',
-            'ar.final_score'
+            'ar.final_score',
+            'ld.is_consistent'
         )
         ->orderByDesc('ar.final_score') // ranking AHP
         ->get();
@@ -218,6 +222,7 @@ class RegistrationController extends Controller
             'd.name as division',
             'r.idRegistrations as idRegis',
             'r.idUsers as idMahasiswa',
+            'ld.is_consistent'
         )
         ->get();
 
@@ -408,7 +413,7 @@ class RegistrationController extends Controller
                 'ic.name as intv_criteria',
                 'ies.score as raw_score',
                 'avg_table.avg_score',
-                DB::raw('avg_table.avg_score * ldc.average_weight as score')
+                DB::raw('avg_table.avg_score * ldc.average_weight as score'),
             ])
             ->get();
 
@@ -416,7 +421,22 @@ class RegistrationController extends Controller
                         ->unique('idAHPCriterias')
                         ->sum('score');
 
-        return view('pages.registration.view-registrations', compact('registration', 'ahpCalcs', 'final_score'));
+        $criteriasCount = DB::table('tInterviewDivisionAHPCriterias as idc')
+                ->join(
+                    'tListDivisionAHPCriterias as ldc',
+                    'idc.idListDivisionAHPCriterias',
+                    '=',
+                    'ldc.idListDivisionAHPCriterias'
+                )
+                ->where('ldc.idDivisions', $registration->idDivision)
+                ->distinct('idc.idInterviewCriterias')
+                ->count('idc.idInterviewCriterias');
+        
+        $comment = DB::table('tInterviewEvaluations')
+                ->where('idRegistrations', $idRegis)
+                ->value('comment');
+
+        return view('pages.registration.view-registrations', compact('registration', 'ahpCalcs', 'final_score', 'criteriasCount', 'comment'));
     }
 
     public function accept($idRegis, Request $request){

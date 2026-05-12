@@ -246,6 +246,13 @@ class AHPCalculationController extends Controller
             ->update([
                 'is_consistent' => 1
             ]);
+        }else{
+            DB::table('tListDivisions')
+            ->where('idCommittees', $idCommittee)
+            ->where('idDivisions', $division)
+            ->update([
+                'is_consistent' => 0
+            ]);
         }
 
         return response()->json([

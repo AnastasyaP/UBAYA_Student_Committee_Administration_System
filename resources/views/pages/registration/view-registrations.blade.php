@@ -104,6 +104,19 @@
                                             </thead>
                                             <tbody id="reg-division-body">
                                                 @foreach($ahpCalcs as $calc)
+                                                @php
+                                                    $maxScale = floor(100 / $criteriasCount);
+
+                                                    $scoreLabels = [
+                                                        floor($maxScale * 0.2) => 'Sangat Tidak Baik',
+                                                        floor($maxScale * 0.4) => 'Tidak Baik',
+                                                        floor($maxScale * 0.6) => 'Cukup',
+                                                        floor($maxScale * 0.8) => 'Baik',
+                                                        $maxScale => 'Sangat Baik'
+                                                    ];
+
+                                                    $label = $scoreLabels[$calc->raw_score] ?? '-';
+                                                @endphp
                                                 <tr>
                                                     <td>
                                                         <h6 class="mb-0 text-sm">{{ $calc->ahp }}</h6>
@@ -112,7 +125,7 @@
                                                         <h6 class="mb-0 text-sm">{{ $calc->intv_criteria }}</h6>
                                                     </td>
                                                     <td>
-                                                        <h6 class="mb-0 text-sm">{{ $calc->raw_score }}</h6>
+                                                        <h6 class="mb-0 text-sm">{{ $calc->raw_score }}  ({{  $label }})</h6>
                                                     </td>
                                                     <td>
                                                         <h6 class="mb-0 text-sm">{{ $calc->avg_score }}</h6>
@@ -134,6 +147,12 @@
                                         <label class="form-control-label">Nilai Akhir Perhitungan AHP</label>
                                         <input class="form-control" type="text"
                                             value="{{ $final_score }}" disabled>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Komentar Evaluator</label>
+                                        <textarea class="form-control" rows="4" disabled>{{ $comment }}</textarea>
                                     </div>
                                 </div>
                             </div>  

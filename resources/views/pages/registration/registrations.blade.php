@@ -140,7 +140,7 @@ use Illuminate\Support\Str;
                                                 <input type="hidden" value="{{ $regis->idMahasiswa }}" name="idMahasiswa">
                                                 <input type="hidden" value="{{ $regis->idDivision }}" name="idDivision">
                                                 <input type="hidden" value="{{ $regis->idRegis }}" name="idRegis">
-                                                <button type="submit" class="btn btn-success btn-sm">Nilai</button>
+                                                <button type="submit" class="btn btn-success btn-sm" @disabled($regis->is_consistent === 0)>Nilai</button>
                                             </form>
                                         @elseif($regis->status == 'dinilai')
                                             <form id="acceptForm-{{ $regis->idRegis }}" action="{{ route(routeForMember('accept.regis', 'members.accept.regis'), ['idRegis' => $regis->idRegis]) }}" method="POST">
