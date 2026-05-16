@@ -94,7 +94,7 @@
 
       <div class="container">
         @foreach($committees as $committee)
-        <div class="row gy-4 pricing-item" data-aos="fade-up" data-aos-delay="100">
+        <div class="row gy-4 pricing-item mb-5" data-aos="fade-up" data-aos-delay="100">
           <div class="col-lg-3 d-flex align-items-center justify-content-center">
             <img src="{{ $committee->picture ? asset('storage/' . $committee->picture) : asset('/img/profile-default.png') }}" alt="committee" class="committee-icon">
           </div>

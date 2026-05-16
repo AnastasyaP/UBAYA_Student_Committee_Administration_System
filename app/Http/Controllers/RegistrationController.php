@@ -11,6 +11,7 @@ use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\InviteCommitteeMail;
+use App\Charts\EvaluationChart;
 
 class RegistrationController extends Controller
 {
@@ -381,8 +382,31 @@ class RegistrationController extends Controller
             'r.percentage as percentage',
             'r.motivation as motivation',
             'd.name as division',
+            'u.idUsers as idUser'
         )
         ->first();
+
+        $committeeHistory = DB::table('tRegistrations as r')
+                                ->join('tListDivisions as ld', function($join){
+                                    $join->on('r.idCommittees', '=', 'ld.idCommittees');
+                                    $join->on('r.idDivisions', '=', 'ld.idDivisions');
+                                })
+                                ->join('tDivisions as d', 'ld.idDivisions', 'd.idDivisions')
+                                ->join('tCommittees as c', 'ld.idCommittees', 'c.idCommittees')
+                                ->join('tUsers as u', 'c.admin', 'u.idUsers')
+                                ->where('r.idUsers', $registration->idUser)
+                                ->where('r.status', 'diterima')
+                                ->select([
+                                    'c.name as committee_name',
+                                    'r.position',
+                                    'd.name as division_name',
+                                    'c.picture',
+                                    'c.start_period',
+                                    'c.end_period',
+                                    'c.idCommittees',
+                                    'r.idUsers'
+                                ])
+                                ->get();
 
         $avgPerAhp = DB::table('tInterviewEvaluations as ie')
                         ->join('tInterviewEvaluationScores as ies', 'ie.idInterviewEvaluations', '=', 'ies.idInterviewEvaluations')
@@ -436,7 +460,68 @@ class RegistrationController extends Controller
                 ->where('idRegistrations', $idRegis)
                 ->value('comment');
 
-        return view('pages.registration.view-registrations', compact('registration', 'ahpCalcs', 'final_score', 'criteriasCount', 'comment'));
+        return view('pages.registration.view-registrations', compact(
+            'registration', 
+            'ahpCalcs', 
+            'final_score', 
+            'criteriasCount', 
+            'comment',
+            'committeeHistory'
+        ));
+    }
+
+    public function showEvaluation($idUser, $idCommittee, EvaluationChart $evalChart){
+        $evaluations = DB::table('tEvaluations as e')
+                            ->join('tEvaluationScores as es', 'e.idEvaluations', 'es.idEvaluations')
+                            ->join('tEvaluationCriterias as ec', 'es.idEvaluationCriterias', 'ec.idEvaluationCriterias')
+                            ->join('tEvaluationCriteriaScopes as ecs', 'ec.idEvaluationCriterias', 'ecs.idEvaluationCriterias')
+                            ->where('e.target_user', $idUser)
+                            ->where('ecs.idCommittees', $idCommittee)
+                            ->select([
+                                'ec.idEvaluationCriterias',
+                                DB::raw('AVG(es.score) as average_score'),
+                                'ec.name',
+                            ])
+                            ->groupBy('ec.idEvaluationCriterias', 'ec.name')
+                            ->get();
+
+        $labels = $evaluations->pluck('name')->toArray();
+        $scores = $evaluations->pluck('average_score')
+                            ->map(fn($score) => (float) $score)
+                            ->toArray();
+
+        $chart = $evalChart->build($labels, $scores);
+        
+
+        $generalEvaluation = DB::table('tEvaluations as e')
+                            ->join('tEvaluationScores as es', 'e.idEvaluations', 'es.idEvaluations')
+                            ->join('tEvaluationCriterias as ec', 'es.idEvaluationCriterias', 'ec.idEvaluationCriterias')
+                            ->join('tEvaluationCriteriaScopes as ecs', 'ec.idEvaluationCriterias', 'ecs.idEvaluationCriterias')
+                            ->where('e.target_user', $idUser)
+                            ->where('ecs.idCommittees', $idCommittee)
+                            ->select([
+                                'e.comment as general_comment'
+                            ])
+                            ->groupBy('e.idEvaluations', 'e.comment')
+                            ->get();
+
+        $criteriaEvaluations = DB::table('tEvaluationScores as es')
+                ->join('tEvaluations as e', 'es.idEvaluations', 'e.idEvaluations')
+                ->join('tEvaluationCriterias as ec', 'es.idEvaluationCriterias', 'ec.idEvaluationCriterias')
+                ->join('tEvaluationCriteriaScopes as ecs', 'ec.idEvaluationCriterias', 'ecs.idEvaluationCriterias')
+                ->where('e.target_user', $idUser)
+                ->where('ecs.idCommittees', $idCommittee)
+                ->select([
+                    'ec.name as criteria',
+                    'es.comment as criteria_comment'
+                ])
+                ->get();
+
+        return view('pages.registration.view-eval', compact(
+            'generalEvaluation',
+            'criteriaEvaluations',
+            'chart'
+        ));
     }
 
     public function accept($idRegis, Request $request){

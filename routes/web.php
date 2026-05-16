@@ -137,6 +137,7 @@ Route::middleware(['auth', 'role:admin', 'check.committee', 'load.committee'])->
 	Route::get('/view-registrations/{idRegis}', [RegistrationController::class, 'show'])->name('view.regis');
 	Route::put('/registrations/accepted/{idRegis}', [RegistrationController::class, 'accept'])->name('accept.regis');
 	Route::put('/registrations/rejected/{idRegis}', [RegistrationController::class, 'reject'])->name('reject.regis');
+	Route::get('/view/evaluation-history/{idUser}/{idCommittee}', [RegistrationController::class, 'showEvaluation'])->name('view.eval.history');
 	// interview schedule
 	// Route::get('schedule-interviews',[InterviewScheduleController::class, 'index'])->name('intv');
 	Route::get('/schedules',[InterviewScheduleController::class, 'calendar'])->name('intv.calendar');

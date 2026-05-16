@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('idEvaluations')->nullable();
             $table->unsignedBigInteger('idEvaluationCriterias')->nullable();
             $table->double('score');
-            $table->string('comment', 500);
+            $table->string('comment', 500)->nullable();
 
             $table->timestamps();
 

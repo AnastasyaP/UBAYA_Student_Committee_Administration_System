@@ -59,7 +59,7 @@ use Illuminate\Support\Str;
                                         <th
                                             class="text-center text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
                                             Status</th>
-                                        <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7" colspan=2>Aksi</th>
+                                        <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7" colspan=4>Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -91,22 +91,33 @@ use Illuminate\Support\Str;
                                         </td>
                                         <td>
                                             @if($committee->is_active == 1)
-                                                <span class="badge bg-success">Aktif</span>
+                                                <span class="badge bg-success">Periode Berjalan</span>
                                             @else
-                                                <span class="badge bg-danger">Berakhir</span>
+                                                <span class="badge bg-danger">Periode Berakhir</span>
+                                            @endif
+
+                                            @if($committee->is_published === 1)
+                                                <span class="badge bg-success">Terpublikasi</span>
                                             @endif
                                         </td>
-                                        
+                                        <td>
+                                            @if($committee->is_published === 0)
+                                                <a href="#" 
+                                                class="btn btn-warning btn-sm">Publikasi</a> 
+                                            @endif
+                                        </td>
                                         @if($committee->is_active == 1)
                                         <td>    
                                             @if(session('displayed_committee') == $committee->idCommittees)
-                                                <span class="badge bg-success">Sedang Ditampilkan</span>
+                                                <button type="button" class="btn btn-secondary btn-sm" disabled>
+                                                    Aktif
+                                                </button>  
+                                                <!-- <span class="badge bg-success">Aktif</span> -->
                                             @else
                                                 <form action="{{ route('set.committee', ['idCommittee'=> $committee->idCommittees]) }}" method="POST">
                                                     @csrf
                                                     <button class="btn btn-primary btn-sm">
-                                                        Tampilkan
-                                                        <!-- Terapkan -->
+                                                        Aktifkan
                                                     </button>      
                                                 </form>    
                                             @endif                         
@@ -123,6 +134,7 @@ use Illuminate\Support\Str;
                                             </a>
                                         </td>
                                         @endif
+                                        
                                     </tr>
                                    @endforeach
                                 </tbody>

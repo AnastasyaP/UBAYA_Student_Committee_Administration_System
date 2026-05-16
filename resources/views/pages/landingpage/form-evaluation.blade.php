@@ -20,7 +20,7 @@
       </div>
     @endif
     <!-- Page Title -->
-    <div class="page-title dark-background" data-aos="fade" style="background-image: url(assets/img/page-title-bg.jpg);">
+    <div class="page-title dark-background" data-aos="fade" style="background-image: url('{{ asset('assets/img/page-title-bg.jpg') }}');">
       <div class="container position-relative">
         <h1>Form Evaluasi</h1>
         <p>Isi evaluasi untuk membantu meningkatkan kualitas kepanitiaan secara berkelanjutan.</p>        <nav class="breadcrumbs">
@@ -96,7 +96,7 @@
                     ⚠️ Kamu sudah mengisi evaluasi untuk kepanitiaan ini.
                 </div>
             @endif
-            <form action="{{ route('lp.store.eval') }}" method="POST">
+            <form id="evaluationForm" action="{{ route('lp.store.eval') }}" method="POST">
                 @csrf
                  @if($target == 'division')
                 <div class="mb-3">
@@ -232,11 +232,14 @@
                     <label>Evaluasi {{ $targetLabels[$currentTarget] ?? 'Kepanitiaan' }} Keseluruhan</label>
                     <textarea name="overall_comment" class="form-control"></textarea>
                 </div>
+                @error('overall_comment')
+                        <div class="text-danger small">{{ $message }}</div>
+                    @enderror
 
                 <input type="hidden" name="target_committee" value="{{ $idCommittee }}">
                 <input type="hidden" name="target" value="{{ $target }}">
 
-                <button type="submit" class="btn btn-primary mt-3"
+                <button type="button" class="btn btn-primary mt-3"
                     {{ ($target == 'committee' && $isEvaluatedCommittee) ? 'disabled' : '' }}
                     data-bs-toggle="modal" data-bs-target="#confirmModal">
                     Kirim Evaluasi
@@ -257,7 +260,7 @@
                     </div>
                     <div class="modal-footer">
                         <button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                        <button class="btn btn-primary" onclick="document.querySelector('form').submit()">
+                        <button type="button" class="btn btn-primary" onclick="document.getElementById('evaluationForm').submit()">
                             Ya, Submit
                         </button>
                     </div>
@@ -361,7 +364,7 @@
             }
         });
 
-        document.querySelector("form").addEventListener("submit", function(e) {
+        document.getElementById("evaluationForm").addEventListener("submit", function(e) {
 
             let valid = true;
 

@@ -78,10 +78,62 @@
                                         @endif
                                     </div>
                                 </div>
+                                <div class="col-lg-12">
+                                    <div class="card">
+                                        <div class="card-header pb-0 p-3">
+                                            <h6 class="mb-0">Histori Kepanitiaan</h6>
+                                        </div>
+                                        <div class="card-body p-3">
+                                            <ul class="list-group">
+                                                @forelse($committeeHistory as $history)
+                                                    <li class="list-group-item border-0 d-flex justify-content-between ps-0 mb-2 border-radius-lg">
+                                                        <div class="d-flex align-items-center">
+                                                            <div class="me-3">
+                                                                <img 
+                                                                    src="{{ $history->picture ? asset('storage/' . $history->picture) : asset('/img/profile-default.png') }}" 
+                                                                    alt="{{ $history->committee_name }}"
+                                                                    class="border-radius-lg shadow-sm"
+                                                                    width="50"
+                                                                    height="50"
+                                                                    style="object-fit: cover;"
+                                                                >
+                                                            </div>
+
+                                                            <div class="d-flex flex-column">
+                                                                <h6 class="mb-1 text-dark text-sm">
+                                                                    {{ $history->committee_name }}
+                                                                </h6>
+
+                                                                <span class="text-xs">
+                                                                    {{ $history->position }} Divisi {{ $history->division_name }}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="d-flex align-items-center">
+                                                            <a href="{{ route('view.eval.history', ['idUser' => $history->idUsers, 'idCommittee' => $history->idCommittees]) }}" 
+                                                                class="btn btn-sm bg-gradient-primary mb-0 d-flex align-items-center gap-2 px-3 py-2"> 
+                                                                    <span class="text-white">Lihat Evaluasi</span>
+                                                                    <i class="ni ni-bold-right text-white" aria-hidden="true"></i>
+                                                            </a>
+                                                        </div>
+                                                    </li>
+
+                                                @empty
+                                                    <li class="list-group-item border-0">
+                                                        <h6 class="mb-0 text-center text-secondary">
+                                                            Tidak Ada Riwayat Kepanitiaan yang Tersedia
+                                                        </h6>
+                                                    </li>
+                                                @endforelse
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             @if($registration->status == 'dinilai')
-                            <div class="col-md-12">
+                            <div class="col-md-12 mt-3">
                                 <div class="form-group">
                                     <label class="form-control-label">Perhitungan Nilai Akhir AHP</label>
                                     <div class="table-responsive p-0">

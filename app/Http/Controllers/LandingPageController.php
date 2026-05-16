@@ -51,6 +51,7 @@ class LandingPageController extends Controller
 
         $committees = DB::table('tCommittees as c')
                     ->where('is_active', 1)
+                    ->where('is_published', 1)
                     ->select([
                         'c.*'
                     ])
@@ -157,7 +158,7 @@ class LandingPageController extends Controller
                             'c.name as committee',
                             'c.idCommittees as idCommittee',
                             'r.position as position',
-                            'u.picture as picture',
+                            'c.picture as picture',
                             'c.is_active as is_active',
                             'c.start_period as start_period',
                             'c.end_period as end_period',
@@ -718,6 +719,7 @@ class LandingPageController extends Controller
             'target_committee' => 'required',
             'target_division' => 'required_if:target,division',
             'target_user' => 'required_if:target,user',
+            'overall_comment' => 'required'
         ]);
 
         // target
@@ -758,7 +760,9 @@ class LandingPageController extends Controller
         }catch(\Exception $ex){
             DB::rollback();
 
-            return redirect()->back()->with('error', 'Gagal menyimpan evaluasi!');
+                dd($ex->getMessage());
+
+            // return redirect()->back()->with('error', 'Gagal menyimpan evaluasi!');
         }
 
     }
