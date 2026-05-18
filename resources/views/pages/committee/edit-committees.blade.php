@@ -18,33 +18,6 @@
                         </h1>
                     </div>
                 </div>
-                <div class="col-lg-4 col-md-6 my-sm-auto ms-sm-auto me-sm-0 mx-auto mt-3">
-                    <div class="nav-wrapper position-relative end-0">
-                        <ul class="nav nav-pills nav-fill p-1" role="tablist">
-                            <li class="nav-item">
-                                <a class="nav-link mb-0 px-0 py-1 active d-flex align-items-center justify-content-center "
-                                    data-bs-toggle="tab" href="javascript:;" role="tab" aria-selected="true">
-                                    <i class="ni ni-app"></i>
-                                    <span class="ms-2">App</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link mb-0 px-0 py-1 d-flex align-items-center justify-content-center "
-                                    data-bs-toggle="tab" href="javascript:;" role="tab" aria-selected="false">
-                                    <i class="ni ni-email-83"></i>
-                                    <span class="ms-2">Messages</span>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link mb-0 px-0 py-1 d-flex align-items-center justify-content-center "
-                                    data-bs-toggle="tab" href="javascript:;" role="tab" aria-selected="false">
-                                    <i class="ni ni-settings-gear-65"></i>
-                                    <span class="ms-2">Settings</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -77,8 +50,28 @@
                         </div>
                     </div>
                     <div class="card-body">
-                        <p class="text-uppercase text-sm">Informasi Kontak</p>
                         <div class="row">
+                            <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Pilih Nama Umum Yang Tersedia</label>
+                                        <select class="form-control" id="master_committee" name="master_committee">
+                                            <option value="">-- Pilih  Nama Umum --</option>
+                                            @foreach ($master_committee as $item)
+                                                <option value="{{ $item }}" @selected($item == $committee->committee_name)>{{ $item }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                          <label class="form-control-label">Atau Tambah Nama Umum Baru</label>
+                                            <input class="form-control" type="text" id="committee_name" name="committee_name"
+                                           placeholder="Masukkan nama umum baru" value="{{ $committee->committee_name }}">
+                                           @error('committee_name')
+                                           <div class="text-danger small">{{ $message }}</div>
+                                           @enderror
+                                    </div>
+                                </div>
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label class="form-control-label">Nama</label>
@@ -137,10 +130,30 @@
                                 </div>
                             </div>
                             <div class="col-md-12">
+                                <div class="form-group">
+                                    <label class="form-control-label">Batas Pengisian Evaluasi</label>
+                                    <!-- <input class="form-control" type="text" value="{{ \Carbon\Carbon::parse($committee->end_regis)->format('d F Y') }}"> -->
+                                    <input class="form-control" type="date" name="end_eval" value="{{ $committee->end_evaluation }}">
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label class="form-control-label">Upload Profil</label>
+                                            <div class="mb-3">
+                                                <img src="{{ $committee->picture ? asset('storage/' . $committee->picture) : asset('/img/noimage.jpg') }}" alt="Preview picture" id="preview_picture" class="img-fluid rounded" style="max-width:200px">
+                                            </div>
+                                            <input type="file" class="form-control" name="picture" id="picture" accept="image/*">
+                                            <small class="text-muted">Format: JPG, JPEG, PNG</small>
+                                            @error('picture')
+                                                <div class="text-danger small">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                            </div>
+                            <div class="col-md-12">
                                         <div class="form-group">
                                             <label class="form-control-label">Upload Poster</label>
                                             <div class="mb-3">
-                                                <img src="{{ $committee->poster ? asset('storage/' . $committee->poster) : asset('/img/noimage.jpg') }}" alt="Preview picture" id="preview" class="img-fluid rounded" style="max-width:200px">
+                                                <img src="{{ $committee->poster ? asset('storage/' . $committee->poster) : asset('/img/noimage.jpg') }}" alt="Preview poster" id="preview_poster" class="img-fluid rounded" style="max-width:200px">
                                             </div>
                                             <input type="file" class="form-control" name="poster" id="poster" accept="image/*">
                                             <small class="text-muted">Format: JPG, JPEG, PNG</small>
@@ -201,7 +214,24 @@
         }, 3000);
 
         document.getElementById('poster').addEventListener('change', function(){
-            const preview = document.getElementById('preview');
+            const preview = document.getElementById('preview_poster');
+            const file = event.target.files[0];
+
+            if(file){
+                const reader = new FileReader();
+                reader.onload = function(e){
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            }else{
+                preview.src = "{{ asset('/img/noimage.jpg') }}";
+                preview.style.display = 'none';
+            }
+        })
+
+        document.getElementById('picture').addEventListener('change', function(){
+            const preview = document.getElementById('preview_picture');
             const file = event.target.files[0];
 
             if(file){

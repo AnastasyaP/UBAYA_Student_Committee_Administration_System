@@ -64,22 +64,33 @@ use Illuminate\Support\Str;
               <li>
                 <i class="bi bi-diagram-3"></i>
                 <div>
-                  <h5>Requirements</h5>
+                  <h5>Persyaratan</h5>
                   <p>{{ $committee->requirements }}</p>
                 </div>
               </li>
             </ul>
-            <div class="d-grip gap-2">
-              @if($allowedToRegister) 
-              <a href="{{ route('regis.committee', ['idCommittee' => $committee->idCommittees]) }}"
-                class="btn btn-primary btn-lg mt-4">
-                Register
-              </a>
+            <div class="d-grid gap-2">
+              @if($allowedToRegister)  
+               
+                @if(\Carbon\Carbon::parse($committee->end_regis)->isPast())              
+                  <button class="btn btn-primary" disabled>Pendaftaran Berakhir</button>
+                @else
+                  <a href="{{ route('regis.committee', ['idCommittee' => $committee->idCommittees]) }}"
+                    class="btn btn-primary btn-lg mt-4">
+                    Daftar
+                  </a>
+                @endif
+              
               @elseif($isKoor)
-              <a href="{{ route('members.set.committee', ['idCommittee' => $committee->idCommittees]) }}"
-                class="btn btn-primary btn-lg mt-4">
-                Dashboard Panitia
-              </a>
+                <a href="{{ route('members.set.committee', ['idCommittee' => $committee->idCommittees]) }}"
+                  class="btn btn-primary btn-lg mt-4">
+                  Dashboard Panitia
+                </a>
+              
+              @elseif($daftarDiterima && !$isKoor)
+                <button class="btn btn-primary" disabled>
+                    Sudah Menjadi Anggota
+                </button>
               @endif
             </div>
           </div>
@@ -89,48 +100,6 @@ use Illuminate\Support\Str;
       </div>
 
     </section><!-- /About Section -->
-
-    <!-- Stats Section -->
-    <!-- <section id="stats" class="stats section">
-
-      <div class="container" data-aos="fade-up" data-aos-delay="100">
-
-        <div class="row gy-4">
-
-          <div class="col-lg-3 col-md-6">
-            <div class="stats-item text-center w-100 h-100">
-              <span data-purecounter-start="0" data-purecounter-end="232" data-purecounter-duration="1" class="purecounter"></span>
-              <p>Clients</p>
-            </div>
-          </div>
-
-          <div class="col-lg-3 col-md-6">
-            <div class="stats-item text-center w-100 h-100">
-              <span data-purecounter-start="0" data-purecounter-end="521" data-purecounter-duration="1" class="purecounter"></span>
-              <p>Projects</p>
-            </div>
-          </div>
-
-          <div class="col-lg-3 col-md-6">
-            <div class="stats-item text-center w-100 h-100">
-              <span data-purecounter-start="0" data-purecounter-end="1453" data-purecounter-duration="1" class="purecounter"></span>
-              <p>Hours Of Support</p>
-            </div>
-          </div>
-
-          <div class="col-lg-3 col-md-6">
-            <div class="stats-item text-center w-100 h-100">
-              <span data-purecounter-start="0" data-purecounter-end="32" data-purecounter-duration="1" class="purecounter"></span>
-              <p>Workers</p>
-            </div>
-          </div>
-
-        </div>
-
-      </div>
-
-    </section> -->
-    <!-- /Stats Section -->
 
     <!-- Team Section -->
     <section id="team" class="team section">

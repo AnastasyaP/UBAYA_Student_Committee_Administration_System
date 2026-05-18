@@ -122,7 +122,7 @@ use Illuminate\Support\Str;
           <div class="container">
             @if($needPreferences)
               <div class="text-center my-5">
-                  <h4>Belum ada rekomendasi 😢</h4>
+                  <h6>Belum ada rekomendasi 😢</h6>
                   @if($hasHistory)
                       <p>
                           Isi evaluasi atau pilih minat kamu untuk mendapatkan rekomendasi kepanitiaan

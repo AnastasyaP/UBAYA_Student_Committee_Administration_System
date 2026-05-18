@@ -19,6 +19,7 @@ class Committee extends Model
         'name',
         'start_period',
         'end_period',
+        'end_evaluation',
         'description',
         'requirements',
         'poster',

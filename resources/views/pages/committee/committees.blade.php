@@ -101,10 +101,13 @@ use Illuminate\Support\Str;
                                             @endif
                                         </td>
                                         <td>
-                                            @if($committee->is_published === 0)
-                                                <a href="#" 
-                                                class="btn btn-warning btn-sm">Publikasi</a> 
-                                            @endif
+                                            <form action="{{ route('committee.publish', ['idCommittee' => $committee->idCommittees]) }}" method="GET">
+                                                @csrf
+                                                <button type="submit"
+                                                    class="btn btn-sm {{ $committee->is_published ? 'btn-danger' : 'btn-success' }}">
+                                                    {{ $committee->is_published ? 'Tarik Publikasi' : 'Publikasi' }}
+                                                </button>
+                                            </form>
                                         </td>
                                         @if($committee->is_active == 1)
                                         <td>    

@@ -72,6 +72,22 @@ class CommitteeController extends Controller
         return view('pages.committee.committees', compact('committees', 'activeCommittee'));
     }
 
+    public function publishCommittee($idCommittee, Request $request){
+
+        $committee = DB::table('tCommittees')->where('idCommittees', $idCommittee)->first();
+
+        if($committee->is_published === 0){
+            DB::table('tCommittees')->where('idCommittees', $idCommittee)->update(['is_published' => 1]);
+
+            return back()->with('success', 'Committee dipublikasi di website mahasiswa!');
+        }else{
+            DB::table('tCommittees')->where('idCommittees', $idCommittee)->update(['is_published' => 0]);
+
+            return back()->with('success', 'Committee tidak dipublikasi di website mahasiswa!');
+        }
+
+    }
+
     /**
      * Show the form for creating a new resource.
      */
@@ -127,6 +143,7 @@ class CommitteeController extends Controller
             'end_period' => 'required|date',
             'start_regis' => 'required|date',
             'end_regis' => 'required|date',
+            'end_eval' => 'required|date',
             'committee_name' => 'nullable',
             'master_committee' => 'nullable',
             'description' => 'required|string|max:600',
@@ -147,12 +164,20 @@ class CommitteeController extends Controller
             $committee_name = $request->committee_name;
         }
 
-        // dd($committee_name);
-        $filePath = null;
+        // poster
+        $filePathPoster = null;
         if($request->hasFile('poster')){
-            $file = $request->file('poster');
-            $fileName = Str::uuid() . '.' . $file->getClientOriginalExtension(); //biar namanya unik pas disimpan pakai uuid
-            $filePath = $file->storeAs('img/committee', $fileName, 'public');
+            $filePoster = $request->file('poster');
+            $fileNamePoster = Str::uuid() . '.' . $filePoster->getClientOriginalExtension(); //biar namanya unik pas disimpan pakai uuid
+            $filePathPoster = $filePoster->storeAs('img/committee/poster', $fileNamePoster, 'public');
+        }
+
+        // picture
+        $filePathPicture = null;
+        if($request->hasFile('picture')){
+            $filePicture = $request->file('picture');
+            $fileNamePicture = Str::uuid() . '.' . $filePicture->getClientOriginalExtension(); //biar namanya unik pas disimpan pakai uuid
+            $filePathPicture = $filePicture->storeAs('img/committee/picture', $fileNamePicture, 'public');
         }
 
         // dd($admin->idUsers);
@@ -164,10 +189,12 @@ class CommitteeController extends Controller
             'end_period' => $request->end_period,
             'start_regis' => $request->start_regis,
             'end_regis' => $request->end_regis,
+            'end_evaluation' => $request->end_eval,
             'description' => $request->description,
             'requirements' => $request->requirement,
             'contact' => $request->contact,
-            'poster' => $filePath ,
+            'picture' => $filePathPicture,
+            'poster' => $filePathPoster,
             'is_active' => 1,
         ]);
         return redirect()->route('committees')->with('success', 'Berhasil Menambahkan Divisi Baru!');
@@ -178,18 +205,26 @@ class CommitteeController extends Controller
      */
     public function show($idCommittee)
     {
-        // $this->init();
-
-        // $committees = Committee::all();
         $committees = DB::table('tCommittees as c')
         ->join('tUsers as u', 'c.admin', 'u.idUsers')
         ->join('tAdmins as a', 'u.idUsers', 'a.idUsers')
         ->join('tOrganizerUnits as o', 'a.idOrganizerUnits', 'o.idOrganizerUnits')
         ->where('c.idCommittees', $idCommittee)
-        ->select('c.*', DB::raw("'". Auth::user()->email . "'as email"), 'a.idOrganizerUnits as idOrganizerUnits', 'o.name as organizerName', 'u.picture as picture')
+        ->select(
+            'c.*',
+            DB::raw("'". Auth::user()->email . "'as email"), 
+            'a.idOrganizerUnits as idOrganizerUnits', 
+            'o.name as organizerName', 
+            )
         ->get();
+
+        $master_committee = DB::table('tCommittees')
+                            ->select('committee_name')
+                            ->where('admin', Auth::id())
+                            ->distinct()
+                            ->pluck('committee_name');
         
-        return view('pages.committee.edit-committees', compact('committees'));
+        return view('pages.committee.edit-committees', compact('committees', 'master_committee'));
     }
 
     public function profile(Request $request)
@@ -238,6 +273,9 @@ class CommitteeController extends Controller
             'end_period' => 'required|date',
             'start_regis' => 'required|date',
             'end_regis' => 'required|date',
+            'end_eval' => 'required|date',
+            'committee_name' => 'nullable',
+            'master_committee' => 'nullable',
             'description' => 'required|string|max:600',
             'requirement' => 'required|string|max:500',
             'is_active' => 'nullable',
@@ -254,21 +292,42 @@ class CommitteeController extends Controller
         ->where('idCommittees', $idCommittee)
         ->first();
 
-        $filePath = $oldData->poster;
+        // poster
+        $filePathPoster = $oldData->poster;
         if($request->hasFile('poster')){
-            if($filePath && Storage::disk('public')->exists($filePath)){
-                Storage::disk('public')->delete($filePath);
+            if($filePathPoster && Storage::disk('public')->exists($filePathPoster)){
+                Storage::disk('public')->delete($filePathPoster);
             }
 
-            $file = $request->poster;
-            $fileName = Str::uuid() . '.' . $file->getClientOriginalExtension();
-            $filePath = $file->storeAs('img/committee/', $fileName, 'public');
+            $filePoster = $request->poster;
+            $fileNamePoster = Str::uuid() . '.' . $filePoster->getClientOriginalExtension();
+            $filePathPoster = $filePoster->storeAs('img/committee/poster', $fileNamePoster, 'public');
+        }
+
+        //picture
+        $filePathPicture = $oldData->picture;
+        if($request->hasFile('picture')){
+            if($filePathPicture && Storage::disk('public')->exists($filePathPicture)){
+                Storage::disk('public')->delete($filePathPicture);
+            }
+
+            $filePicture = $request->picture;
+            $fileNamePicture = Str::uuid() . '.' . $filePicture->getClientOriginalExtension();
+            $filePathPicture = $filePicture->storeAs('img/committee/picture', $fileNamePicture, 'public');
+        }
+
+        $committee_name = "";
+        if($request->master_committee){
+            $committee_name = $request->master_committee;
+        } else if($request->committee_name){
+            $committee_name = $request->committee_name;
         }
 
         DB::table('tCommittees')
         ->where('idCommittees', $idCommittee)
         ->update([
             'name' => $request->name,
+            'committee_name' => $committee_name,
             'contact' => $request->contact,
             'start_period' => $request->start_period,
             'end_period' => $request->end_period,

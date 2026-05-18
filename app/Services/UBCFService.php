@@ -87,6 +87,9 @@ class UBCFService
     // }
 
     public function calculateAllSimilarities($matrix){
+        // hapus similariti lama biar nga ke duplicate
+        DB::table('tUserSimilarities')->delete();
+
         $similarities = [];
 
         foreach($matrix as $user1 => $ratings1){
@@ -134,6 +137,11 @@ class UBCFService
     }
 
     public function generateRecommendations($idUser){
+        // hapus recommendation lama biar nga ke duplicate
+        DB::table('tRecommendations')
+            ->where('idUsers', $idUser)
+            ->delete();
+            
         $ratings = $this->getUserRatings();
         $matrix = $this->buildMatrix($ratings);
         $similarities = $this->calculateAllSimilarities($matrix);
@@ -143,17 +151,34 @@ class UBCFService
         $recommendations = [];
 
         foreach($items as $idItem){
+            // klo uda perna nge rating di skip
             if(!isset($matrix[$idUser][$idItem])){
                 $predicted = $this->predictRating($idUser, $idItem, $matrix, $similarities);
 
-                $recommendations[] = [
-                    'idUsers' => $idUser,
-                    'idCommittees' => $idItem,
-                    'predicted_score' => $predicted,
-                ];
+                // ambil yg score > 0
+                if ($predicted > 0) {
+                    $recommendations[] = [
+                        'idUsers' => $idUser,
+                        'idCommittees' => $idItem,
+                        'predicted_score' => $predicted,
+                    ];
+                }
             }
         }
 
-        DB::table('tRecommendations')->insert($recommendations);
+        // sort descending
+        usort($recommendations, function ($a, $b) {
+            return $b['predicted_score'] <=> $a['predicted_score'];
+        });
+
+        // TOP 3
+        $topRecommendations = array_slice($recommendations, 0, 3);
+
+        // insert final result
+        if (!empty($topRecommendations)) {
+            DB::table('tRecommendations')->insert($topRecommendations);
+        }
+
+        return $topRecommendations;
     }
 }

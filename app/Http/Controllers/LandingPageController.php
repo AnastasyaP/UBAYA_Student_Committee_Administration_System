@@ -29,16 +29,35 @@ class LandingPageController extends Controller
         $keywords = DB::table('tKeywords')->get();
 
         if ($hasRatings) {
-            $ubcf->generateRecommendations($user);
+            $hasRecommendation = DB::table('tRecommendations')
+                ->where('idUsers', $user)
+                ->exists();
+
+            if (!$hasRecommendation) {
+                $ubcf->generateRecommendations($user);
+            }
+
             $recommendations = DB::table('tRecommendations as r')
                                     ->join('tCommittees as c', 'r.idCommittees', 'c.idCommittees')
                                     ->where('r.idUsers', $user)
+                                    ->where('c.is_active', 1)
+                                    ->where('c.is_published', 1)
+                                    ->whereNotIn('c.idCommittees', function($query) use ($user) {
+                                        $query->select('target_committee')
+                                            ->from('tEvaluations')
+                                            ->where('evaluator_id', $user);
+                                    }) // biar committee yg uda di rating nga muncul lagi
                                     ->orderByDesc('predicted_score')
                                     ->select([
                                         'c.*',
                                         'r.predicted_score'
                                     ])
+                                    ->limit(3)
                                     ->get();
+            
+            if ($recommendations->isEmpty() && $hasPreference) {
+                $recommendations = $this->getColdStartRecommendations($user);
+            }
         } elseif ($hasPreference) {
             // fallback
             $recommendations = $this->getColdStartRecommendations($user);
@@ -50,7 +69,6 @@ class LandingPageController extends Controller
         }
 
         $committees = DB::table('tCommittees as c')
-                    ->where('is_active', 1)
                     ->where('is_published', 1)
                     ->select([
                         'c.*'
@@ -81,6 +99,8 @@ class LandingPageController extends Controller
                     ->join('tListDivisions as ld', 'c.idCommittees', '=', 'ld.idCommittees')
                     ->join('tListDivisionKeywords as dk', 'ld.idDivisions', '=', 'dk.idDivisions')
                     ->whereIn('dk.idKeywords', $keywords)
+                    ->where('c.is_active', 1)
+                    ->where('c.is_published', 1)
                     ->select([
                         'c.idCommittees',
                         'c.name',
@@ -97,7 +117,7 @@ class LandingPageController extends Controller
                         'c.admin'
                     ])
                     ->orderByDesc('match_score')
-                    ->limit(6)
+                    ->limit(3)
                     ->get();
 
         return $committees;
@@ -163,6 +183,7 @@ class LandingPageController extends Controller
                             'c.start_period as start_period',
                             'c.end_period as end_period',
                             'r.status as status',
+                            'c.end_evaluation as end_eval'
                         ])
                         ->get();
 
@@ -419,6 +440,7 @@ class LandingPageController extends Controller
                         'c.requirements as requirements', 
                         'c.idCommittees as idCommittees',
                         'u.picture as picture',
+                        'c.end_regis'
                     ])
                     ->first();
         // dd($committee);

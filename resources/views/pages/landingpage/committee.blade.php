@@ -136,7 +136,11 @@
           </div>
             <div class="col-lg-3 d-flex align-items-center justify-content-center">
                 @if($committee->is_active === 0)
-                    <a href="{{ route('lp.eval', ['idCommittee' => $committee->idCommittee]) }}" class="buy-btn">Evaluasi</a>
+                    @if(\Carbon\Carbon::parse($committee->end_eval)->isPast())
+                      <button class="buy-btn disabled" disabled>Evaluasi Berakhir</button>
+                    @else
+                      <a href="{{ route('lp.eval', ['idCommittee' => $committee->idCommittee]) }}" class="buy-btn">Evaluasi</a>
+                    @endif
                 @else
                     <a href="{{ route('detail.committee', ['idCommittee' => $committee->idCommittee]) }}" class="buy-btn ">Detail</a>
                 @endif

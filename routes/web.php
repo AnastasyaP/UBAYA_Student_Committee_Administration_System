@@ -123,6 +123,7 @@ Route::middleware(['auth', 'role:admin', 'check.committee', 'load.committee'])->
 	Route::get('/committee/get-template/{name}', [CommitteeController::class, 'getTemplate'])->name('committee.template');
 	Route::get('/edit-committees/{idCommittees}', [CommitteeController::class, 'show'])->name('committees.show');
 	Route::put('/committees/{idCommittees}', [CommitteeController::class, 'update'])->name('committees.update');
+	Route::get('/committee/publish/{idCommittee}', [CommitteeController::class, 'publishCommittee'])->name('committee.publish');
 	// division
 	Route::get('/divisions', [DivisionController::class, 'index'])->name('divisions');
 	Route::get('/add-divisions', [DivisionController::class, 'create'])->name('divisions.add');

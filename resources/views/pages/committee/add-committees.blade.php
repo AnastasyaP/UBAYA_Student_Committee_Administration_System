@@ -109,10 +109,32 @@
                                     </div>
                                 </div>
                                 <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Batas Pengisian Evaluasi</label>
+                                        <input class="form-control" type="date" name="end_eval">
+                                        @error('end_eval')
+                                            <div class="text-danger small">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label class="form-control-label">Upload Profil Kepanitiaan</label>
+                                            <div class="mb-3">
+                                                <img src="{{ asset('/img/noimage.jpg') }}" alt="Preview picture" id="preview_picture" class="img-fluid rounded" style="max-width:200px">
+                                            </div>
+                                            <input type="file" class="form-control" name="picture" id="picture" accept="image/*">
+                                            <small class="text-muted">Format: JPG, JPEG, PNG</small>
+                                            @error('picture')
+                                                <div class="text-danger small">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                </div>
+                                <div class="col-md-12">
                                         <div class="form-group">
                                             <label class="form-control-label">Upload Poster</label>
                                             <div class="mb-3">
-                                                <img src="{{ asset('/img/noimage.jpg') }}" alt="Preview poster" id="preview" class="img-fluid rounded" style="max-width:200px">
+                                                <img src="{{ asset('/img/noimage.jpg') }}" alt="Preview poster" id="preview_poster" class="img-fluid rounded" style="max-width:200px">
                                             </div>
                                             <input type="file" class="form-control" name="poster" id="poster" accept="image/*">
                                             <small class="text-muted">Format: JPG, JPEG, PNG</small>
@@ -236,7 +258,24 @@
         });
 
         document.getElementById('poster').addEventListener('change', function(){
-            const preview = document.getElementById('preview');
+            const preview = document.getElementById('preview_poster');
+            const file = event.target.files[0];
+
+            if(file){
+                const reader = new FileReader();
+                reader.onload = function(e){
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            }else{
+                preview.src = "{{ asset('/img/noimage.jpg') }}";
+                preview.style.display = 'none';
+            }
+        })
+
+        document.getElementById('picture').addEventListener('change', function(){
+            const preview = document.getElementById('preview_picture');
             const file = event.target.files[0];
 
             if(file){
