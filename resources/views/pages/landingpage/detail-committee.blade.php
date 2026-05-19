@@ -61,6 +61,28 @@ use Illuminate\Support\Str;
             <h3>{{ $committee->name }}</h3>
             <p>{{ $committee->description }}</p>
             <ul>
+               <li>
+                  <i class="bi bi-calendar-event"></i>
+                  <div>
+                      <h5>Periode Pendaftaran</h5>
+                      <p>
+                          {{ \Carbon\Carbon::parse($committee->start_regis)->translatedFormat('d F Y') }}
+                          -
+                          {{ \Carbon\Carbon::parse($committee->end_regis)->translatedFormat('d F Y') }}
+                      </p>
+                  </div>
+              </li>
+              <li>
+                  <i class="bi bi-calendar-check"></i>
+                  <div>
+                      <h5>Periode Kepanitiaan</h5>
+                      <p>
+                          {{ \Carbon\Carbon::parse($committee->start_period)->translatedFormat('d F Y') }}
+                          -
+                          {{ \Carbon\Carbon::parse($committee->end_period)->translatedFormat('d F Y') }}
+                      </p>
+                  </div>
+              </li>
               <li>
                 <i class="bi bi-diagram-3"></i>
                 <div>

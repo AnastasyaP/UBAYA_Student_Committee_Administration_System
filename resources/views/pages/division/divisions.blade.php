@@ -42,6 +42,8 @@ use Illuminate\Support\Str;
                                         <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
                                             Deskripsi</th>
                                         <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
+                                            Jumlah Anggota</th>
+                                        <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
                                             Status</th>
                                         <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7" colspan=2>Aksi</th>
                                     </tr>
@@ -62,6 +64,9 @@ use Illuminate\Support\Str;
                                         </td>
                                         <td>
                                             <h6 class="mb-0 text-sm">{{ Str::limit($division->description, 30, '..') }}</h6>
+                                        </td>
+                                        <td>
+                                            <h6 class="mb-0 text-sm">{{ $division->num_member }}</h6>
                                         </td>
                                         <td>
                                             @if ($division->status == 1)

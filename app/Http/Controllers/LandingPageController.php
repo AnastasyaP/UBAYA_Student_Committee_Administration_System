@@ -431,16 +431,9 @@ class LandingPageController extends Controller
     {
         // dd($idCommittee);
         $committee = DB::table('tCommittees as c')
-                    ->join('tUsers as u', 'c.admin', 'u.idUsers')
                     ->where('c.idCommittees', $idCommittee)
                     ->select([
-                        'c.name as name',
-                        'c.poster as poster',
-                        'c.description as description',
-                        'c.requirements as requirements', 
-                        'c.idCommittees as idCommittees',
-                        'u.picture as picture',
-                        'c.end_regis'
+                        'c.*',
                     ])
                     ->first();
         // dd($committee);

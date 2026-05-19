@@ -525,6 +525,7 @@ class RegistrationController extends Controller
     }
 
     public function accept($idRegis, Request $request){
+
         $mhs = DB::table('tRegistrations')
                 ->where('idRegistrations', $idRegis)
                 ->select('*')
@@ -547,9 +548,25 @@ class RegistrationController extends Controller
         }
 
         if($mhs->status === "dinilai"){
-            DB::table('tRegistrations')
+            $memberCount = DB::table('tRegistrations')
+                            ->where('idCommittees', $mhs->idCommittees)
+                            ->where('idDivisions', $mhs->idDivisions)
+                            ->where('status', 'diterima')
+                            ->count();
+
+            $maxMember = DB::table('tListDivisions')
+                            ->where('idCommittees', $mhs->idCommittees)
+                            ->where('idDivisions', $mhs->idDivisions)
+                            ->value('num_member');
+                            
+            if($memberCount < $maxMember){
+                DB::table('tRegistrations')
                 ->where('idRegistrations', $idRegis)
                 ->update(['status'=> 'diterima']);
+            }else{
+                return redirect()->back()->with('warning', 'Jumlah anggota divisi sudah memenuhi batas maksimal!');
+            }
+
         } elseif($mhs->status === "diterima"){
             return redirect()->back()->with('warning', 'Pendaftar ini sudah diterima');
         } elseif($mhs->status === 'ditolak'){
