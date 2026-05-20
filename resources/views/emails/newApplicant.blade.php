@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Notifikasi Penerimaan Kepanitiaan</title>
+    <title>Notifikasi Pendaftar Baru</title>
 </head>
 
 <body style="
@@ -31,12 +31,13 @@
                             text-align:center;
                             color:white;
                         ">
+
                             <h1 style="
                                 margin:0;
                                 font-size:28px;
                                 font-weight:bold;
                             ">
-                                Notifikasi Kepanitiaan
+                                Pendaftar Baru
                             </h1>
 
                             <p style="
@@ -46,18 +47,22 @@
                             ">
                                 Sistem Administrasi Kepanitiaan Mahasiswa
                             </p>
+
                         </td>
                     </tr>
 
                     <!-- BODY -->
                     <tr>
-                        <td style="padding:40px; color:#2d3436;">
+                        <td style="
+                            padding:40px;
+                            color:#2d3436;
+                        ">
 
                             <p style="
                                 font-size:16px;
                                 margin-bottom:24px;
                             ">
-                                Halo {{ $participant }},
+                                Halo Panitia {{ $committee }},
                             </p>
 
                             <p style="
@@ -65,10 +70,8 @@
                                 line-height:1.8;
                                 margin-bottom:28px;
                             ">
-                                Dengan senang hati kami memberitahukan bahwa Anda
-                                telah diterima sebagai anggota kepanitiaan.
-                                Terima kasih atas kesediaan dan partisipasi Anda
-                                dalam mendukung jalannya kegiatan ini.
+                                Terdapat pendaftar baru yang telah melakukan
+                                pendaftaran kepanitiaan melalui sistem.
                             </p>
 
                             <!-- DETAIL BOX -->
@@ -85,6 +88,38 @@
                                         padding:10px 0;
                                         font-size:15px;
                                         width:35%;
+                                    ">
+                                        <strong>Nama Pendaftar</strong>
+                                    </td>
+
+                                    <td style="
+                                        padding:10px 0;
+                                        font-size:15px;
+                                    ">
+                                        {{ $name }}
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="
+                                        padding:10px 0;
+                                        font-size:15px;
+                                    ">
+                                        <strong>Email</strong>
+                                    </td>
+
+                                    <td style="
+                                        padding:10px 0;
+                                        font-size:15px;
+                                    ">
+                                        {{ $email }}
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="
+                                        padding:10px 0;
+                                        font-size:15px;
                                     ">
                                         <strong>Kepanitiaan</strong>
                                     </td>
@@ -113,22 +148,6 @@
                                     </td>
                                 </tr>
 
-                                <tr>
-                                    <td style="
-                                        padding:10px 0;
-                                        font-size:15px;
-                                    ">
-                                        <strong>Posisi</strong>
-                                    </td>
-
-                                    <td style="
-                                        padding:10px 0;
-                                        font-size:15px;
-                                    ">
-                                        {{ $position }}
-                                    </td>
-                                </tr>
-
                             </table>
 
                             <p style="
@@ -136,24 +155,33 @@
                                 line-height:1.8;
                                 margin-bottom:24px;
                             ">
-                                Anda dapat melihat status pendaftaran serta detail
-                                kepanitiaan melalui website Sistem Administrasi
+                                Silakan melakukan peninjauan terhadap data
+                                pendaftar melalui website Sistem Administrasi
                                 Kepanitiaan Mahasiswa.
                             </p>
 
-                            <p style="
-                                font-size:15px;
-                                line-height:1.8;
-                                margin-bottom:24px;
+                            <!-- <div style="
+                                text-align:center;
+                                margin:35px 0;
                             ">
-                                Kami berharap Anda dapat berpartisipasi secara aktif
-                                dan bekerja sama dengan seluruh anggota panitia
-                                demi menyukseskan kegiatan ini.
-                            </p>
+                                <a href="{{ url('/') }}" style="
+                                    background-color:#2c3e50;
+                                    color:white;
+                                    text-decoration:none;
+                                    padding:14px 28px;
+                                    border-radius:8px;
+                                    font-size:15px;
+                                    font-weight:bold;
+                                    display:inline-block;
+                                ">
+                                    Buka Website Sistem
+                                </a>
+                            </div> -->
 
                             <p style="
                                 font-size:15px;
                                 line-height:1.8;
+                                margin-top:32px;
                             ">
                                 Hormat kami,
                                 <br><br>

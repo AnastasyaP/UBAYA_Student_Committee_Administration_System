@@ -43,16 +43,16 @@ if (!function_exists('manageDivision')) {
 
         $user = Auth::user();
 
-        // 🔥 ADMIN = bebas
+        // ADMIN = bebas
         if($user->role === 'admin'){
             return true;
         }
 
-        // 🔥 KOOR = harus divisi yang sama
+        // KOOR = harus divisi yang sama
         return DB::table('tRegistrations')
             ->where('idCommittees', $idCommittee)
             ->where('idUsers', $user->idUsers)
-            ->where('idDivisions', $idDivision) // 🔥 kunci utama
+            ->where('idDivisions', $idDivision)
             ->whereIn('position', ['Koordinator', 'Wakil Koordinator', 'BPH-SC'])
             ->where('status', 'diterima')
             ->exists();

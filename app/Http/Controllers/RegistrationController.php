@@ -11,6 +11,7 @@ use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\InviteCommitteeMail;
+use App\Mail\ApplicationStatusMail;
 use App\Charts\EvaluationChart;
 
 class RegistrationController extends Controller
@@ -305,40 +306,69 @@ class RegistrationController extends Controller
         
         $email = $request->email;
 
-        $exists = User::where('email', $email)
-                ->exists();
-
-        if (!$exists) {
-            return redirect()->back()->with('warning', 'User not found! Please check the email.');
-        }
-
-        $userID = DB::table('tUsers')
+        $user = DB::table('tUsers')
                     ->where('email', $email)
+                    ->select([
+                        'idUsers',
+                        DB::raw("concat(firstname, ' ', lastname) as name")
+                    ])
                     ->first();
 
+        if (!$user) {
+            return redirect()->back()->with('warning', 'Email pengguna tidak ditemukan. Mohon cek kembali email!');
+        }
 
-        $token = Str::random(40);
-        $link = url('/invitation/' . $token);
+        $alreadyRegistered = DB::table('tRegistrations as r')
+                                ->join('tListDivisions as ld', function($join){
+                                    $join->on('r.idCommittees', '=', 'ld.idCommittees');
+                                    $join->on('r.idDivisions', '=', 'ld.idDivisions');
+                                })
+                                ->join('tDivisions as d', 'ld.idDivisions', 'd.idDivisions')
+                                ->where('r.idCommittees', $idCommittee)
+                                ->where('r.idUsers', $user->idUsers)
+                                ->select([
+                                    'd.name as division',
+                                    'r.status',
+                                    'r.position',
+                                    'r.idRegistrations'
+                                ])
+                                ->first();
 
-        Registration::create([
-            'idUsers' => $userID->idUsers,
-            'idDivisions' => $request->idDivision,
-            'idCommittees' => $idCommittee,
-            'status' => 'menunggu',
-            'percentage' => 100,
-            'position' => $request->position,
-            'motivation' => "-",
-            'invitation_token' => $token,
-            'invitation_expired' => now()->addDays(3)
-        ]);
+        if($alreadyRegistered){
+            if($alreadyRegistered->status === 'diterima'){
+                return redirect()->back()->with('warning', 'Pengguna sudah menjadi '. $alreadyRegistered->position .' divisi ' . $alreadyRegistered->division . ' dalam kepanitiaan');
+
+            } elseif($alreadyRegistered->status === 'ditolak'){
+                DB::table('tRegistrations')
+                    ->where('idRegistrations', $alreadyRegistered->idRegistrations)
+                    ->update([
+                        'status' => 'diterima'
+                    ]);
+            }
+        } else{
+            // $token = Str::random(40);
+            // $link = url('/invitation/' . $token);
+
+            Registration::create([
+                'idUsers' => $user->idUsers,
+                'idDivisions' => $request->idDivision,
+                'idCommittees' => $idCommittee,
+                'status' => 'diterima',
+                'percentage' => 100,
+                'position' => $request->position,
+                'motivation' => "-",
+                // 'invitation_token' => $token,
+                // 'invitation_expired' => now()->addDays(3)
+            ]);
+        }
 
         $division = DB::table('tDivisions')
-            ->where('idDivisions', $request->idDivision)
-            ->first();
+                ->where('idDivisions', $request->idDivision)
+                ->first();
 
-        Mail::to($email)->send(new InviteCommitteeMail($committee->name, $division->name, $request->position, $link));
+        Mail::to($email)->send(new InviteCommitteeMail($committee->name, $division->name, $request->position, $user->name));
 
-        return redirect()->back()->with('success', 'Email has successfully sended!');
+        return redirect()->back()->with('success', 'Anggota berhasil ditambahkan dan email berhasil dikirim');
 
     }
 
@@ -526,11 +556,23 @@ class RegistrationController extends Controller
 
     public function accept($idRegis, Request $request){
 
-        $mhs = DB::table('tRegistrations')
-                ->where('idRegistrations', $idRegis)
-                ->select('*')
+        $mhs = DB::table('tUsers as u')
+                ->join('tRegistrations as r', 'r.idUsers', 'u.idUsers')
+                ->join('tListDivisions as ld', function($join){
+                    $join->on('r.idCommittees', '=', 'ld.idCommittees');
+                    $join->on('r.idDivisions', '=', 'ld.idDivisions');
+                })
+                ->join('tCommittees as c', 'ld.idCommittees', 'c.idCommittees')
+                ->join('tDivisions as d', 'ld.idDivisions', 'd.idDivisions')
+                ->where('r.idRegistrations', $idRegis)
+                ->select(
+                    'r.*', 
+                    'u.email',
+                    DB::raw("concat(u.firstname, ' ', u.lastname) as name"),
+                    'c.name as committee',
+                    'd.name as division'
+                )
                 ->first();
-
         
         if(!manageDivision($mhs->idDivisions, $request)){
             return redirect()->back()->with('warning', 
@@ -563,27 +605,46 @@ class RegistrationController extends Controller
                 DB::table('tRegistrations')
                 ->where('idRegistrations', $idRegis)
                 ->update(['status'=> 'diterima']);
+                
+                Mail::to($mhs->email)->send(new ApplicationStatusMail($mhs->name, $mhs->committee, $mhs->division, 'diterima'));
+
             }else{
                 return redirect()->back()->with('warning', 'Jumlah anggota divisi sudah memenuhi batas maksimal!');
             }
 
         } elseif($mhs->status === "diterima"){
             return redirect()->back()->with('warning', 'Pendaftar ini sudah diterima');
+
         } elseif($mhs->status === 'ditolak'){
             return redirect()->back()->with('warning', 'Pendaftar ini sudah ditolak');
         }
 
         if (session()->has('idCommittee')) {
-            return redirect()->route('members.registrations')->with('success', 'Status updated!');
+            return redirect()->route('members.registrations')->with('success', 'Berhasil menambahkan anggota dan mengirim notifikasi email ke pendaftar');
+
         }else{
-            return redirect()->route('registration')->with('success', 'Status updated!');
+            return redirect()->route('registration')->with('success', 'Berhasil menambahkan anggota dan mengirim notifikasi email ke pendaftar');
         }
     }
 
-    public function reject($idRegis){
-        $mhs = DB::table('tRegistrations')
-                ->where('idRegistrations', $idRegis)
-                ->select('*')
+    public function reject($idRegis, Request $request){
+
+        $mhs = DB::table('tUsers as u')
+                ->join('tRegistrations as r', 'r.idUsers', 'u.idUsers')
+                ->join('tListDivisions as ld', function($join){
+                    $join->on('r.idCommittees', '=', 'ld.idCommittees');
+                    $join->on('r.idDivisions', '=', 'ld.idDivisions');
+                })
+                ->join('tCommittees as c', 'ld.idCommittees', 'c.idCommittees')
+                ->join('tDivisions as d', 'ld.idDivisions', 'd.idDivisions')
+                ->where('r.idRegistrations', $idRegis)
+                ->select(
+                    'r.*', 
+                    'u.email',
+                    DB::raw("concat(u.firstname, ' ', u.lastname) as name"),
+                    'c.name as committee',
+                    'd.name as division'
+                )
                 ->first();
 
         
@@ -596,16 +657,21 @@ class RegistrationController extends Controller
             DB::table('tRegistrations')
                 ->where('idRegistrations', $idRegis)
                 ->update(['status'=> 'ditolak']);
+            
+            Mail::to($mhs->email)->send(new ApplicationStatusMail($mhs->name, $mhs->committee, $mhs->division, 'ditolak'));
+
         } elseif($mhs->status === "diterima"){
             return redirect()->back()->with('warning', 'Pendaftar ini sudah diterima');
+
         } elseif($mhs->status === 'ditolak'){
             return redirect()->back()->with('warning', 'Pendaftar ini sudah ditolak');
         }
 
         if (session()->has('idCommittee')) {
-            return redirect()->route('members.registrations')->with('success', 'Status updated!');
+            return redirect()->route('members.registrations')->with('success', 'Berhasil mengupdate status dan mengirim notifikasi ke email pendaftar');
+
         }else{
-            return redirect()->route('registration')->with('success', 'Status updated!');
+            return redirect()->route('registration')->with('success', 'Berhasil mengupdate status dan mengirim notifikasi ke email pendaftar');
         }
     }
 

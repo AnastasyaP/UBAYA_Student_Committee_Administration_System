@@ -9,26 +9,24 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class InviteCommitteeMail extends Mailable
+class ApplicationStatusMail extends Mailable
 {
     use Queueable, SerializesModels;
 
+    public $name;
     public $committee;
     public $division;
-    public $position;
-    public $participant;
-    // public $link;
+    public $status;
 
     /**
      * Create a new message instance.
      */
-    public function __construct($committee, $division, $position, $participant)
+    public function __construct($name, $committee, $division, $status)
     {
+        $this->name = $name;
         $this->committee = $committee;
         $this->division = $division;
-        $this->position = $position;
-        $this->participant = $participant;
-        // $this->link = $link;
+        $this->status = $status;
     }
 
     /**
@@ -37,7 +35,7 @@ class InviteCommitteeMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Notifikasi Pendaftaran Kepanitiaan',
+            subject: 'Notifikasi Status Pendaftaran Kepanitiaan',
         );
     }
 
@@ -47,7 +45,7 @@ class InviteCommitteeMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.inviteCommittee',
+            view: 'emails.applicationStatus',
         );
     }
 

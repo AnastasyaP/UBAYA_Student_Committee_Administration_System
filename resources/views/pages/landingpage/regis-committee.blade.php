@@ -40,12 +40,24 @@
       <div class="container" data-aos="fade-up" data-aos-delay="100">
         <div class="row gy-4">
           <div class="col-lg-12">
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
             <form id="registration" action="{{ route('regis.store') }}" method="POST" class="php-email-form" data-aos="fade-up" data-aos-delay="200">
               @csrf
+
+              <input type="hidden" name="idCommittee" value="{{ $idCommittee }}">
+
               <div class="row gy-4">
 
                 <div class="col-md-6">
-                  <h6>Name</h6>
+                  <h6>Nama</h6>
                   <input type="text" name="name" value="{{ $profil->name }}" class="form-control" placeholder="Your Name" required="">
                 </div>
 
@@ -60,17 +72,17 @@
                 </div>
 
                 <div class="col-md-12">
-                  <h6>Motivation</h6>
-                  <textarea class="form-control" name="motivation" rows="6" placeholder="What motivate you to join us?" required=""></textarea>
+                  <h6>Motivasi</h6>
+                  <textarea class="form-control" name="motivation" rows="6" placeholder="Apa yang memotivasi kamu untuk mendaftar kepanitiaan ini?" required=""></textarea>
                 </div>
 
                 <table class="table" id="selectedDivision">
                   <thead>
                     <tr>
-                      <th scope="col">Division</th>
-                      <th scope="col">Percentage</th>
-                      <th scope="col">Interview Schedule</th>
-                      <th scope="col">Action</th>
+                      <th scope="col">Divisi</th>
+                      <th scope="col">Persentase</th>
+                      <th scope="col">Jadwal Interview</th>
+                      <th scope="col">Aksi</th>
                     </tr>
                   </thead>
                   <tbody></tbody>
@@ -94,18 +106,18 @@
                                       type="button"
                                       data-id="{{ $division->idDivision }}"
                                       data-name="{{ $division->dname }}">
-                                      Choose
+                                      Pilih
                               </button>
                               <a href="{{ route('view.scheduleintv', ['idCommittee' => $division->idCommittee, 'idDivision' => $division->idDivision]) }}" class="btn btn-secondary">
-                                See Interview Schedule</a>
+                                Lihat Jadwal Interview</a>
                             </div>
+                            
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
                   @endforeach
-                  <input type="hidden" name="idCommittee" value="{{ $division->idCommittee }}">
                 </div>
                 <!-- <div class="col-md-12">
                   <div class="form-group">
@@ -121,7 +133,7 @@
                   <div class="loading">Loading</div>
                   <div class="error-message"></div>
                   <div class="sent-message">Your message has been sent. Thank you!</div>
-                  <button type="submit">Submit</button>
+                  <button type="submit">Kirim Pendaftaran</button>
                 </div>
                 
               </div>
@@ -172,8 +184,8 @@
 
         selectedDivisions.forEach((div, index) => {
 
-          let percentageSelect = `<option value="">-- Choose the Percentage --</option>`;
-          let scheduleSelect = `<option value="">-- Choose the Interview Schedule --</option>`;
+          let percentageSelect = `<option value="">-- Pilih Persentase --</option>`;
+          let scheduleSelect = `<option value="">-- Pilih Jadwal Interview --</option>`;
           const percentageOptions = [0,30,40,50,60,70,100];
 
           percentageOptions.forEach(p => {

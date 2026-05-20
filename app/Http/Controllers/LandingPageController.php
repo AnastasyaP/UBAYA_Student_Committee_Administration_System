@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use App\Services\UBCFService;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\RegistrationSubmittedMail;
+use App\Mail\NewApplicantNotificationMail;
 
 
 class LandingPageController extends Controller
@@ -259,7 +262,7 @@ class LandingPageController extends Controller
                     )
                     ->first();
 
-        return view('pages.landingpage.regis-committee', compact('divisions', 'profil', 'intvSchedules'));
+        return view('pages.landingpage.regis-committee', compact('divisions', 'profil', 'intvSchedules', 'idCommittee'));
     }
 
     public function intv($idCommittee, $idDivision){
@@ -368,7 +371,7 @@ class LandingPageController extends Controller
         if($user->role === "mahasiswa"){
             $mhs = $user;
         }else{
-            return redirect()->back()->with('warning', 'authentication failed!');
+            return redirect()->back()->with('warning', 'Authentikasi gagal!');
         }
 
         $uniqueDivisions = collect($request->divisions)
@@ -406,21 +409,42 @@ class LandingPageController extends Controller
         if (empty($dataToInput)) {
                 return back()
                     ->withInput()
-                    ->with('error', 'All selected divisions already registered.');
+                    ->with('error', 'Semua divisi yang dipilih sudah didaftarkan');
         }
 
         // pake transaction biar kalo satu insert gagal ntik semua di rollback
-        DB::transaction(function () use ($dataToInput){
+        DB::transaction(function () use ($dataToInput, $user, $request){
+
             DB::table('tRegistrations')->insert($dataToInput);
+
+            $committee = DB::table('tCommittees as c')
+                ->join('tUsers as u', 'c.admin', 'u.idUsers')
+                ->where('c.idCommittees', $request->idCommittee)
+                ->select([
+                    'c.*',
+                    'u.email as email'
+                ])
+                ->first();
+
+            $division = DB::table('tDivisions')
+                ->where('idDivisions', $request->divisions[0]['idDivision'])
+                ->first();
+
+            $name = $user->firstname . ' ' . $user->lastname;
+
+            //kirim email notif ke pendaftar
+            Mail::to($user->email)->send(new RegistrationSubmittedMail($name, $committee->name, $division->name));
+            // ke panitia
+            Mail::to($committee->email)->send(new NewApplicantNotificationMail($name, $user->email, $committee->name, $division->name));
         });
 
         if (!empty($dataSkipped)) {
         return redirect()
             ->route('detail.committee', ['idCommittee' => $request->idCommittee])
-            ->with('success', 'Registration successful. Some divisions were skipped because they were already registered.');
+            ->with('success', 'Sukses mengirim pendaftaran. Ada divisi yang di lewati karena sudah didaftarkan');
         }
         
-        return redirect()->route('detail.committee', ['idCommittee' => $request->idCommittee])->with('success', 'registration form successfully submitted!');
+        return redirect()->route('detail.committee', ['idCommittee' => $request->idCommittee])->with('success', 'Berhasil mengirim form pendaftaran');
  
     }
 
@@ -467,6 +491,7 @@ class LandingPageController extends Controller
                     ->where('ld.is_open', 1)
                     ->select('d.name as name', 'ld.description as description', 'ld.picture as picture')
                     ->get();
+
         return view('pages.landingpage.detail-committee', compact(
             'committee', 
             'divisions', 

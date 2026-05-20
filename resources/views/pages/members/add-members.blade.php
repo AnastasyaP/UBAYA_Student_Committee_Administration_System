@@ -26,7 +26,7 @@
                         @csrf
                         <div class="card-header pb-0">
                             <div class="d-flex align-items-center">
-                                <p class="mb-0">Anggota</p>
+                                <p class="mb-0">Tambah Anggota</p>
                                 <button class="btn btn-primary btn-sm ms-auto" type="submit">Invite</button>
                             </div>
                         </div>
@@ -88,7 +88,6 @@
                                                         Posisi</th>
                                                     <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
                                                         Status</th>
-                                                    <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7" colspan=3>Aksi</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -107,9 +106,6 @@
                                                     </td>
                                                     <td>
                                                         <h6 class="mb-0 text-sm position-label">{{ $invitation->status }}</h6>
-                                                    </td>
-                                                    <td>
-
                                                     </td>
                                                 </tr>
                                                 @endforeach

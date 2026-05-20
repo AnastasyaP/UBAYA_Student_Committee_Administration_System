@@ -71,7 +71,7 @@ class DivisionController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'nullable|string|max:255',
             'picture' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'description' => 'nullable|string|max:600',
             'is_open' => 'required',
