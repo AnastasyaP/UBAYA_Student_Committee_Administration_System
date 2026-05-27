@@ -56,7 +56,7 @@
                                     <div class="form-group">
                                         <label class="form-control-label">Upload Gambar</label>
                                         <div class="mb-3">
-                                            <img src="{{ asset('storage/' . $division->picture) }}" alt="Preview picture" id="preview" class="img-fluid rounded" style="max-width:200px">
+                                            <img src="{{ $division->picture ? asset('storage/' . $division->picture) : asset('/img/noimage.jpg') }}" alt="Preview picture" id="preview" class="img-fluid rounded" style="max-width:200px">
                                         </div>
                                         <input type="file" class="form-control" name="picture" id="picture" accept="image/*">
                                         <small class="text-muted">Format: JPG, JPEG, PNG</small>
@@ -154,7 +154,7 @@
                 };
                 reader.readAsDataURL(file);
             }else{
-                  preview.src = "#";
+                  preview.src = "{{ asset('assets_lp/img/noimage.jpg') }}";
                     preview.style.display = 'none';
             }
         })

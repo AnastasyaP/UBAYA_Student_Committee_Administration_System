@@ -23,6 +23,7 @@ use App\Http\Controllers\AHPCalculationController;
 use App\Http\Controllers\EmailController;
 use App\Http\Controllers\InterviewScoringController;
 use App\Http\Controllers\EvaluationController;
+use App\Http\Controllers\SuperAdminController;
 
 
 Route::get('/', function(){ return redirect('/login'); });
@@ -36,6 +37,7 @@ Route::get('/', function(){ return redirect('/login'); });
 	Route::post('/change-password', [ChangePassword::class, 'update'])->middleware('guest')->name('change.perform');
 	Route::post('logout', [LoginController::class, 'logout'])->name('logout');
 
+// landing page mahasiswa
 Route::middleware(['auth', 'role:mahasiswa'])->group(function (){
 	Route::get('/home', [LandingPageController::class, 'index'])->name('home'); 
 	// regis
@@ -62,6 +64,33 @@ Route::middleware(['auth', 'role:mahasiswa'])->group(function (){
 	Route::post('/save-preference', [LandingPageController::class, 'savePreference'])->name('save.preference');
 });
 
+// dashbiard super admin
+Route::middleware(['auth', 'role:superadmin'])->group(function () {
+	Route::get('/dashboard-superadmin', [SuperAdminController::class, 'index'])->name('dashboard.super');
+	//admin
+	Route::get('/admins', [SuperAdminController::class, 'admins'])->name('admins.super');
+	Route::get('/admin/create', [SuperAdminController::class, 'createAdmin'])->name('create.admin.super');
+	Route::post('/admin/store', [SuperAdminController::class, 'storeAdmin'])->name('store.admin.super');
+	Route::get('/admin/edit/{idAdmin}', [SuperAdminController::class, 'editAdmin'])->name('edit.admin.super');
+	Route::put('/admin/update', [SuperAdminController::class, 'updateAdmin'])->name('update.admin.super');
+	Route::get('/admin/status/{idAdmin}', [SuperAdminController::class, 'statusAdmin'])->name('status.admin.super');
+	//student
+	Route::get('/students', [SuperAdminController::class, 'students'])->name('students.super');
+	Route::get('/student/create', [SuperAdminController::class, 'createStudent'])->name('create.student.super');
+	Route::post('/student/store', [SuperAdminController::class, 'storeStudent'])->name('store.student.super');
+	Route::get('/student/edit/{idMahasiswa}', [SuperAdminController::class, 'editStudent'])->name('edit.student.super');
+	Route::put('/student/update', [SuperAdminController::class, 'updateStudent'])->name('update.student.super');
+	Route::get('/student/status/{idMahasiswa}', [SuperAdminController::class, 'statusStudent'])->name('status.student.super');
+	//organizer unit
+	Route::get('/organizer-units', [SuperAdminController::class, 'organizerUnits'])->name('units.super');
+	Route::get('/organizer-unit/create', [SuperAdminController::class, 'createOrganizerUnit'])->name('create.unit.super');
+	Route::post('/organizer-unit/store', [SuperAdminController::class, 'storeOrganizerUnit'])->name('store.unit.super');
+	Route::get('/organizer-unit/edit/{idUnit}', [SuperAdminController::class, 'editOrganizerUnit'])->name('edit.unit.super');
+	Route::put('/organizer-unit/update', [SuperAdminController::class, 'updateOrganizerUnit'])->name('update.unit.super');
+	Route::get('/organizer-unit/status/{idUnit}', [SuperAdminController::class, 'statusOrganizerUnit'])->name('status.unit.super');
+});
+
+// dashbord untuk koorwa
 Route::middleware(['auth', 'access.role'])->group(function(){
 	Route::get('/members/dashboard', [DashboardController::class, 'index'])->name('members.dashboard');
 	// members
@@ -98,6 +127,7 @@ Route::middleware(['auth', 'access.role'])->group(function(){
 	})->name('exit.member');
 });
 
+// set committee untuk admin
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/choose-committees', [CommitteeController::class, 'index'])->name('committees.choose');
 	// committee session
@@ -108,6 +138,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
 });
 
+// dashboard admin
 Route::middleware(['auth', 'role:admin', 'check.committee', 'load.committee'])->group( function () {
 	Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 	Route::get('/virtual-reality', [PageController::class, 'vr'])->name('virtual-reality');
@@ -173,3 +204,4 @@ Route::middleware(['auth', 'role:admin', 'check.committee', 'load.committee'])->
 	
 	Route::get('/{page}', [PageController::class, 'index'])->name('page');
 });
+

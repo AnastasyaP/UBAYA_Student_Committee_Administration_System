@@ -17,15 +17,25 @@
                             <div class="card card-plain">
                                 <div class="card-header pb-0 text-start">
                                     <h4 class="font-weight-bolder">Login</h4>
-                                    <p class="mb-0">Masukkan email dan password UBAYA untuk login</p>
+                                    <p class="mb-0">Masukkan email atau username dan password UBAYA untuk login</p>
                                 </div>
                                 <div class="card-body">
+                                    @if ($errors->any())
+                                        <div class="alert alert-danger text-white" role="alert">
+                                            <ul class="mb-0">
+                                                @foreach ($errors->all() as $error)
+                                                    <li>{{ $error }}</li>
+                                                @endforeach
+                                            </ul>
+                                        </div>
+                                    @endif
                                     <form role="form" method="POST" action="{{ route('login.perform') }}">
                                         @csrf
                                         @method('post')
                                         <div class="flex flex-col mb-3">
-                                            <input type="email" name="email" class="form-control form-control-lg" value="{{ old('email') ?? 'admin@argon.com' }}" aria-label="Email">
-                                            @error('email') <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
+                                            <!-- <input type="email" name="email" class="form-control form-control-lg" value="{{ old('email') ?? 'admin@argon.com' }}" aria-label="Email"> -->
+                                            <input type="text" name="login" class="form-control form-control-lg" placeholder="Email atau username">
+                                            @error('login') <p class="text-danger text-xs pt-1"> {{$message}} </p>@enderror
                                         </div>
                                         <div class="flex flex-col mb-3">
                                             <input type="password" name="password" class="form-control form-control-lg" aria-label="Password" value="123" >
@@ -68,4 +78,13 @@
             </div>
         </section>
     </main>
+    <script>
+        setTimeout(()=>{
+            const alert = document.querySelector('.alert');
+            if(alert){
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }
+        }, 3000); // auto close 3 detik
+    </script>
 @endsection

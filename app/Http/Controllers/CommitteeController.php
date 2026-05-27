@@ -79,11 +79,11 @@ class CommitteeController extends Controller
         if($committee->is_published === 0){
             DB::table('tCommittees')->where('idCommittees', $idCommittee)->update(['is_published' => 1]);
 
-            return back()->with('success', 'Committee dipublikasi di website mahasiswa!');
+            return back()->with('success', 'Kepanitiaan dipublikasi di website mahasiswa!');
         }else{
             DB::table('tCommittees')->where('idCommittees', $idCommittee)->update(['is_published' => 0]);
 
-            return back()->with('success', 'Committee tidak dipublikasi di website mahasiswa!');
+            return back()->with('success', 'Kepanitiaan tidak dipublikasi di website mahasiswa!');
         }
 
     }
@@ -340,7 +340,7 @@ class CommitteeController extends Controller
             'poster' => $filePath,
         ]);
 
-        return redirect()->route('committees')->with('success', 'Committee updated successfully!');
+        return redirect()->route('committees')->with('success', 'Kepanitiaan berhasil dibuat');
     }
 
     /**

@@ -537,6 +537,7 @@ class LandingPageController extends Controller
             ->where('idUsers', $user->idUsers)
             ->update([
                 'picture' => $filePath,
+                'updated_at' => now(),
             ]);
         
         return redirect()->back()->with('success', 'Foto profil berhasil di update!');
@@ -800,9 +801,9 @@ class LandingPageController extends Controller
         }catch(\Exception $ex){
             DB::rollback();
 
-                dd($ex->getMessage());
+                // dd($ex->getMessage());
 
-            // return redirect()->back()->with('error', 'Gagal menyimpan evaluasi!');
+            return redirect()->back()->with('error', 'Gagal menyimpan evaluasi!');
         }
 
     }

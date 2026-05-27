@@ -58,3 +58,18 @@ if (!function_exists('manageDivision')) {
             ->exists();
     }
 }
+
+if (!function_exists('isSuperAdmin')) {
+    function isSuperAdmin(){
+        $user = Auth::user();
+
+        if(!$user || $user->role !== 'admin'){
+            return false;
+        }
+
+        return DB::table('tAdmins')
+            ->where('idUsers', $user->idUsers)
+            ->where('is_superAdmin', 1)
+            ->exists();
+    }
+}

@@ -15,6 +15,10 @@ class CheckDisplayedCommittee
      */
     public function handle(Request $request, Closure $next): Response
     {
+        if(isSuperAdmin()){
+            return $next($request);
+        }
+        
         if(!session()->has('displayed_committee')){
             return redirect('/choose-committees')->with('warning', 'Pilih kepanitiaan terlebih dahulu!');
         }

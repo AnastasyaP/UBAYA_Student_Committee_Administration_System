@@ -14,9 +14,8 @@ return new class extends Migration
         Schema::create('tMahasiswas', function (Blueprint $table) {
             $table->id('idMahasiswas');
             $table->string('nrp', 45);
-            $table->string('cv', 255);
-            $table->string('portofolio', 255);
-            $table->string('picture', 255);
+            $table->string('cv', 255)->nullable();
+            $table->string('portofolio', 255)->nullable();
             $table->unsignedBigInteger('idUsers');
             $table->timestamps();
 

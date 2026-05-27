@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 
 class LoginController extends Controller
 {
@@ -23,15 +24,39 @@ class LoginController extends Controller
 
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
+        $request->validate([
+            'login' => ['required'],
             'password' => ['required'],
         ]);
+
+        // cek input email atau username
+        $loginType = filter_var($request->login, FILTER_VALIDATE_EMAIL) 
+                        ? 'email' 
+                        : 'username';
+
+        // cari user
+        $user = User::where($loginType, $request->login)->first();
+
+        // jika user ada tapi tidak aktif
+        if($user && $user->is_active == 0){
+            return back()->withErrors([
+                'email' => 'Akun Anda tidak aktif. Silakan hubungi admin untuk keterangan lebih lanjut.',
+            ])->onlyInput('login');
+        }
+
+        $credentials = [
+            $loginType => $request->login,
+            'password' => $request->password,
+        ];
 
         if(Auth::attempt($credentials)){
             $request->session()->regenerate();
             
             $role = Auth::user()->role;
+
+            if(isSuperAdmin()){
+                return redirect('/dashboard-superadmin');
+            }
 
             if($role === 'admin'){
                 return redirect('/dashboard');
@@ -68,8 +93,8 @@ class LoginController extends Controller
         // }
 
         return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
-        ]);
+            'email' => 'Email/username atau password salah.',
+        ])->onlyInput('login');
     }
 
     public function logout(Request $request)

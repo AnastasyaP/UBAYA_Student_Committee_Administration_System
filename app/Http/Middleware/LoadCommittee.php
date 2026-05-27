@@ -17,6 +17,10 @@ class LoadCommittee
      */
     public function handle(Request $request, Closure $next): Response
     {
+        if(isSuperAdmin()){
+            return $next($request);
+        }
+        
         $user = Auth::user();
 
         if ($user->role !== 'admin') {

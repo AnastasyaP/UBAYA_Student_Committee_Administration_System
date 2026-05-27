@@ -13,7 +13,7 @@ class OrganizerUnit extends Model
 
     protected $table = 'tOrganizerUnits';
     protected $primaryKey = 'idOrganizerUnits';
-    protected $fillable = ['name', 'level'];
+    protected $fillable = ['name', 'level', 'is_active'];
 
     // public function committeeOrganizers(){
     //     return $this->hasMany(CommitteeOrganizer::class, 'idOrganizerUnits', 'idOrganizerUnits');

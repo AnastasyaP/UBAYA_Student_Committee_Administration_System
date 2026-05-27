@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id('idOrganizerUnits');
             $table->string('name', 45);
             $table->enum('level', ['universitas', 'fakultas', 'program studi']);
+            $table->tinyInteger('is_active')->default(1);
             
             $table->timestamps();
         });

@@ -46,6 +46,12 @@ class AdminsSeeder extends Seeder
                 'idUsers' => 15,
                 'created_at' => now(),
                 'updated_at' => now(),
+            ], [ // ARGON
+                'is_superAdmin'=> 0,
+                'idOrganizerUnits' => 1,
+                'idUsers' => 16,
+                'created_at' => now(),
+                'updated_at' => now(),
             ]
         ]);
     }
