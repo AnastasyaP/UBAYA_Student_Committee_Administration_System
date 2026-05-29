@@ -31,7 +31,7 @@
                 <a class="nav-link {{ str_contains(request()->url(), 'students') == true ? 'active' : '' }}" href="{{ route('students.super') }}">
                     <div
                         class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                        <i class="ni ni-album-2 text-warning text-sm opacity-10"></i>
+                        <i class="ni ni-hat-3 text-info text-sm opacity-10"></i>
                     </div>
                     <span class="nav-link-text ms-1">Mahasiswa</span>
                 </a>
@@ -40,7 +40,7 @@
                 <a class="nav-link {{ str_contains(request()->url(), 'admins') == true ? 'active' : '' }}" href="{{ route('admins.super') }}">
                     <div
                         class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                        <i class="ni ni-album-2 text-warning text-sm opacity-10"></i>
+                        <i class="ni ni-badge text-success text-sm opacity-10"></i>
                     </div>
                     <span class="nav-link-text ms-1">Admin Kepanitiaan</span>
                 </a>
@@ -55,16 +55,16 @@
                 <a class="nav-link {{ str_contains(request()->url(), 'organizer-units') == true ? 'active' : '' }}" href="{{ route('units.super') }}">
                     <div
                         class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                        <i class="ni ni-album-2 text-warning text-sm opacity-10"></i>
+                        <i class="ni ni-building text-warning text-sm opacity-10"></i>
                     </div>
                     <span class="nav-link-text ms-1">Unit Penyelenggara</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link {{ str_contains(request()->url(), 'committees') == true ? 'active' : '' }}" href="{{ route('page', ['page' => 'committees']) }}">
+                <a class="nav-link {{ str_contains(request()->url(), 'committees') == true ? 'active' : '' }}" href="{{ route('committees.super') }}">
                     <div
                         class="icon icon-shape icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                        <i class="ni ni-album-2 text-warning text-sm opacity-10"></i>
+                        <i class="ni ni-briefcase-24 text-danger text-sm opacity-10"></i>
                     </div>
                     <span class="nav-link-text ms-1">Kepanitiaan</span>
                 </a>

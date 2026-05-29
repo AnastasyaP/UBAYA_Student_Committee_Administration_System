@@ -5,7 +5,7 @@ use Illuminate\Support\Str;
 @extends('layouts.app', ['class' => 'g-sidenav-show bg-gray-100'])
 
 @section('content')
-    @include('layouts.navbars.auth.topnav', ['title' => 'Kepanitiaan'])
+    @include('layouts.navbars.auth.topnav', ['title' => 'Daftar Kepanitiaan'])
     <div class="container-fluid py-4">
         <div class="row">
             <div class="col-12">
@@ -26,16 +26,7 @@ use Illuminate\Support\Str;
                 @endif
                 <div class="card mb-4">
                     <div class="card-header pb-0 d-flex justify-content-between align-items-center" >
-                        <h6>Daftar Kepanitiaan</h6>
-                        <!-- <a href="{{ $activeCommittee ? '#' : route('committees.add') }}"
-                            class="btn btn-dark btn-add w-15 mb-3 {{ $activeCommittee ? 'disabled' : '' }}">
-                            Tambah Kepanitiaan
-                        </a> -->
-                        <a href="{{ route('committees.add') }}"
-                            class="btn btn-dark btn-add w-15 mb-3">
-                            Tambah Kepanitiaan
-                        </a>
-                        
+                        <h6>Daftar Kepanitiaan</h6>                    
                     </div>
                     <div class="card-body px-0 pt-0 pb-2">
                         <div class="table-responsive p-0">
@@ -100,44 +91,21 @@ use Illuminate\Support\Str;
                                                 <span class="badge bg-success">Terpublikasi</span>
                                             @endif
                                         </td>
-                                        <td>
-                                            <form action="{{ route('committee.publish', ['idCommittee' => $committee->idCommittees]) }}" method="GET">
-                                                @csrf
-                                                <button type="submit"
-                                                    class="btn btn-sm {{ $committee->is_published ? 'btn-danger' : 'btn-success' }}">
-                                                    {{ $committee->is_published ? 'Tarik Publikasi' : 'Publikasi' }}
-                                                </button>
+                                        <td class="align-middle">
+                                            <form action="{{ route('status.committee.super', ['idCommittee' => $committee->idCommittees]) }}" method="GET">
+                                                @if($committee->is_active == 1)
+                                                    <button type="submit" class="btn btn-danger btn-sm">Nonaktifkan</button>
+                                                @else
+                                                    <button type="submit" class="btn btn-primary btn-sm">Aktifkan</button>
+                                                @endif
                                             </form>
                                         </td>
-                                        @if($committee->is_active == 1)
-                                        <td>    
-                                            @if(session('displayed_committee') == $committee->idCommittees)
-                                                <button type="button" class="btn btn-secondary btn-sm" disabled>
-                                                    Aktif
-                                                </button>  
-                                                <!-- <span class="badge bg-success">Aktif</span> -->
-                                            @else
-                                                <form action="{{ route('set.committee', ['idCommittee'=> $committee->idCommittees]) }}" method="POST">
-                                                    @csrf
-                                                    <button class="btn btn-primary btn-sm">
-                                                        Aktifkan
-                                                    </button>      
-                                                </form>    
-                                            @endif                         
-                                        </td>
-                                        <td>       
-                                            <a href="{{ route('committees.show', ['idCommittees'=> $committee->idCommittees]) }}" 
-                                            class="btn btn-warning btn-sm">Edit</a>                                
-                                        </td>
-                                        @else
                                         <td>
-                                            <a href="javascript:;" class="btn btn-dark font-weight-bold text-xs"
+                                            <a href="{{ route('detail.committee.super', ['idCommittee' => $committee->idCommittees]) }}" class="btn btn-dark font-weight-bold text-xs"
                                                 data-toggle="tooltip" data-original-title="Evaluationr">
-                                                Lihat Evaluasi
+                                                Lihat Detail
                                             </a>
-                                        </td>
-                                        @endif
-                                        
+                                        </td>                                        
                                     </tr>
                                    @endforeach
                                 </tbody>

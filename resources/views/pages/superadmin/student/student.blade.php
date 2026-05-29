@@ -84,7 +84,7 @@ use Illuminate\Support\Str;
                                                 <button type="submit" class="btn btn-warning btn-sm">Edit</button>                                                
                                             </form>                                         
                                         </td>
-                                         <td class="align-middle">
+                                        <td class="align-middle">
                                             <form action="{{ route('status.student.super', ['idMahasiswa' => $student->idMahasiswas]) }}" method="GET">
                                                 @if($student->is_active == 1)
                                                     <button type="submit" class="btn btn-danger btn-sm">Nonaktifkan</button>

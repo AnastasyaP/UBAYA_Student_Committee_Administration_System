@@ -1,0 +1,305 @@
+@extends('layouts.app', ['class' => 'g-sidenav-show bg-gray-100'])
+
+@section('content')
+    @include('layouts.navbars.auth.topnav', ['title' => 'Profil Kepanitiaan'])
+    <div class="card shadow-lg mx-4">
+        <div class="card-body p-3">
+            <div class="row gx-4">
+                <div class="col-auto">
+                    <div class="avatar avatar-xl position-relative">
+                        <img src="{{ $committee->picture ? asset('storage/' . $committee->picture) : asset('/img/profile-default.png') }}" alt="profile_image" class="w-100 border-radius-lg shadow-sm">
+                    </div>
+                </div>
+                <div class="col-auto my-auto">
+                    <div class="h-100">
+                        <h1 class="mb-1">
+                            {{ $committee->committee_name }}
+                        </h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid py-4">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card mb-4 committee-detail-scroll" style="max-height: 80vh; overflow-y: auto;">
+                    <form action="{{ route('committees.update', ['idCommittees' => $committee->idCommittees]) }}" method="POST" enctype="multipart/form-data">
+                        
+                        @csrf
+                        @method('PUT')
+
+                        <div class="card-body">
+
+                            {{-- INFORMASI KONTAK --}}
+                            <p class="text-uppercase text-sm">Informasi Kontak</p>
+
+                            <div class="row">
+
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Nama Kepanitiaan</label>
+                                        <input 
+                                            class="form-control"
+                                            type="text"
+                                            name="name"
+                                            value="{{ $committee->name }}"
+                                            disabled
+                                        >
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Email</label>
+                                        <input 
+                                            class="form-control"
+                                            type="text"
+                                            name="email"
+                                            value="{{ $committee->email }}"
+                                            disabled
+                                        >
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Kontak</label>
+                                        <input 
+                                            class="form-control"
+                                            type="text"
+                                            name="contact"
+                                            value="{{ $committee->contact }}"
+                                            disabled
+                                        >
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Unit Penyelenggara</label>
+                                        <input 
+                                            class="form-control"
+                                            type="text"
+                                            value="{{ $committee->organizerName }}"
+                                            disabled
+                                        >
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <hr class="horizontal dark">
+
+                            {{-- DETAIL COMMITTEE --}}
+                            <p class="text-uppercase text-sm">Detail Kepanitiaan</p>
+
+                            <div class="row">
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Periode Dimulai</label>
+                                        <input 
+                                            class="form-control"
+                                            type="date"
+                                            name="start_period"
+                                            value="{{ $committee->start_period }}"
+                                            disabled
+                                        >
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Periode Berakhir</label>
+                                        <input 
+                                            class="form-control"
+                                            type="date"
+                                            name="end_period"
+                                            value="{{ $committee->end_period }}"
+                                            disabled
+                                        >
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Mulai Pendaftaran</label>
+                                        <input 
+                                            class="form-control"
+                                            type="date"
+                                            name="start_regis"
+                                            value="{{ $committee->start_regis }}"
+                                            disabled
+                                        >
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Akhir Pendaftaran</label>
+                                        <input 
+                                            class="form-control"
+                                            type="date"
+                                            name="end_regis"
+                                            value="{{ $committee->end_regis }}"
+                                            disabled
+                                        >
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Batas Pengisian Evaluasi</label>
+                                        <input 
+                                            class="form-control"
+                                            type="date"
+                                            name="end_eval"
+                                            value="{{ $committee->end_evaluation }}"
+                                            disabled
+                                        >
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Deskripsi</label>
+
+                                        <textarea 
+                                            class="form-control"
+                                            rows="5"
+                                            name="description"
+                                            disabled
+                                        >{{ $committee->description }}</textarea>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Status Kepanitiaan</label>
+
+                                        <select 
+                                            name="is_active"
+                                            id="is_active"
+                                            class="form-control"
+                                            disabled
+                                        >
+                                            <option value="1" @selected($committee->is_active == 1)>
+                                                Aktif
+                                            </option>
+                                        </select>
+
+                                        @error('is_active')
+                                            <div class="text-danger small">
+                                                {{ $message }}
+                                            </div>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <hr class="horizontal dark">
+
+                            {{-- EVALUASI --}}
+                            <p class="text-uppercase text-sm">Evaluasi</p>
+
+                            <div class="row">
+
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label class="form-control-label">Evaluasi</label>
+
+                                        <textarea 
+                                            class="form-control"
+                                            rows="5"
+                                            name="evaluation"
+                                            disabled
+                                        >{{ $committee->evaluation }}</textarea>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <img src="{{ $committee->poster ? asset('storage/' . $committee->poster) : asset('/img/noimage.jpg') }}" alt="poster" class="img-fluid rounded-3">
+                </div>
+            </div>
+            <div class="col-md-12">
+                @foreach($members as $divisionNames => $divisionMembers)
+                <div class="card mb-4">
+                    <div class="card-header pb-0 d-flex justify-content-between align-items-center" >
+                        <h6>{{ $divisionNames }}</h6>
+                    </div>
+                    <div class="card-body px-0 pt-0 pb-2">
+                        <div class="table-responsive p-0">
+                            <table class="table align-items-center mb-0">
+                                <thead>
+                                    <tr>
+                                        <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
+                                            Nama</th>
+                                        <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
+                                            Divisi</th>
+                                        <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
+                                            Posisi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @php $hasMember = false; @endphp
+
+                                    @foreach($divisionMembers as $m)
+                                    @if($m->name)
+                                    @php $hasMember = true; @endphp
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex px-2 py-1">
+                               
+                                                <div class="d-flex flex-column justify-content-center">
+                                                    <h6 class="mb-0 text-sm">{{ $m->name }}</h6>
+                                                    <p class="text-xs text-secondary mb-0">{{ $m->email }}</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <h6 class="mb-0 text-sm">{{ $m->division }}</h6>
+                                        </td>
+                                        <td>
+                                            <h6 class="mb-0 text-sm position-label">{{ $m->position }}</h6>
+                                        </td>
+                                    </tr>
+                                    @endif
+                                    @endforeach
+
+                                    @if(!$hasMember)
+                                        <tr>
+                                            <td colspan="4" class="text-center text-muted">
+                                                Belum ada anggota yang diterima
+                                            </td>
+                                        </tr>
+                                    @endif
+                                </tbody>
+                            </table>
+                            
+                        </div>    
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        </div>
+        @include('layouts.footers.auth.footer')
+    </div>
+        <script>
+        setTimeout(()=>{
+            const alert = document.querySelector('.alert');
+            if(alert){
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }
+        }, 3000);
+    </script>
+@endsection

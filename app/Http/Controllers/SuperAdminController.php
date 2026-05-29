@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use App\Models\OrganizerUnit;
+use App\Models\Committee;
 
 class SuperAdminController extends Controller
 {
@@ -521,5 +522,83 @@ class SuperAdminController extends Controller
 
             return back()->with('success', 'Unit Penyelenggara di aktifkan!');
         }
+    }
+    
+    public function committees(){
+
+        $committees = DB::table('tCommittees as c')
+                            ->join('tUsers as u', 'c.admin', 'u.idUsers')
+                            ->join('tAdmins as a', 'u.idUsers', 'a.idUsers')
+                            ->join('tOrganizerUnits as o', 'a.idOrganizerUnits', 'o.idOrganizerUnits')
+                            ->select([
+                                'c.name',
+                                'c.start_period',
+                                'c.end_period',
+                                'c.start_regis',
+                                'c.end_regis',
+                                'c.is_active',
+                                'c.is_published',
+                                'c.idCommittees',
+                                'c.picture',
+                                'o.name as organizerName'
+                            ])
+                            ->get();
+        
+        return view('pages.superadmin.committee.committees', compact('committees'));
+
+    }
+
+    public function statusCommittee($idCommittee){
+        $committee = DB::table('tCommittees')->where('idCommittees', $idCommittee)->first();
+
+        if($committee->is_active == 1){
+            DB::table('tCommittees')->where('idCommittees', $committee->idCommittees)->update(['is_active' => 0]);
+            
+            return back()->with('success', 'Kepanitiaan di nonaktifkan!');
+        }else{
+            DB::table('tCommittees')->where('idCommittees', $committee->idCommittees)->update(['is_active' => 1]);
+
+            return back()->with('success', 'Kepanitiaan di aktifkan!');
+        }
+    }
+
+    public function detailCommittee($idCommittee){
+        $committee = DB::table('tCommittees as c')
+                            ->join('tUsers as u', 'c.admin', 'u.idUsers')
+                            ->join('tAdmins as a', 'u.idUsers', 'a.idUsers')
+                            ->join('tOrganizerUnits as o', 'a.idOrganizerUnits', 'o.idOrganizerUnits')
+                            ->where('c.idCommittees', $idCommittee)
+                            ->select([
+                                'c.*',
+                                'o.name as organizerName',
+                                'u.email'
+                            ])
+                            ->first();
+
+        $members = DB::table('tDivisions as d')
+                    ->leftJoin('tListDivisions as ld',function($join) use ($idCommittee){
+                        $join->on( 'd.idDivisions', '=', 'ld.idDivisions');
+                        $join->where('ld.idCommittees', '=', $idCommittee);
+                    })
+                    ->leftJoin('tRegistrations as r', function($join){
+                        $join->on('r.idDivisions', '=', 'ld.idDivisions');
+                        $join->on('r.idCommittees', '=', 'ld.idCommittees');
+                        $join->where('r.status', 'diterima');
+                    })
+                    ->leftJoin('tUsers as u', 'r.idUsers','u.idUsers')
+                    ->where('ld.idCommittees', $idCommittee)
+                    ->select(
+                        'r.idUsers as idUser',
+                        DB::raw("concat(u.firstname, ' ', u.lastname) as name"),
+                        'u.email as email',
+                        'd.idDivisions as idDivision',
+                        'd.name as division', 
+                        'r.position as position'
+                    )
+                    ->orderby('d.idDivisions')
+                    ->get()
+                    ->groupby('division');
+        
+        return view('pages.superadmin.committee.detail-committee', compact('committee', 'members'));
     }
 }

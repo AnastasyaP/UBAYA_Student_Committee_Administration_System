@@ -88,6 +88,10 @@ Route::middleware(['auth', 'role:superadmin'])->group(function () {
 	Route::get('/organizer-unit/edit/{idUnit}', [SuperAdminController::class, 'editOrganizerUnit'])->name('edit.unit.super');
 	Route::put('/organizer-unit/update', [SuperAdminController::class, 'updateOrganizerUnit'])->name('update.unit.super');
 	Route::get('/organizer-unit/status/{idUnit}', [SuperAdminController::class, 'statusOrganizerUnit'])->name('status.unit.super');
+	//committee
+	Route::get('/committees/super-admin', [SuperAdminController::class, 'committees'])->name('committees.super');
+	Route::get('/committee/status/{idCommittee}', [SuperAdminController::class, 'statusCommittee'])->name('status.committee.super');
+	Route::get('/committee/detail/{idCommittee}', [SuperAdminController::class, 'detailCommittee'])->name('detail.committee.super');
 });
 
 // dashbord untuk koorwa

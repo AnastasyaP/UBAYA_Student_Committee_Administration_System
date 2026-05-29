@@ -72,6 +72,7 @@ class LandingPageController extends Controller
         }
 
         $committees = DB::table('tCommittees as c')
+                    // ->where('is_active', 1)
                     ->where('is_published', 1)
                     ->select([
                         'c.*'
