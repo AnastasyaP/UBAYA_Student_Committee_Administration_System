@@ -10,6 +10,7 @@ use App\Models\Committee;
 use App\Models\OrganizerUnit;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use App\Charts\EvaluationChart;
 
 
 class CommitteeController extends Controller
@@ -203,28 +204,164 @@ class CommitteeController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($idCommittee)
+    public function show($idCommittee, EvaluationChart $evalChart)
     {
-        $committees = DB::table('tCommittees as c')
-        ->join('tUsers as u', 'c.admin', 'u.idUsers')
-        ->join('tAdmins as a', 'u.idUsers', 'a.idUsers')
-        ->join('tOrganizerUnits as o', 'a.idOrganizerUnits', 'o.idOrganizerUnits')
-        ->where('c.idCommittees', $idCommittee)
-        ->select(
-            'c.*',
-            DB::raw("'". Auth::user()->email . "'as email"), 
-            'a.idOrganizerUnits as idOrganizerUnits', 
-            'o.name as organizerName', 
-            )
-        ->get();
+        $committee = DB::table('tCommittees as c')
+                            ->join('tUsers as u', 'c.admin', 'u.idUsers')
+                            ->join('tAdmins as a', 'u.idUsers', 'a.idUsers')
+                            ->join('tOrganizerUnits as o', 'a.idOrganizerUnits', 'o.idOrganizerUnits')
+                            ->where('c.idCommittees', $idCommittee)
+                            ->select([
+                                'c.*',
+                                'o.name as organizerName',
+                                'u.email'
+                            ])
+                            ->first();
 
-        $master_committee = DB::table('tCommittees')
-                            ->select('committee_name')
-                            ->where('admin', Auth::id())
-                            ->distinct()
-                            ->pluck('committee_name');
+        $members = DB::table('tDivisions as d')
+                    ->leftJoin('tListDivisions as ld',function($join) use ($idCommittee){
+                        $join->on( 'd.idDivisions', '=', 'ld.idDivisions');
+                        $join->where('ld.idCommittees', '=', $idCommittee);
+                    })
+                    ->leftJoin('tRegistrations as r', function($join){
+                        $join->on('r.idDivisions', '=', 'ld.idDivisions');
+                        $join->on('r.idCommittees', '=', 'ld.idCommittees');
+                        $join->where('r.status', 'diterima');
+                    })
+                    ->leftJoin('tUsers as u', 'r.idUsers','u.idUsers')
+                    ->where('ld.idCommittees', $idCommittee)
+                    ->select(
+                        'r.idUsers as idUser',
+                        DB::raw("concat(u.firstname, ' ', u.lastname) as name"),
+                        'u.email as email',
+                        'd.idDivisions as idDivision',
+                        'd.name as division', 
+                        'r.position as position'
+                    )
+                    ->orderby('d.idDivisions')
+                    ->get()
+                    ->groupby('division');
+
+        // eval panit keseluruhan
+        $committeeEvaluations = DB::table('tEvaluations as e')
+                            ->join('tEvaluationScores as es', 'e.idEvaluations', 'es.idEvaluations')
+                            ->join('tEvaluationCriterias as ec', 'es.idEvaluationCriterias', 'ec.idEvaluationCriterias')
+                            ->where('e.target_committee', $idCommittee)
+                            ->where('ec.target_type', 'committee')
+                            ->select([
+                                'ec.idEvaluationCriterias',
+                                'ec.name',
+                                DB::raw('AVG(es.score) as average_score'),
+                            ])
+                            ->groupBy('ec.idEvaluationCriterias', 'ec.name')
+                            ->get();
+
+        $committeeLabels = $committeeEvaluations->pluck('name')->toArray();
+        $committeeScores = $committeeEvaluations->pluck('average_score')
+                            ->map(fn($score) => (float) $score)
+                            ->toArray();
+
+        $committeeChart = $evalChart->build($committeeLabels, $committeeScores);
         
-        return view('pages.committee.edit-committees', compact('committees', 'master_committee'));
+
+        $generalCommitteeEvaluation = DB::table('tEvaluations as e')
+                            ->join('tEvaluationScores as es', 'e.idEvaluations', 'es.idEvaluations')
+                            ->join('tEvaluationCriterias as ec', 'es.idEvaluationCriterias', 'ec.idEvaluationCriterias')
+                            ->join('tEvaluationCriteriaScopes as ecs', 'ec.idEvaluationCriterias', 'ecs.idEvaluationCriterias')
+                            ->where('e.target_committee', $idCommittee)
+                            ->where('ec.target_type', 'committee')
+                            ->where('ecs.idCommittees', $idCommittee)
+                            ->select([
+                                'e.comment as general_comment'
+                            ])
+                            ->groupBy('e.idEvaluations', 'e.comment')
+                            ->get();
+
+        $committeeCriteriaEvaluations = DB::table('tEvaluationScores as es')
+                ->join('tEvaluations as e', 'es.idEvaluations', 'e.idEvaluations')
+                ->join('tEvaluationCriterias as ec', 'es.idEvaluationCriterias', 'ec.idEvaluationCriterias')
+                ->join('tEvaluationCriteriaScopes as ecs', 'ec.idEvaluationCriterias', 'ecs.idEvaluationCriterias')
+                ->where('e.target_committee', $idCommittee)
+                ->where('ec.target_type', 'committee')
+                ->where('ecs.idCommittees', $idCommittee)
+                ->select([
+                    'ec.name as criteria',
+                    'es.comment as criteria_comment'
+                ])
+                ->get();
+
+        // eval per divisi
+        $divisionEvaluations = DB::table('tEvaluations as e')
+                            ->join('tDivisions as d', 'e.target_division', 'd.idDivisions')
+                            ->join('tEvaluationScores as es', 'e.idEvaluations', 'es.idEvaluations')
+                            ->join('tEvaluationCriterias as ec', 'es.idEvaluationCriterias', 'ec.idEvaluationCriterias')
+                            ->where('e.target_committee', $idCommittee)
+                            ->where('ec.target_type', 'division')
+                            ->select([
+                                'd.idDivisions',
+                                'd.name as division_name',
+                                'ec.idEvaluationCriterias',
+                                'ec.name as criteria',
+                                DB::raw('AVG(es.score) as average_score'),
+                            ])
+                            ->groupBy(
+                                'ec.idEvaluationCriterias', 
+                                'ec.name',
+                                'd.idDivisions',
+                                'd.name'
+                            )
+                            ->get()
+                            ->groupBy('division_name');
+        
+        $divisionChart = [];
+
+        foreach($divisionEvaluations as $divisionName => $evaluations){
+
+            $divisionLabels = $evaluations->pluck('criteria')->toArray();
+
+            $divisionScores = $evaluations->pluck('average_score')
+                                ->map(fn($score) => (float) $score)
+                                ->toArray();
+
+            $divisionChart[$divisionName] = $evalChart->build($divisionLabels, $divisionScores);
+        }
+        
+
+        $generalDivisionEvaluation = DB::table('tEvaluations as e')
+                            ->join('tDivisions as d', 'e.target_division', 'd.idDivisions')
+                            ->where('e.target_committee', $idCommittee)
+                            ->whereNotNull('e.target_division')
+                            ->select([
+                                'd.name as division_name',
+                                'e.comment as general_comment'
+                            ])
+                            ->get()
+                            ->groupBy('division_name');
+
+        $divisionCriteriaEvaluations = DB::table('tEvaluationScores as es')
+                ->join('tEvaluations as e', 'es.idEvaluations', 'e.idEvaluations')
+                ->join('tDivisions as d', 'e.target_division', 'd.idDivisions')
+                ->join('tEvaluationCriterias as ec', 'es.idEvaluationCriterias', 'ec.idEvaluationCriterias')
+                ->where('e.target_committee', $idCommittee)
+                ->where('ec.target_type', 'division')
+                ->select([
+                    'ec.name as criteria',
+                    'd.name as division_name',
+                    'es.comment as criteria_comment'
+                ])
+                ->get()
+                ->groupBy('division_name');
+        
+        return view('pages.committee.detail-committees', compact(
+            'committee', 
+            'members',
+            'generalCommitteeEvaluation',
+            'committeeCriteriaEvaluations',
+            'committeeChart',
+            'generalDivisionEvaluation',
+            'divisionCriteriaEvaluations',
+            'divisionChart'
+            ));
     }
 
     public function profile(Request $request)
@@ -256,9 +393,28 @@ class CommitteeController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit($idCommittee)
     {
-        //
+        $committees = DB::table('tCommittees as c')
+        ->join('tUsers as u', 'c.admin', 'u.idUsers')
+        ->join('tAdmins as a', 'u.idUsers', 'a.idUsers')
+        ->join('tOrganizerUnits as o', 'a.idOrganizerUnits', 'o.idOrganizerUnits')
+        ->where('c.idCommittees', $idCommittee)
+        ->select(
+            'c.*',
+            DB::raw("'". Auth::user()->email . "'as email"), 
+            'a.idOrganizerUnits as idOrganizerUnits', 
+            'o.name as organizerName', 
+            )
+        ->get();
+
+        $master_committee = DB::table('tCommittees')
+                            ->select('committee_name')
+                            ->where('admin', Auth::id())
+                            ->distinct()
+                            ->pluck('committee_name');
+        
+        return view('pages.committee.edit-committees', compact('committees', 'master_committee'));
     }
 
     /**

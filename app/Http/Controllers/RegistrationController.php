@@ -506,6 +506,7 @@ class RegistrationController extends Controller
                             ->join('tEvaluationCriterias as ec', 'es.idEvaluationCriterias', 'ec.idEvaluationCriterias')
                             ->join('tEvaluationCriteriaScopes as ecs', 'ec.idEvaluationCriterias', 'ecs.idEvaluationCriterias')
                             ->where('e.target_user', $idUser)
+                            ->where('ec.target_type', 'user')
                             ->where('ecs.idCommittees', $idCommittee)
                             ->select([
                                 'ec.idEvaluationCriterias',
@@ -528,6 +529,7 @@ class RegistrationController extends Controller
                             ->join('tEvaluationCriterias as ec', 'es.idEvaluationCriterias', 'ec.idEvaluationCriterias')
                             ->join('tEvaluationCriteriaScopes as ecs', 'ec.idEvaluationCriterias', 'ecs.idEvaluationCriterias')
                             ->where('e.target_user', $idUser)
+                            ->where('ec.target_type', 'user')
                             ->where('ecs.idCommittees', $idCommittee)
                             ->select([
                                 'e.comment as general_comment'
@@ -540,6 +542,7 @@ class RegistrationController extends Controller
                 ->join('tEvaluationCriterias as ec', 'es.idEvaluationCriterias', 'ec.idEvaluationCriterias')
                 ->join('tEvaluationCriteriaScopes as ecs', 'ec.idEvaluationCriterias', 'ecs.idEvaluationCriterias')
                 ->where('e.target_user', $idUser)
+                ->where('ec.target_type', 'user')
                 ->where('ecs.idCommittees', $idCommittee)
                 ->select([
                     'ec.name as criteria',

@@ -126,14 +126,14 @@ use Illuminate\Support\Str;
                                             @endif                         
                                         </td>
                                         <td>       
-                                            <a href="{{ route('committees.show', ['idCommittees'=> $committee->idCommittees]) }}" 
+                                            <a href="{{ route('committees.edit', ['idCommittee'=> $committee->idCommittees]) }}" 
                                             class="btn btn-warning btn-sm">Edit</a>                                
                                         </td>
                                         @else
                                         <td>
-                                            <a href="javascript:;" class="btn btn-dark font-weight-bold text-xs"
-                                                data-toggle="tooltip" data-original-title="Evaluationr">
-                                                Lihat Evaluasi
+                                            <a href="{{ route('committees.show', ['idCommittee'=> $committee->idCommittees]) }}" class="btn btn-dark font-weight-bold text-xs"
+                                                data-toggle="tooltip" data-original-title="Detail">
+                                                Lihat Detail
                                             </a>
                                         </td>
                                         @endif

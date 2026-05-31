@@ -40,7 +40,7 @@
                     </div>
                 @endif
                 <div class="card">
-                    <form action="{{ route('committees.update', ['idCommittees' => $committee->idCommittees]) }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('committees.update', ['idCommittee' => $committee->idCommittees]) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
                     <div class="card-header pb-0">

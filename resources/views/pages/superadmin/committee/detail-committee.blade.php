@@ -1,7 +1,7 @@
 @extends('layouts.app', ['class' => 'g-sidenav-show bg-gray-100'])
 
 @section('content')
-    @include('layouts.navbars.auth.topnav', ['title' => 'Profil Kepanitiaan'])
+    @include('layouts.navbars.auth.topnav', ['title' => 'Detail Kepanitiaan'])
     <div class="card shadow-lg mx-4">
         <div class="card-body p-3">
             <div class="row gx-4">
@@ -24,11 +24,7 @@
         <div class="row">
             <div class="col-md-8">
                 <div class="card mb-4 committee-detail-scroll" style="max-height: 80vh; overflow-y: auto;">
-                    <form action="{{ route('committees.update', ['idCommittees' => $committee->idCommittees]) }}" method="POST" enctype="multipart/form-data">
-                        
-                        @csrf
-                        @method('PUT')
-
+                    <form action="#">
                         <div class="card-body">
 
                             {{-- INFORMASI KONTAK --}}

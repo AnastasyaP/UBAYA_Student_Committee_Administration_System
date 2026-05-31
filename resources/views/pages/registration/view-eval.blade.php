@@ -1,7 +1,7 @@
 @extends('layouts.app', ['class' => 'g-sidenav-show bg-gray-100'])
 
 @section('content')
-    @include('layouts.navbars.auth.topnav', ['title' => 'Billing'])
+    @include('layouts.navbars.auth.topnav', ['title' => 'Evaluasi Pendaftar'])
     <div class="container-fluid py-4">
         <div class="row">
             <!-- grafik evaluasi -->

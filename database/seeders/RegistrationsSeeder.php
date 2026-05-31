@@ -46,7 +46,7 @@ class RegistrationsSeeder extends Seeder
             ],
             [
                 'idUsers' => 3,                 
-                'idDivisions' => 2,           
+                'idDivisions' => 5,           
                 'idCommittees' => 1,           
                 'status' => 'diterima',
                 'percentage' => 0,
