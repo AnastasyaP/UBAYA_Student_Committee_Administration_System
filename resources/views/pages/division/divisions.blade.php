@@ -54,7 +54,7 @@ use Illuminate\Support\Str;
                                         <td>
                                             <div class="d-flex px-2 py-1">
                                                 <div>
-                                                    <img src="{{ $divisi->picture ? asset('storage/' . $divisi->picture) : asset('/img/profile-default.png') }}" class="avatar avatar-sm me-3"
+                                                    <img src="{{ $division->picture ? asset('storage/' . $division->picture) : asset('/img/profile-default.png') }}" class="avatar avatar-sm me-3"
                                                         alt="division picture">
                                                 </div>
                                                 <div class="d-flex flex-column justify-content-center">

@@ -66,7 +66,7 @@
                     </div>
                 @endif
                 <div class="card">
-                    <form action="{{ route('committees.update', ['idCommittees' => $committees->idCommittees]) }}" method="POST" enctype="multipart/form-data">
+                    <form action="#" method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
 

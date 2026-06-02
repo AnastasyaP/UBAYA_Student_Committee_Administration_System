@@ -116,6 +116,11 @@ use Illuminate\Support\Str;
             var calendar = new FullCalendar.Calendar(calendarEl, {
                 locale: 'id',
                 initialView: 'timeGridWeek',
+                headerToolbar: {
+                    left: 'today',
+                    center: 'title',
+                    right: 'prev,next'
+                },
                 allDaySlot: false,
                 events: @json($events),
                 eventClick: function(info){
