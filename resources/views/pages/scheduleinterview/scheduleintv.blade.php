@@ -109,12 +109,14 @@ use Illuminate\Support\Str;
 
     <!-- full calendar render -->
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/id.js"></script>
     <script> 
         document.addEventListener('DOMContentLoaded', function () {
             var calendarEl = document.getElementById('calendar');
             var calendar = new FullCalendar.Calendar(calendarEl, {
+                locale: 'id',
                 initialView: 'timeGridWeek',
-                // initialView: 'dayGridMonth',
+                allDaySlot: false,
                 events: @json($events),
                 eventClick: function(info){
                     // buat nge stop redirect url kek link zoom ama gmeet
