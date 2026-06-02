@@ -85,7 +85,12 @@
                   <input type="text" class="form-control" name="lastname" placeholder="Nama Belakang" required="" value="{{ $profile->lastname }}" disabled>
                 </div>
 
-                <div class="col-md-12">
+                <div class="col-md-6 ">
+                  <h6>Username</h6>
+                  <input type="text" class="form-control" name="username" placeholder="Username" required="" value="{{ $profile->username }}" disabled>
+                </div>
+
+                <div class="col-md-6">
                   <h6>Ubah Password</h6>
                   <div class="password-wrapper">
                     <input type="password" class="form-control" value="12345678" disabled>

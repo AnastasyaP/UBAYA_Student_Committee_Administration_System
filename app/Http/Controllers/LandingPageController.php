@@ -13,7 +13,7 @@ use App\Services\UBCFService;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\RegistrationSubmittedMail;
 use App\Mail\NewApplicantNotificationMail;
-
+use Carbon\Carbon;
 
 class LandingPageController extends Controller
 {
@@ -233,6 +233,15 @@ class LandingPageController extends Controller
                             'ld.idDivisions as idDivision',
                             )
                         ->get();
+
+        foreach ($divisions as $division) {
+            $division->keywords = DB::table('tKeywords as k')
+                ->join('tListDivisionKeywords as ldk', 'k.idKeywords', '=', 'ldk.idKeywords')
+                ->where('ldk.idCommittees', $idCommittee)
+                ->where('ldk.idDivisions', $division->idDivision)
+                ->pluck('k.name')
+                ->toArray();
+        }
                         
         $intvSchedules = DB::table('tInterviewSchedules as i')
                             ->select('i.*')
@@ -263,7 +272,52 @@ class LandingPageController extends Controller
                     )
                     ->first();
 
-        return view('pages.landingpage.regis-committee', compact('divisions', 'profil', 'intvSchedules', 'idCommittee'));
+        $existingRegistrations = DB::table('tInterviewSchedules as is')
+            ->join('tRegistrations as r', 'is.idInterviewSchedules', 'r.idInterviewSchedules')
+            ->join('tListDivisions as ld', function($join){
+                $join->on('ld.idCommittees', '=', 'r.idCommittees');
+                $join->on('ld.idDivisions', '=', 'r.idDivisions');
+            })
+            ->join('tDivisions as d', 'ld.idDivisions', 'd.idDivisions')
+            ->where('r.idUsers', $mhs->idUsers)
+            ->where('r.idCommittees', $idCommittee)
+            ->select(
+                'r.idRegistrations',
+                'r.idDivisions',
+                'd.name',
+                'r.percentage',
+                'r.idInterviewSchedules',
+                'is.date',
+                'is.start_time',
+                'is.end_time',
+                'is.place',
+            )
+            ->get();
+
+        $existingRegistrations = $existingRegistrations
+            ->map(function ($r) {
+                return [
+                    'registration_id' => $r->idRegistrations,
+                    'id' => $r->idDivisions,
+                    'name' => $r->name,
+                    'percentage' => $r->percentage,
+                    'intv_id' => $r->idInterviewSchedules,
+                    'date' => $r->date,
+                    'start_time' => $r->start_time,
+                    'end_time' => $r->end_time,
+                    'place' => $r->place,
+
+                    'is_existing' => true                ];
+            })
+            ->values();
+
+        return view('pages.landingpage.regis-committee', compact(
+            'divisions', 
+            'profil', 
+            'intvSchedules', 
+            'idCommittee',
+            'existingRegistrations'
+        ));
     }
 
     public function intv($idCommittee, $idDivision){
@@ -375,48 +429,43 @@ class LandingPageController extends Controller
             return redirect()->back()->with('warning', 'Authentikasi gagal!');
         }
 
-        $uniqueDivisions = collect($request->divisions)
-        ->unique('idDivision')
-        ->values()
-        ->all();
+        $totalPercentage = collect($request->divisions)
+            ->sum('percentage');
 
-        $dataToInput = [];
-        $dataSkipped = [];
-
-        foreach ($uniqueDivisions as $division) {
-            $exist = DB::table('tRegistrations')
-                ->where('idUsers', $mhs->idUsers)
-                ->where('idCommittees', $request->idCommittee)
-                ->where('idDivisions', $division['idDivision'])
-                ->exists();
-
-            if (!$exist) {
-                $dataToInput[] = [
-                    'idUsers' => $mhs->idUsers,
-                    'idDivisions' => $division['idDivision'],
-                    'idCommittees' => $request->idCommittee,
-                    'percentage' => $division['percentage'],
-                    'idInterviewSchedules' => $division['idInterviewSchedule'],
-                    'motivation' => $request->motivation,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ];
-            }else{
-                $dataSkipped[] = $division['idDivision'];   
-            }
-
-        }
-   
-        if (empty($dataToInput)) {
-                return back()
-                    ->withInput()
-                    ->with('error', 'Semua divisi yang dipilih sudah didaftarkan');
+        if ($totalPercentage != 100) {
+            return back()
+                ->withInput()
+                ->with('error', 'Total persentase harus tepat 100%.');
         }
 
         // pake transaction biar kalo satu insert gagal ntik semua di rollback
-        DB::transaction(function () use ($dataToInput, $user, $request){
+        DB::transaction(function () use ($user, $mhs, $request){
 
-            DB::table('tRegistrations')->insert($dataToInput);
+             foreach ($request->divisions as $division) {
+                if (!empty($division['is_existing']) && $division['is_existing'] == 1) {
+                    // UPDATE registration lama
+                    DB::table('tRegistrations')
+                        ->where('idRegistrations', $division['registration_id'])
+                        ->update([
+                            'percentage' => $division['percentage'],
+                            'updated_at' => now()
+                        ]);
+
+                } else {
+                    // INSERT registration baru
+                    DB::table('tRegistrations')
+                        ->insert([
+                            'idUsers' => $mhs->idUsers,
+                            'idDivisions' => $division['idDivision'],
+                            'idCommittees' => $request->idCommittee,
+                            'percentage' => $division['percentage'],
+                            'idInterviewSchedules' => $division['idInterviewSchedule'],
+                            'motivation' => $request->motivation,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                }
+            }
 
             $committee = DB::table('tCommittees as c')
                 ->join('tUsers as u', 'c.admin', 'u.idUsers')
@@ -430,20 +479,18 @@ class LandingPageController extends Controller
             $division = DB::table('tDivisions')
                 ->where('idDivisions', $request->divisions[0]['idDivision'])
                 ->first();
+                
+            $schedule = DB::table('tInterviewSchedules')
+                ->where('idInterviewSchedules', $request->divisions[0]['idInterviewSchedule'])
+                ->first();
 
-            $name = $user->firstname . ' ' . $user->lastname;
+            $name = $mhs->firstname . ' ' . $mhs->lastname;
 
             //kirim email notif ke pendaftar
-            Mail::to($user->email)->send(new RegistrationSubmittedMail($name, $committee->name, $division->name));
+            Mail::to($mhs->email)->send(new RegistrationSubmittedMail($name, $committee->name, $division->name, Carbon::parse($schedule->date)->format('d F Y'), substr($schedule->start_time, 0, 5), $schedule->place));
             // ke panitia
-            Mail::to($committee->email)->send(new NewApplicantNotificationMail($name, $user->email, $committee->name, $division->name));
+            Mail::to($committee->email)->send(new NewApplicantNotificationMail($name, $mhs->email, $committee->name, $division->name));
         });
-
-        if (!empty($dataSkipped)) {
-        return redirect()
-            ->route('detail.committee', ['idCommittee' => $request->idCommittee])
-            ->with('success', 'Sukses mengirim pendaftaran. Ada divisi yang di lewati karena sudah didaftarkan');
-        }
         
         return redirect()->route('detail.committee', ['idCommittee' => $request->idCommittee])->with('success', 'Berhasil mengirim form pendaftaran');
  
@@ -490,8 +537,17 @@ class LandingPageController extends Controller
                     ->join('tDivisions as d', 'ld.idDivisions', 'd.idDivisions')
                     ->where('ld.idCommittees', $idCommittee)
                     ->where('ld.is_open', 1)
-                    ->select('d.name as name', 'ld.description as description', 'ld.picture as picture')
+                    ->select('d.name as name', 'ld.description as description', 'ld.picture as picture', 'd.idDivisions')
                     ->get();
+
+        foreach ($divisions as $division) {
+            $division->keywords = DB::table('tKeywords as k')
+                ->join('tListDivisionKeywords as ldk', 'k.idKeywords', '=', 'ldk.idKeywords')
+                ->where('ldk.idCommittees', $idCommittee)
+                ->where('ldk.idDivisions', $division->idDivisions)
+                ->pluck('k.name')
+                ->toArray();
+        }
 
         return view('pages.landingpage.detail-committee', compact(
             'committee', 

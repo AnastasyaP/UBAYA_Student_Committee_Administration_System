@@ -63,7 +63,6 @@ use Illuminate\Support\Str;
 
   <!-- Vendor JS Files -->
   <script src="{{ asset('assets_lp/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-  <script src="{{ asset('assets_lp/vendor/php-email-form/validate.js') }}"></script>
   <script src="{{ asset('assets_lp/vendor/aos/aos.js') }}"></script>
   <script src="{{ asset('assets_lp/vendor/purecounter/purecounter_vanilla.js') }}"></script>
   <script src="{{ asset('assets_lp/vendor/glightbox/js/glightbox.min.js') }}"></script>

@@ -146,6 +146,76 @@
 
                             </table>
 
+                            <!-- JADWAL INTERVIEW -->
+                            <table width="100%" cellpadding="0" cellspacing="0" style="
+                                background-color:#ffffff;
+                                border-radius:12px;
+                                overflow:hidden;
+                                box-shadow:0 4px 12px rgba(0,0,0,0.08);
+                            ">
+
+                                <tr>
+                                    <td colspan="2" style="
+                                        font-size:16px;
+                                        font-weight:bold;
+                                        color:#0d6efd;
+                                        padding-bottom:15px;
+                                    ">
+                                        Detail Jadwal Interview
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="
+                                        width:35%;
+                                        padding:10px 0;
+                                        font-size:15px;
+                                    ">
+                                        <strong>Tanggal</strong>
+                                    </td>
+
+                                    <td style="
+                                        padding:10px 0;
+                                        font-size:15px;
+                                    ">
+                                        {{ $interviewDate }}
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="
+                                        padding:10px 0;
+                                        font-size:15px;
+                                    ">
+                                        <strong>Waktu</strong>
+                                    </td>
+
+                                    <td style="
+                                        padding:10px 0;
+                                        font-size:15px;
+                                    ">
+                                        {{ $interviewTime }}
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td style="
+                                        padding:10px 0;
+                                        font-size:15px;
+                                    ">
+                                        <strong>Tempat</strong>
+                                    </td>
+
+                                    <td style="
+                                        padding:10px 0;
+                                        font-size:15px;
+                                    ">
+                                        {{ $interviewPlace }}
+                                    </td>
+                                </tr>
+
+                            </table>
+
                             <p style="
                                 font-size:15px;
                                 line-height:1.8;

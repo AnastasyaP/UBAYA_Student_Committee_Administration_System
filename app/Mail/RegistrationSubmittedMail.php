@@ -16,15 +16,21 @@ class RegistrationSubmittedMail extends Mailable
     public $name;
     public $committee;
     public $division;
+    public $interviewDate;
+    public $interviewTime;
+    public $interviewPlace;
 
     /**
      * Create a new message instance.
      */
-    public function __construct($name, $committee, $division)
+    public function __construct($name, $committee, $division, $interviewDate, $interviewTime, $interviewPlace)
     {
         $this->name = $name;
         $this->committee = $committee;
         $this->division = $division;
+        $this->interviewDate = $interviewDate;
+        $this->interviewTime = $interviewTime;
+        $this->interviewPlace = $interviewPlace;
     }
 
     /**

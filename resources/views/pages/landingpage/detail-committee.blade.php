@@ -141,7 +141,7 @@ use Illuminate\Support\Str;
               <img src="{{ asset('storage/' . $division->picture) }}" class="img-fluid" alt="">
               <div class="member-content">
                 <h4>{{ $division->name }}</h4>
-                <!-- <span>Web Development</span> -->
+                <span>{{ implode(', ', $division->keywords) }}</span>
                 <p>{{ Str::limit($division->description, 70, '..') }}</p>
               </div>
             </div>
