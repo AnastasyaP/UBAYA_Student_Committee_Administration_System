@@ -93,7 +93,7 @@
                       <th scope="col">Divisi</th>
                       <th scope="col">
                         Persentase
-                        <i class="bi bi-info-circle-fill text-primary"
+                        <i class="bi bi-info-circle-fill tooltip-icon"
                           data-bs-toggle="tooltip"
                           data-bs-placement="top"
                           title="Persentase menunjukkan tingkat minat Anda terhadap masing-masing divisi. Jika memilih 2 divisi, total persentase harus tepat 100%. Contoh: Acara 70% dan Publikasi 30%.">

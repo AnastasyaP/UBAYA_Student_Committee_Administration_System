@@ -17,8 +17,8 @@ use Illuminate\Support\Str;
             <h2 data-aos="fade-up">Bergabung, Jelajahi, dan Berkembang Bersama Kepanitiaan Kampus</h2>
             <p data-aos="fade-up" data-aos-delay="100">Temukan dan ikuti kepanitiaan mahasiswa yang sesuai dengan minatmu dengan mudah. ​​Kelola keterlibatan dan pengalamanmu di satu tempat — cepat, sederhana, dan terorganisir.</p>
 
-            <form action="#" class="form-search d-flex align-items-stretch mb-3" data-aos="fade-up" data-aos-delay="200">
-              <input type="text" class="form-control" placeholder="Temukan kepanitiaanmu disini..">
+            <form action="{{ route('home') }}" method="GET" class="form-search d-flex align-items-stretch mb-3" data-aos="fade-up" data-aos-delay="200">
+              <input type="text" name="search" value="{{ request('search') }}" class="form-control" placeholder="Temukan kepanitiaanmu disini..">
               <button type="submit" class="btn btn-primary">Cari</button>
             </form>
 
@@ -57,7 +57,7 @@ use Illuminate\Support\Str;
           </div>
 
           <div class="col-lg-5 order-1 order-lg-2 hero-img" data-aos="zoom-out">
-            <img src="{{ asset('assets_lp/img/hero-img.svg') }}" class="img-fluid mb-3 mb-lg-0" alt="">
+            <img src="{{ asset('assets_lp/img/collaboration.svg') }}" class="img-fluid mb-3 mb-lg-0" alt="">
           </div>
 
         </div>
@@ -213,7 +213,7 @@ use Illuminate\Support\Str;
     </section>/About Section -->
 
     <!-- Services Section -->
-    <section id="services" class="services section">
+    <section id="committee-search" class="services section">
 
       <!-- Section Title -->
       <div class="container section-title" data-aos="fade-up">
@@ -223,6 +223,20 @@ use Illuminate\Support\Str;
       </div><!-- End Section Title -->
 
       <div class="container">
+        @if(request('search'))
+            <div class="mb-4 text-center">
+                <h5>
+                    Hasil pencarian untuk:
+                    <b>"{{ request('search') }}"</b>
+                </h5>
+                <a href="{{ route('home') }}"
+                  class="btn btn-outline-secondary btn-sm mt-2">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                    Tampilkan Semua Kepanitiaan
+                </a>
+            </div>
+        @endif
+        @if($committees->count() > 0)
         <div class="row gy-4">
           @foreach($committees as $committee)
             <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
@@ -241,6 +255,12 @@ use Illuminate\Support\Str;
             </div>
           @endforeach
         </div>
+        @else
+            <div class="text-center py-5">
+                <h5>Tidak ada kepanitiaan yang ditemukan 😢</h5>
+                <p>Coba gunakan kata kunci lain.</p>
+            </div>
+        @endif
       </div>
 
     </section><!-- /Services Section -->
@@ -571,14 +591,22 @@ use Illuminate\Support\Str;
     </div>
     
     <script>
-      document.addEventListener("DOMContentLoaded", function(){
-        let needPreference = {{ $needPreferences ? 'true' : 'false' }};
-        let hasHistory = {{ $hasHistory ? 'true' : 'false' }};
+        document.addEventListener("DOMContentLoaded", function(){
 
-        if (needPreference && !hasHistory) {
-            let modal = new bootstrap.Modal(document.getElementById('preferenceModal'));
-            modal.show();
-        }
-      });
+            let needPreference = {{ $needPreferences ? 'true' : 'false' }};
+            let hasHistory = {{ $hasHistory ? 'true' : 'false' }};
+
+            if (needPreference && !hasHistory) {
+                let modal = new bootstrap.Modal(document.getElementById('preferenceModal'));
+                modal.show();
+            }
+
+            @if(request('search'))
+                document.getElementById('committee-search')
+                    .scrollIntoView({
+                        behavior: 'smooth'
+                    });
+            @endif
+        });
     </script>
 @endsection

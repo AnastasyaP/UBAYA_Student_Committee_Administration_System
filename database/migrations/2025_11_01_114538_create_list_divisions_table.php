@@ -17,7 +17,7 @@ return new class extends Migration
 
             $table->tinyInteger('is_open')->default(0);
             $table->string('description', 600);
-            $table->string('picture', 255);
+            $table->string('picture', 255)->default('/img/noimage');
             $table->tinyInteger('is_consistent')->default(0);
             $table->integer('num_member')->default(2);
 

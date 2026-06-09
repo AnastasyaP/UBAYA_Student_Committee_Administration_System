@@ -19,36 +19,36 @@
 
 /* Global Colors - The following color variables are used throughout the website. Updating them here will change the color scheme of the entire website */
 :root { 
-  --background-color: #ffffff; /* Background color for the entire website, including individual sections */
-  --default-color: #212529; /* Default color used for the majority of the text content across the entire website */
-  --heading-color: #001973; /* Color for headings, subheadings and title throughout the website */
-  --accent-color: #0d42ff; /* Accent color that represents your brand on the website. It's used for buttons, links, and other elements that need to stand out */
+  --background-color: #fcfaf8; /* Background color for the entire website, including individual sections */
+  --default-color: #5f6670; /* Default color used for the majority of the text content across the entire website */
+  --heading-color: #7d1f2d; /* Color for headings, subheadings and title throughout the website */
+  --accent-color: #b3323f; /* Accent color that represents your brand on the website. It's used for buttons, links, and other elements that need to stand out */
   --surface-color: #ffffff; /* The surface color is used as a background of boxed elements within sections, such as cards, icon boxes, or other elements that require a visual separation from the global background. */
   --contrast-color: #ffffff; /* Contrast color for text, ensuring readability against backgrounds of accent, heading, or default colors. */
 }
 
 /* Nav Menu Colors - The following color variables are used specifically for the navigation menu. They are separate from the global colors to allow for more customization options */
 :root {
-  --nav-color: rgba(255, 255, 255, 0.6);  /* The default color of the main navmenu links */
+  --nav-color: rgba(255,255,255,.85);  /* The default color of the main navmenu links */
   --nav-hover-color: #ffffff; /* Applied to main navmenu links when they are hovered over or active */
   --nav-mobile-background-color: #ffffff; /* Used as the background color for mobile navigation menu */
   --nav-dropdown-background-color: #ffffff; /* Used as the background color for dropdown items that appear when hovering over primary navigation items */
-  --nav-dropdown-color: #212529; /* Used for navigation links of the dropdown items in the navigation menu. */
-  --nav-dropdown-hover-color: #0d42ff; /* Similar to --nav-hover-color, this color is applied to dropdown navigation links when they are hovered over. */
+  --nav-dropdown-color: #5f6670; /* Used for navigation links of the dropdown items in the navigation menu. */
+  --nav-dropdown-hover-color: #b3323f; /* Similar to --nav-hover-color, this color is applied to dropdown navigation links when they are hovered over. */
 }
 
 /* Color Presets - These classes override global colors when applied to any section or element, providing reuse of the sam color scheme. */
 
 .light-background {
-  --background-color: #f7f9fc;
-  --surface-color: #ffffff;
+  --background-color: #fcfaf8;
+  --surface-color: #f4e4df;
 }
 
 .dark-background {
-  --background-color: #0e1d34;
+  --background-color: #7d1f2d;
   --default-color: #ffffff;
   --heading-color: #ffffff;
-  --surface-color: #19335c;
+  --surface-color: #9d3748;
   --contrast-color: #ffffff;
 }
 
@@ -85,6 +85,26 @@ h5,
 h6 {
   color: var(--heading-color);
   font-family: var(--heading-font);
+}
+
+.btn-primary {
+  background-color: #7d1f2d !important;
+  border-color: #7d1f2d !important;
+  color: #fff !important;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: #962638 !important;
+  border-color: #962638 !important;
+}
+
+.btn-primary:disabled,
+.btn-primary.disabled {
+  background-color: #d9b5ac !important;
+  border-color: #d9b5ac !important;
+  color: #6a4a4a !important;
+  opacity: 1;
 }
 
 /* Pulsating Play Button
@@ -288,7 +308,7 @@ h6 {
 /* Global Header on Scroll
 ------------------------------*/
 .scrolled .header {
-  --background-color: rgba(14, 29, 52, 0.9);
+  --background-color: rgba(125, 31, 45, 0.95);
 }
 
 /*--------------------------------------------------------------
@@ -2044,15 +2064,15 @@ section,
 }
 
 .flash-message.success {
-    background: #d1e7dd;
-    color: #0f5132;
-    border-left: 5px solid #0f5132;
+    background: #edf6f0;
+    color: #46735d;
+    border-left: 5px solid #4f8b6d;
 }
 
 .flash-message.error {
-    background: #f8d7da;
-    color: #842029;
-    border-left: 5px solid #842029;
+    background: #fde8e5;
+    color: #9f2433;
+    border-left: 5px solid #9f2433;
 }
 
 @keyframes slideIn {
@@ -2122,7 +2142,7 @@ section,
   right: 0;
   transform: translate(30%, 30%); /* bikin keluar */
   
-  background: #0d6efd;
+  background: #9f2433;
   color: white;
   border: none;
   border-radius: 50%;
@@ -2138,7 +2158,7 @@ section,
 }
 
 .edit-btn:hover {
-  background: #0b5ed7;
+  background: #b3323f;
 }
 
 /* edit password */
@@ -2157,7 +2177,7 @@ section,
   height: 100%;
   width: 50px;
 
-  background: #0d6efd;
+  background: #9f2433;
   color: white;
   border: none;
 
@@ -2172,7 +2192,11 @@ section,
 }
 
 .btn-save {
-  background: linear-gradient(45deg, #2b5cff, #3a7bfd);
+  background: linear-gradient(
+    45deg,
+    #9f2433,
+        #c94d4d
+  );
   color: white;
   border: none;
   padding: 12px 30px;
@@ -2184,7 +2208,11 @@ section,
 }
 
 .btn-save:hover {
-  background: linear-gradient(45deg, #1f4ae0, #2b6cf0);
+  background: linear-gradient(
+    45deg,
+    #871c2a,
+        #b3323f
+  );
   transform: translateY(-2px);
 }
 
@@ -2199,7 +2227,7 @@ section,
 }
 
 .committee-info i {
-  color: #6c757d;
+  color: #545e75;
 }
 
 /* .buy-btn.disabled {
@@ -2213,9 +2241,9 @@ button.buy-btn.disabled {
     pointer-events: none;
     opacity: 0.6 !important;
     cursor: not-allowed;
-    background-color: #ccc !important;
-    border-color: #ccc !important;
-    color: #666 !important;
+    background-color: #d9b5ac !important;
+    border-color: #d9b5ac !important;
+    color: #6a4a4a !important;
 }
 
 /*--------------------------------------------------------------
@@ -2228,7 +2256,7 @@ button.buy-btn.disabled {
 
 .info-item:hover {
   transform: translateY(-3px);
-  background: #f5f9ff;
+  background: #f8f2f1;
 }
 
 .star-rating {
@@ -2256,6 +2284,18 @@ button.buy-btn.disabled {
     color: gold;
 }
 
+/*--------------------------------------------------------------
+# Starter Section Tooltip
+--------------------------------------------------------------*/
+.tooltip-icon {
+    color: #7d1f2d;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.tooltip-icon:hover {
+    color: #a52a3a;
+}
 
 /*--------------------------------------------------------------
 # Starter Section Section

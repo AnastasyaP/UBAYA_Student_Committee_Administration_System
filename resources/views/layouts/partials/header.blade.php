@@ -10,13 +10,13 @@
 
       <nav id="navmenu" class="navmenu">
         <ul>
-          <li><a href="{{ route('home') }}" class="active">Beranda<br></a></li>
+          <li><a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">Beranda<br></a></li>
           @auth
               @if(auth()->user()->role == 'mahasiswa')
-                  <li><a href="{{ route('lp.profile') }}">Profil</a></li>
+                  <li><a href="{{ route('lp.profile') }}" class="{{ request()->routeIs('lp.profile') ? 'active' : '' }}">Profil</a></li>
               @endif
           @endauth
-          <li><a href="{{ route('lp.committee') }}">Kepanitiaan</a></li>
+          <li><a href="{{ route('lp.committee') }}" class="{{ request()->routeIs('lp.committee') ? 'active' : '' }}">Kepanitiaan</a></li>
           <!-- <li><a href="pricing.html">Pricing</a></li>
           <li class="dropdown"><a href="#"><span>Dropdown</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
             <ul>

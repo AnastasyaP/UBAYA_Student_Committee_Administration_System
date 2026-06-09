@@ -16,13 +16,13 @@ return new class extends Migration
             $table->unsignedBigInteger('admin');
             $table->string('committee_name', 50);
             $table->string('name', 45);
-            $table->date('start_period')->nullable();
+            $table->date('start_period');
             $table->date('end_period')->nullable();
-            $table->date('end_evaluation');
+            $table->date('end_evaluation')->nullable();
             $table->string('description', 600)->nullable();
             $table->string('requirements', 500)->nullable();
             $table->string('contact', 45)->nullable();
-            $table->date('start_regis')->nullable();
+            $table->date('start_regis');
             $table->date('end_regis')->nullable();
             $table->text('evaluation')->nullable();  
             $table->string('poster', 1000)->default('/img/noimage');  

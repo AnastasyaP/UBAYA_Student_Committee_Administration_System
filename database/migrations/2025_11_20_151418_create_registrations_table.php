@@ -23,7 +23,7 @@ return new class extends Migration
             $table->enum('position', ['BPH-SC', 'Koordinator', 'Wakil Koordinator', 'Anggota'])->default('Anggota');
             $table->longText('motivation');
 
-            $table->unsignedBigInteger('idInterviewSchedules')->nullable();
+            $table->unsignedBigInteger('idInterviewSchedules');
             $table->string('invitation_token', 255)->nullable();
             $table->datetime('invitation_expired')->nullable();
             

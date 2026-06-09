@@ -458,7 +458,6 @@ class SuperAdminController extends Controller
         ]);
 
 
-            // dd($idAdmin);
         DB::table('tOrganizerUnits')->insert([
             'name' => $request->name,
             'level' => $request->level,

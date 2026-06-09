@@ -20,7 +20,7 @@ class LandingPageController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(UBCFService $ubcf)
+    public function index(Request $request, UBCFService $ubcf)
     {
         $user = Auth::id();
 
@@ -71,7 +71,13 @@ class LandingPageController extends Controller
             $needPreferences = true;
         }
 
+        $search = $request->search;
+
         $committees = DB::table('tCommittees as c')
+                    ->when($search, function ($query) use ($search){
+                        $query->where('name', 'like', '%' . $search . '%')
+                            ->orWhere('description', 'like', '%' . $search . '%');
+                    })
                     // ->where('is_active', 1)
                     ->where('is_published', 1)
                     ->select([
