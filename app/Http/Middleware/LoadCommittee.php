@@ -46,7 +46,7 @@ class LoadCommittee
             ->first();
 
             if($otherCommittee){
-                session(['displayed_committee' => $otherCommittee->idCommiittees]);
+                session(['displayed_committee' => $otherCommittee->idCommittees]);
 
                 return redirect()->back()->with('warning', 'Kepanitiaan sebelumnya sudah berakhir, tampilan dialihkan ke kepanitian yang sedang aktif');
             }

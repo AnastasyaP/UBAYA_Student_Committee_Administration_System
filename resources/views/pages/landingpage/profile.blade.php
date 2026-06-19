@@ -50,7 +50,7 @@
           <div class="col-lg-4 d-flex justify-content-center">
             <div class="profile-wrapper">
               <div class="profile-img-container">
-                <img src="{{ $profile->picture ? asset('storage/' . $profile->picture) : asset('/img/profile-default.png') }}" alt="profile picture">
+                <img src="{{ $profile?->picture ? asset('storage/' . $profile->picture) : asset('/img/profile-default.png') }}" alt="profile picture">
               </div>
               
               <button class="edit-btn" data-bs-toggle="modal" data-bs-target="#editProfileModal">

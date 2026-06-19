@@ -65,10 +65,6 @@
                                         <label class="form-control-label">Pilih Kriteria Evaluasi Yang Tersedia</label>
                                         <select class="form-control" id="master_eval" name="master_eval">
                                             <option value="">-- Pilih Kriteria Evaluasi --</option>
-                                            @foreach ($criterias as $item)
-                                                <option value="{{ $item->idEvaluationCriterias }}"
-                                                    data-description="{{ $item->description }}">{{ $item->name }}</option>
-                                            @endforeach
                                         </select>
                                         @error('master_eval')
                                            <div class="text-danger small">{{ $message }}</div>
@@ -85,15 +81,27 @@
                                            @enderror
                                     </div>
                                 </div>
-                                <div class="col-md-12">
+                                <div class="col-md-6">
                                     <div class="form-group">
-                                          <label class="form-control-label">Deskripsi</label>
-                                          <textarea name="description" id="description" class="form-control"></textarea>
+                                        <label class="form-control-label">
+                                            Pilih Deskripsi Yang Sudah Ada
+                                        </label>
+
+                                        <select class="form-control" id="master_description" name="master_description" disabled>
+                                            <option value="">-- Pilih Deskripsi --</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                          <label class="form-control-label">Atau Tambah Deskripsi Baru</label>
+                                          <textarea name="description" id="description" class="form-control" placeholder="Masukkan Deskripsi Baru"></textarea>
                                            @error('description')
                                            <div class="text-danger small">{{ $message }}</div>
                                            @enderror
                                     </div>
                                 </div>
+                                <input type="hidden" id="selected_criteria_id" name="selected_criteria_id">
                             </div>
                         </div>
                     </form>
@@ -103,9 +111,12 @@
         @include('layouts.footers.auth.footer')
     </div>
     <script>
+        const evaluationData = @json($allEvaluationData);
+
         document.getElementById('target_eval').addEventListener('change', function(){
             const target = this.value;
             const divisionSelect = document.getElementById('target_divisi');
+            const criteriaSelect = document.getElementById('master_eval');
 
             if(target === 'division'){
                 divisionSelect.disabled = false;
@@ -113,26 +124,110 @@
                 divisionSelect.disabled = true;
                 divisionSelect.value = '';
             }
+
+            // reset combobox kriteria
+            criteriaSelect.innerHTML =
+                '<option value="">-- Pilih Kriteria Evaluasi --</option>';
+
+            // reset field lain
+            document.getElementById('eval_criteria').value = '';
+            document.getElementById('eval_criteria').readOnly = false;
+
+            document.getElementById('master_description').innerHTML =
+                '<option value="">-- Pilih Deskripsi --</option>';
+
+            document.getElementById('master_description').disabled = true;
+
+            document.getElementById('description').value = '';
+            document.getElementById('selected_criteria_id').value = '';
+
+            // ambil nama kriteria unik
+            let added = [];
+
+            evaluationData.forEach(function(item){
+
+                if(
+                    item.target_type === target &&
+                    !added.includes(item.name)
+                ){
+                    added.push(item.name);
+
+                    criteriaSelect.innerHTML += `
+                        <option value="${item.name}">
+                            ${item.name}
+                        </option>
+                    `;
+                }
+            });
         });
 
         document.getElementById('master_eval').addEventListener('change', function(){
-            const selectedOption = this.options[this.selectedIndex];
+            const criteria = this.value;
+            const descSelect = document.getElementById('master_description');
             const criteriaInput = document.getElementById('eval_criteria');
-            const description = document.getElementById('description');
+            const target = document.getElementById('target_eval').value;
 
-            if(this.value){
-                criteriaInput.value = selectedOption.text;
+            if(criteria != ""){
+                criteriaInput.value = criteria;
                 criteriaInput.readOnly = true;
-
-                description.value = selectedOption.dataset.description;
             }else{
-                criteriaInput.value = '';
+                criteriaInput.value = "";
                 criteriaInput.readOnly = false;
+            }
 
-                description.value = '';
+            descSelect.innerHTML =
+                '<option value="">-- Pilih Deskripsi --</option>';
+
+            let found = false;
+
+            evaluationData.forEach(function(item){
+
+                if(item.name === criteria && item.target_type === target){
+                    found = true;
+
+                    descSelect.innerHTML += `
+                        <option
+                            value="${item.idEvaluationCriterias}"
+                            data-description="${item.description}">
+                            ${item.description}
+                        </option>
+                    `;
+                }
+            });
+
+            if(found){
+                descSelect.disabled = false;
+            }else{
+                descSelect.disabled = true;
+                descSelect.selectedIndex = 0;
+
+                document.getElementById('description').value = '';
+                document.getElementById('selected_criteria_id').value = '';
             }
         });
 
+        document.getElementById('master_description').addEventListener('change', function(){
+
+            const option = this.options[this.selectedIndex];
+
+            document.getElementById('eval_criteria').value = document.getElementById('master_eval').value;
+
+            document.getElementById('description').value = option.dataset.description ?? '';
+
+            document.getElementById('selected_criteria_id').value = option.value;
+        });
+
+        document.getElementById('eval_criteria').addEventListener('input', function(){
+
+            if(this.readOnly == false){
+                document.getElementById('master_eval').value = "";
+                document.getElementById('master_description').innerHTML =
+                    '<option value="">-- Pilih Deskripsi --</option>';
+                document.getElementById('master_description').disabled = true;
+                document.getElementById('selected_criteria_id').value = "";
+            }
+
+        });
         setTimeout(()=>{
             const alert = document.querySelector('.alert');
             if(alert){

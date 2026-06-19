@@ -87,79 +87,97 @@ class InterviewCriteriaController extends Controller
             'mimes' => 'Format file harus jpg, jpeg, atau png.',
         ]);
 
-        $ahp = $request->ahp_criteria; // ambil nama dari text input
-        $master_ahp = $request->master_ahp; //ambil nama dari combobox
+        try {
+            DB::beginTransaction();
 
-        // klo comboboxnya ada valuenya pake yg dr combobox klo nga buat divisi baru (tapi di cek dulu ada yg sama nga namanya)
-        if ($master_ahp) {
-            $ahpID = $master_ahp;
-        } else {
-            $existingAHP = AHPCriteria::where('name', $ahp)->first();
-            if ($existingAHP) { 
-                $ahpID = $existingAHP->idAHPCriterias;
+            $ahp = $request->ahp_criteria;
+            $master_ahp = $request->master_ahp;
+
+            // Ambil atau buat AHP
+            if ($master_ahp) {
+                $ahpID = $master_ahp;
             } else {
-                $newAHP = AHPCriteria::create([
-                    'name' => $request->ahp_criteria,
-                    'created_at' => now(),
-                    'updated_at' => now()
-                ]);
-                $ahpID = $newAHP->idAHPCriterias;
-            }
-        }
-        
-        // batesin 1 divisi di masing2 committee max 5 ahp criteria biar pairwisenya nga kebanyakan
-        $mapping = DB::table('tListDivisionAHPCriterias')
-            ->where('idDivisions', $request->idDivision)
-            ->where('idCommittees', $idCommittee)
-            ->where('idAHPCriterias', $ahpID)
-            ->first();
+                $existingAHP = AHPCriteria::where('name', $ahp)->first();
 
-        if(!$mapping){
-            $ahpCount = DB::table('tListDivisionAHPCriterias')
+                if ($existingAHP) {
+                    $ahpID = $existingAHP->idAHPCriterias;
+                } else {
+                    $newAHP = AHPCriteria::create([
+                        'name' => $ahp,
+                        'created_at' => now(),
+                        'updated_at' => now()
+                    ]);
+
+                    $ahpID = $newAHP->idAHPCriterias;
+                }
+            }
+
+            // Cek mapping
+            $mapping = DB::table('tListDivisionAHPCriterias')
                 ->where('idDivisions', $request->idDivision)
                 ->where('idCommittees', $idCommittee)
-                ->count();
+                ->where('idAHPCriterias', $ahpID)
+                ->first();
 
-            if($ahpCount >= 5){
-                DB::rollBack();
-                return redirect()->back()->with('warning',
-                    'Satu divisi maksimal hanya boleh memiliki 5 AHP Criteria.'
-                );
+            if (!$mapping) {
+
+                $ahpCount = DB::table('tListDivisionAHPCriterias')
+                    ->where('idDivisions', $request->idDivision)
+                    ->where('idCommittees', $idCommittee)
+                    ->count();
+
+                if ($ahpCount >= 5) {
+                    throw new \Exception(
+                        'Satu divisi maksimal hanya boleh memiliki 5 AHP Criteria.'
+                    );
+                }
+
+                $ListDivisionAHPCriteriasID = DB::table('tListDivisionAHPCriterias')
+                    ->insertGetId([
+                        'idDivisions' => $request->idDivision,
+                        'idCommittees' => $idCommittee,
+                        'idAHPCriterias' => $ahpID,
+                        'average_weight' => 0,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+            } else {
+                $ListDivisionAHPCriteriasID = $mapping->idListDivisionAHPCriterias;
             }
 
-            // create new mapping
-            $ListDivisionAHPCriteriasID = DB::table('tListDivisionAHPCriterias')
+            $InterviewCriteriasID = DB::table('tInterviewCriterias')
                 ->insertGetId([
-                    'idDivisions'    => $request->idDivision,
-                    'idCommittees'   => $idCommittee,
-                    'idAHPCriterias' => $ahpID,
-                    'average_weight' => 0,
+                    'name' => $request->name,
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
-        } else {
-            // reuse existing mapping
-            $ListDivisionAHPCriteriasID = $mapping->idListDivisionAHPCriterias;
-        }
 
+            DB::table('tInterviewDivisionAHPCriterias')
+                ->insert([
+                    'idInterviewCriterias' => $InterviewCriteriasID,
+                    'idListDivisionAHPCriterias' => $ListDivisionAHPCriteriasID,
+                ]);
 
-        $InterviewCriteriasID = DB::table('tInterviewCriterias')
-        ->insertGetId([
-            'name' => $request->name,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+            DB::commit();
 
-        DB::table('tInterviewDivisionAHPCriterias')
-        ->insert([
-            'idInterviewCriterias' => $InterviewCriteriasID,
-            'idListDivisionAHPCriterias' => $ListDivisionAHPCriteriasID
-        ]);
+            if (session()->has('idCommittee')) {
+                return redirect()
+                    ->route('members.intvcriteria')
+                    ->with('success', 'Interview criteria successfully added.');
+            }
 
-        if(session()->has('idCommittee')){
-            return redirect()->route('members.intvcriteria')->with('success', 'Interview criteria successfully added.');
-        }else{
-            return redirect()->route('intvcriteria')->with('success', 'Interview criteria successfully added.');
+            return redirect()
+                ->route('intvcriteria')
+                ->with('success', 'Interview criteria successfully added.');
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('warning', $e->getMessage());
         }
     }
 

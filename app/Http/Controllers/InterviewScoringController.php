@@ -97,81 +97,83 @@ class InterviewScoringController extends Controller
             'comment' => 'nullable|string'
         ]);
         
-        //buat tInterviewEvaluations
-        $exist = DB::table('tInterviewEvaluations')
-            ->where('idEvaluator', Auth::id())
-            ->where('idRegistrations', $request->idRegis)
-            ->first();
+        try {
 
-        if ($exist) {
-            DB::table('tInterviewEvaluations')
-                ->where('idInterviewEvaluations', $exist->idInterviewEvaluations)
-                ->update([
-                    'comment' => $request->comment,
-                ]);
+            DB::beginTransaction();
 
-            $idInterviewEvaluation = $exist->idInterviewEvaluations;
-        } else {
+            $exist = DB::table('tInterviewEvaluations')
+                ->where('idRegistrations', $request->idRegis)
+                ->first();
+
+            if ($exist) {
+                DB::rollBack();
+
+                return redirect()->back()
+                    ->with('warning', 'Peserta ini sudah pernah dinilai.');
+            }
+
             $idInterviewEvaluation = DB::table('tInterviewEvaluations')
                 ->insertGetId([
                     'idEvaluator' => Auth::id(),
                     'idRegistrations' => $request->idRegis,
                     'comment' => $request->comment,
                 ]);
+
+            foreach ($request->scores as $i) {
+
+                DB::table('tInterviewEvaluationScores')
+                    ->insert([
+                        'idInterviewEvaluations' => $idInterviewEvaluation,
+                        'idInterviewCriterias' => $i['idInterviewCriteria'],
+                        'score' => $i['score']
+                    ]);
+            }
+
+            $avgScores = DB::table('tInterviewEvaluations as ie')
+                ->join('tInterviewEvaluationScores as ies', 'ie.idInterviewEvaluations', '=', 'ies.idInterviewEvaluations')
+                ->join('tInterviewCriterias as ic', 'ies.idInterviewCriterias', '=', 'ic.idInterviewCriterias')
+                ->join('tInterviewDivisionAHPCriterias as idac', 'ic.idInterviewCriterias', '=', 'idac.idInterviewCriterias')
+                ->join('tListDivisionAHPCriterias as ldac', 'idac.idListDivisionAHPCriterias', '=', 'ldac.idListDivisionAHPCriterias')
+                ->where('ie.idRegistrations', $request->idRegis)
+                ->select(
+                    'ie.idRegistrations',
+                    'ldac.idAHPCriterias',
+                    'ldac.average_weight',
+                    DB::raw('AVG(ies.score) as avg_score')
+                )
+                ->groupBy(
+                    'ie.idRegistrations',
+                    'ldac.idAHPCriterias',
+                    'ldac.average_weight'
+                )
+                ->get();
+
+            $finalScore = $avgScores->sum(function ($row) {
+                return $row->avg_score * $row->average_weight;
+            });
+
+            DB::table('tAHPResults')
+                ->updateOrInsert(
+                    ['idRegistrations' => $request->idRegis],
+                    ['final_score' => $finalScore]
+                );
+
+            DB::table('tRegistrations')
+                ->where('idRegistrations', $request->idRegis)
+                ->update([
+                    'status' => 'dinilai',
+                ]);
+
+            DB::commit();
+
+            return redirect()->route('registration')->with('success', 'Penilaian berhasil disimpan dan final score berhasil dihitung.');
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return redirect()->back()->withInput()->with('warning', $e->getMessage());
         }
-
-        //buat tInterviewEvaluationScores
-        foreach($request->scores as $i){
-            DB::table('tInterviewEvaluationScores')
-            ->updateOrInsert([
-                'idInterviewEvaluations' => $idInterviewEvaluation,
-                'idInterviewCriterias' => $i['idInterviewCriteria'],
-            ],[
-                'score' => $i['score']
-            ]);
-
-        }
-        
-        //hitung score
-        $avgScores = DB::table('tInterviewEvaluations as ie')
-            ->join('tInterviewEvaluationScores as ies', 'ie.idInterviewEvaluations', '=', 'ies.idInterviewEvaluations')
-            ->join('tInterviewCriterias as ic', 'ies.idInterviewCriterias', '=', 'ic.idInterviewCriterias')
-            ->join('tInterviewDivisionAHPCriterias as idac', 'ic.idInterviewCriterias', '=', 'idac.idInterviewCriterias')
-            ->join('tListDivisionAHPCriterias as ldac', 'idac.idListDivisionAHPCriterias', '=', 'ldac.idListDivisionAHPCriterias')
-            ->where('ie.idRegistrations', $request->idRegis)
-            ->select(
-                'ie.idRegistrations',
-                'ldac.idAHPCriterias',
-                'ldac.average_weight',
-                DB::raw('AVG(ies.score) as avg_score')
-            )
-            ->groupBy(
-                'ie.idRegistrations',
-                'ldac.idAHPCriterias',
-                'ldac.average_weight'
-            )
-            ->get();
-
-        // foreach avgScores as row
-        $finalScore = $avgScores->sum(function ($row) {
-            return $row->avg_score * $row->average_weight;
-        });
-
-        DB::table('tAHPResults')
-            ->updateOrInsert(
-            ['idRegistrations' => $request->idRegis], //condition
-            ['final_score' => $finalScore] // value
-        );
-        
-        DB::table('tRegistrations')
-            ->where('idRegistrations', $request->idRegis)
-            ->update([
-                'status' => 'dinilai',
-            ]);
-            
-        // dd($avgScores, $finalScore);
-
-        return redirect()->route('registration')->with('success', 'Penilaian berhasil disimpan dan final score berhasil dihitung.');
     }
 
     /**

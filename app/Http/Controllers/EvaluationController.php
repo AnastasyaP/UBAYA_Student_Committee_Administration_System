@@ -52,8 +52,20 @@ class EvaluationController extends Controller
      */
     public function create(Request $request)
     {
-        $criterias = DB::table('tEvaluationCriterias')
-                        ->get();
+        // $criterias = DB::table('tEvaluationCriterias')
+        //             ->select('name')
+        //             ->distinct()
+        //             ->orderBy('name')
+        //             ->get();
+
+        $allEvaluationData = DB::table('tEvaluationCriterias')
+                                ->select(
+                                    'idEvaluationCriterias',
+                                    'name',
+                                    'description',
+                                    'target_type'
+                                )
+                                ->get();
 
         $idCommittee = getCurrentCommitteeId($request);
 
@@ -70,7 +82,7 @@ class EvaluationController extends Controller
             'division' => 'Divisi'
         ];
 
-        return view('pages.evaluation.add-evalcriteria', compact('criterias', 'divisions', 'masterTarget'));
+        return view('pages.evaluation.add-evalcriteria', compact('divisions', 'masterTarget', 'allEvaluationData'));
     }
 
     /**
@@ -85,48 +97,92 @@ class EvaluationController extends Controller
             'target_divisi' => 'required_if:target_eval,division',
         ]);
 
-        $idCommittee = getCurrentCommitteeId($request);
+        try {
 
-        $criteria = $request->eval_criteria;
-        $masterCriteria = $request->master_eval; // cmb
+            DB::beginTransaction();
 
-        if($masterCriteria){
-            $idCriteria = $masterCriteria;
-        }else{
-            $exists = DB::table('tEvaluationCriterias')
-                        ->where('name', $criteria)
-                        ->first();
-            if($exists){
-                $idCriteria = $exists->idEvaluationCriterias;
-            }else{
-                $idCriteria = DB::table('tEvaluationCriterias')
+            $idCommittee = getCurrentCommitteeId($request);
+
+            $criteria = $request->eval_criteria;
+            $selectedCriteria = $request->selected_criteria_id;
+
+            if ($selectedCriteria) {
+
+                $old = DB::table('tEvaluationCriterias')
+                    ->where('idEvaluationCriterias', $selectedCriteria)
+                    ->first();
+
+                if (
+                    $old->description == $request->description &&
+                    $old->target_type === $request->target_eval
+                ) {
+
+                    $idCriteria = $old->idEvaluationCriterias;
+
+                } else {
+
+                    $idCriteria = DB::table('tEvaluationCriterias')
                         ->insertGetId([
-                            'name' => $request->eval_criteria,
+                            'name' => $old->name,
                             'description' => $request->description,
                             'target_type' => $request->target_eval
                         ]);
+                }
+
+            } else {
+
+                $exists = DB::table('tEvaluationCriterias')
+                    ->where('name', $criteria)
+                    ->where('description', $request->description)
+                    ->where('target_type', $request->target_eval)
+                    ->first();
+
+                if ($exists) {
+
+                    $idCriteria = $exists->idEvaluationCriterias;
+
+                } else {
+
+                    $idCriteria = DB::table('tEvaluationCriterias')
+                        ->insertGetId([
+                            'name' => $criteria,
+                            'description' => $request->description,
+                            'target_type' => $request->target_eval
+                        ]);
+                }
             }
+
+            $idDivision = $request->target_eval === 'division'
+                ? $request->target_divisi
+                : null;
+
+            $existsScope = DB::table('tEvaluationCriteriaScopes')
+                ->where('idEvaluationCriterias', $idCriteria)
+                ->where('idCommittees', $idCommittee)
+                ->where('idDivisions', $idDivision)
+                ->exists();
+
+            if (!$existsScope) {
+
+                DB::table('tEvaluationCriteriaScopes')->insert([
+                    'idEvaluationCriterias' => $idCriteria,
+                    'idCommittees' => $idCommittee,
+                    'idDivisions' => $idDivision,
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+            }
+
+            DB::commit();
+
+            return redirect()->route('evalcriteria')->with('success', 'Berhasil menyimpan kriteria evaluasi baru');
+
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+
+            return redirect()->back()->withInput()->with('warning', $e->getMessage());
         }
-
-        $idDivision = $request->target_eval === 'division'
-            ? $request->target_divisi
-            : null;
-
-        $existsScope = DB::table('tEvaluationCriteriaScopes')
-            ->where('idEvaluationCriterias', $idCriteria)
-            ->where('idCommittees', $idCommittee)
-            ->where('idDivisions', $idDivision)
-            ->exists();
-
-        if(!$existsScope){
-            DB::table('tEvaluationCriteriaScopes')->insert([
-                'idEvaluationCriterias' => $idCriteria,
-                'idCommittees' => $idCommittee,
-                'idDivisions' => $idDivision
-            ]);
-        }
-
-        return redirect()->route('evalcriteria')->with('success', 'Berhasil menyimpan kriteria evaluasi baru');
          
     }
 

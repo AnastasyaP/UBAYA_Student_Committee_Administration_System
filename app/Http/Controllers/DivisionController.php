@@ -126,7 +126,7 @@ class DivisionController extends Controller
                     ->exists();
 
             if ($exists) {
-                return redirect()->back()->with('warning', 'Division already exsist for this committee!');
+                return redirect()->back()->with('warning', 'Divisi sudah ada!');
             }
 
             ListDivision::create([
@@ -187,7 +187,7 @@ class DivisionController extends Controller
 
             DB::commit();
 
-            return redirect()->route('divisions')->with('success', 'Division added Successfully!');
+            return redirect()->route('divisions')->with('success', 'Divisi berhasil ditambahkan!');
 
         }catch(\Exception $e){
             DB::rollback();

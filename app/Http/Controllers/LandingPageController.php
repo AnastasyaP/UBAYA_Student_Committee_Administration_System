@@ -707,7 +707,7 @@ class LandingPageController extends Controller
             $selectedDivision = old('target_division') ?? $request->target_division;
 
             $criterias = DB::table('tEvaluationCriterias as ec')
-                    ->leftJoin('tEvaluationCriteriaScopes as es', function($join) use ($idCommittee) {
+                    ->join('tEvaluationCriteriaScopes as es', function($join) use ($idCommittee) {
                         $join->on('es.idEvaluationCriterias', '=', 'ec.idEvaluationCriterias')
                             ->where('es.idCommittees', '=', $idCommittee);
                     })
@@ -725,7 +725,7 @@ class LandingPageController extends Controller
                     ->get();
         }else{
             $criterias = DB::table('tEvaluationCriterias as ec')
-                    ->leftJoin('tEvaluationCriteriaScopes as es', function($join) use ($idCommittee) {
+                    ->join('tEvaluationCriteriaScopes as es', function($join) use ($idCommittee) {
                         $join->on('es.idEvaluationCriterias', '=', 'ec.idEvaluationCriterias')
                             ->where('es.idCommittees', '=', $idCommittee);
                     })
@@ -743,7 +743,7 @@ class LandingPageController extends Controller
         }
 
         
-        // dd($criterias);
+        // dd($idCommittee, $criterias);
 
         $evaluatedDivisions = DB::table('tEvaluations')
             ->where('evaluator_id', Auth::id())

@@ -32,7 +32,7 @@
                                     <div class="form-group">
                                           <label class="form-control-label">Atau Tambah Nama Umum Baru</label>
                                             <input class="form-control" type="text" id="committee_name" name="committee_name"
-                                           placeholder="Masukkan AHP Criteria baru">
+                                           placeholder="Masukkan nama umum baru">
                                            @error('committee_name')
                                            <div class="text-danger small">{{ $message }}</div>
                                            @enderror
@@ -59,13 +59,13 @@
                                 <div class="col-md-4">
                                     <div class="form-group">
                                         <label class="form-control-label" >Email</label>
-                                        <input class="form-control" type="email" name="email" id="email" value="{{ $committee->email }}" disabled>
+                                        <input class="form-control" type="email" name="email" id="email" value="{{ $user->email }}" disabled>
                                     </div>
                                 </div>
                                 <div class="col-md-12">
                                     <div class="form-group">
                                         <label class="form-control-label">Unit Penyelenggara</label>
-                                        <input class="form-control" type="text" name="organizer_unit" value="{{ $committee->organizerName }}" disabled>
+                                        <input class="form-control" type="text" name="organizer_unit" value="{{ $user->organizerName }}" disabled>
                                     </div>
                                 </div>
                             </div>

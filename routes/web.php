@@ -139,6 +139,7 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
 	Route::get('/add-committees', [CommitteeController::class, 'create'])->name('committees.add');
 	Route::post('/store-committees', [CommitteeController::class, 'store'])->name('committees.store');
+	Route::get('/show-committees/{idCommittee}', [CommitteeController::class, 'show'])->name('committees.show');
 
 });
 
@@ -155,11 +156,11 @@ Route::middleware(['auth', 'role:admin', 'check.committee', 'load.committee'])->
 	// committee
 	Route::get('/committees', [CommitteeController::class, 'index'])->name('committees');
 	Route::get('/profile', [CommitteeController::class, 'profile'])->name('committees.profile');
-	Route::get('/show-committees/{idCommittee}', [CommitteeController::class, 'show'])->name('committees.show');
 	Route::get('/committee/get-template/{name}', [CommitteeController::class, 'getTemplate'])->name('committee.template');
 	Route::get('/edit-committees/{idCommittee}', [CommitteeController::class, 'edit'])->name('committees.edit');
 	Route::put('/committees/{idCommittee}', [CommitteeController::class, 'update'])->name('committees.update');
 	Route::get('/committee/publish/{idCommittee}', [CommitteeController::class, 'publishCommittee'])->name('committee.publish');
+	Route::get('/committee/{idCommittee}/report', [CommitteeController::class, 'generateReport'])->name('committee.report');
 	// division
 	Route::get('/divisions', [DivisionController::class, 'index'])->name('divisions');
 	Route::get('/add-divisions', [DivisionController::class, 'create'])->name('divisions.add');

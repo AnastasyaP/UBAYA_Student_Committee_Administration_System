@@ -161,7 +161,7 @@ class UsersSeeder extends Seeder
             ], 
             [
                 'email' => 'ifubaya@gmail.com',
-                'username' => 'informatika ubaya',
+                'username' => 'if ubaya',
                 'password'=> Hash::make('if123'),
                 'firstname' => 'Admin',
                 'lastname' => 'Informatika Ubaya',

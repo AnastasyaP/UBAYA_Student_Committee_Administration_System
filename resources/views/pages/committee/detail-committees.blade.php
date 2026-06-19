@@ -4,19 +4,31 @@
     @include('layouts.navbars.auth.topnav', ['title' => 'Detail Kepanitiaan'])
     <div class="card shadow-lg mx-4">
         <div class="card-body p-3">
-            <div class="row gx-4">
-                <div class="col-auto">
-                    <div class="avatar avatar-xl position-relative">
-                        <img src="{{ $committee->picture ? asset('storage/' . $committee->picture) : asset('/img/profile-default.png') }}" alt="profile_image" class="w-100 border-radius-lg shadow-sm">
+            <div class="d-flex justify-content-between align-items-center">
+
+                {{-- Kiri --}}
+                <div class="d-flex align-items-center">
+                    <div class="avatar avatar-xl position-relative me-3">
+                        <img
+                            src="{{ $committee->picture ? asset('storage/' . $committee->picture) : asset('/img/profile-default.png') }}"
+                            alt="profile_image"
+                            class="w-100 border-radius-lg shadow-sm">
                     </div>
-                </div>
-                <div class="col-auto my-auto">
-                    <div class="h-100">
-                        <h1 class="mb-1">
+
+                    <div>
+                        <h1 class="mb-0">
                             {{ $committee->committee_name }}
                         </h1>
                     </div>
                 </div>
+
+                {{-- Kanan --}}
+                <a href="{{ route('committee.report', ['idCommittee' => $committee->idCommittees]) }}"
+                    class="btn btn-danger mb-0">
+                    <i class="fas fa-file-pdf me-1"></i>
+                    Download Report
+                </a>
+
             </div>
         </div>
     </div>
@@ -256,6 +268,7 @@
                                             <option value="1" @selected($committee->is_active == 1)>
                                                 Aktif
                                             </option>
+                                            <option value="0" @selected($committee->is_active == 0)>Tidak Aktif</option>
                                         </select>
 
                                         @error('is_active')
