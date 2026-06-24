@@ -48,9 +48,9 @@ class LoadCommittee
             if($otherCommittee){
                 session(['displayed_committee' => $otherCommittee->idCommittees]);
 
-                return redirect()->back()->with('warning', 'Kepanitiaan sebelumnya sudah berakhir, tampilan dialihkan ke kepanitian yang sedang aktif');
+                return redirect('/choose-committees')->with('warning', 'Kepanitiaan sebelumnya sudah berakhir, tampilan dialihkan ke kepanitian yang sedang aktif');
             }
-            return redirect('/choose-committees')->with('warning', 'Tidak ada kepanitiaan yang aktif');
+            return redirect('/choose-committees')->with('warning', 'Tidak ada kepanitiaan yang aktif! Tambahkan kepanitiaan aktif terlebih dahulu');
         }
 
         // share ke semua view

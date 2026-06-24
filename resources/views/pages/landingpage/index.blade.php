@@ -591,6 +591,8 @@ use Illuminate\Support\Str;
     </div>
     
     <script>
+        console.log(@json($debugData));
+        
         document.addEventListener("DOMContentLoaded", function(){
 
             let needPreference = {{ $needPreferences ? 'true' : 'false' }};

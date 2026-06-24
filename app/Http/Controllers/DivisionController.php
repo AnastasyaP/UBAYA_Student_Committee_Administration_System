@@ -73,7 +73,7 @@ class DivisionController extends Controller
         $request->validate([
             'name' => 'nullable|string|max:255',
             'picture' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'description' => 'nullable|string|max:600',
+            'description' => 'required|string|max:600',
             'is_open' => 'required',
             'num_member' => 'required|integer|min:1',
             'keywords' => 'nullable|string'

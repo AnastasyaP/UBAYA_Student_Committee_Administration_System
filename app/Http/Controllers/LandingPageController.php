@@ -25,42 +25,23 @@ class LandingPageController extends Controller
         $user = Auth::id();
 
         $needPreferences = false;
-        $hasRatings = DB::table('tEvaluations')->where('evaluator_id', $user)->whereNotNull('target_committee')->exists();
+        // $hasRatings = DB::table('tEvaluations')->where('evaluator_id', $user)->whereNotNull('target_committee')->exists();
         $hasPreference = DB::table('tUserPreferences')->where('idUsers', $user)->exists();
         $hasHistory = DB::table('tRegistrations')->where('idUsers', $user)->where('status', 'diterima')->exists(); 
 
         $keywords = DB::table('tKeywords')->get();
 
-        if ($hasRatings) {
-            $hasRecommendation = DB::table('tRecommendations')
-                ->where('idUsers', $user)
-                ->exists();
-
-            if (!$hasRecommendation) {
-                $ubcf->generateRecommendations($user);
-            }
-
-            $recommendations = DB::table('tRecommendations as r')
-                                    ->join('tCommittees as c', 'r.idCommittees', 'c.idCommittees')
-                                    ->where('r.idUsers', $user)
-                                    ->where('c.is_active', 1)
-                                    ->where('c.is_published', 1)
-                                    ->whereNotIn('c.idCommittees', function($query) use ($user) {
-                                        $query->select('target_committee')
-                                            ->from('tEvaluations')
-                                            ->where('evaluator_id', $user);
-                                    }) // biar committee yg uda di rating nga muncul lagi
-                                    ->orderByDesc('predicted_score')
-                                    ->select([
-                                        'c.*',
-                                        'r.predicted_score'
-                                    ])
-                                    ->limit(3)
-                                    ->get();
+        if ($hasHistory) {
             
+            $ubcf->generateRecommendations($user);
+            // dd($ubcf->getPreferredDivisions(40));
+            // dd($ubcf->getCalculationDetail(43));
+            $recommendations = $ubcf->getCommitteeRecommendations($user);
+
             if ($recommendations->isEmpty() && $hasPreference) {
                 $recommendations = $this->getColdStartRecommendations($user);
             }
+            
         } elseif ($hasPreference) {
             // fallback
             $recommendations = $this->getColdStartRecommendations($user);
@@ -86,12 +67,19 @@ class LandingPageController extends Controller
                     ->get();
 
 
+        $debugData = [
+            'preferences' => $ubcf->getPreferredDivisions($user),
+            'scores' => $ubcf->getCommitteeScores($user),
+            'detail' => $ubcf->getCalculationDetail($user)
+        ];
+
         return view('pages.landingpage.index', compact(
             'committees', 
             'keywords', 
             'recommendations',
             'needPreferences', 
-            'hasHistory'
+            'hasHistory',
+            'debugData'
             ));
     }
 
@@ -690,7 +678,11 @@ class LandingPageController extends Controller
         if(!empty($updateData)){
             DB::table('tMahasiswas')
                 ->where('idUsers', $user->idUsers)
-                ->update($updateData);
+                ->update([
+                    'portofolio' => $updateData,
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
         }
 
         return redirect()->back()->with('success', 'File berhasil di upload!');

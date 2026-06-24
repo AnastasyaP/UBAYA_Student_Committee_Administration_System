@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class UBCFService
 {
@@ -11,24 +12,50 @@ class UBCFService
         return "Service jalan!";
     }
 
-     public function getUserRatings(){
-        $ratings = DB::table('tEvaluations')
-                ->whereNotNull('target_committee')
-                ->select([
-                    'evaluator_id as idUser',
-                    'target_committee as committee',
-                    'ratings'
-                ])
-                ->get();
+    // public function getUserRatings(){
+    //     $ratings = DB::table('tEvaluations')
+    //             ->whereNotNull('target_committee')
+    //             ->select([
+    //                 'evaluator_id as idUser',
+    //                 'target_committee as committee',
+    //                 'ratings'
+    //             ])
+    //             ->get();
 
-        return $ratings;
-    }
+    //     return $ratings;
+    // }
 
-    public function buildMatrix($ratings){
+    public function buildMatrix(){
+        $users = DB::table('tRegistrations')
+        ->where('status', 'diterima')
+        ->distinct()
+        ->pluck('idUsers');
+
         $matrix = [];
 
-        foreach($ratings as $r){
-            $matrix[$r->idUser][$r->committee] = $r->ratings;
+        foreach($users as $userId){
+            $divisions = DB::table('tRegistrations as r')
+                            ->join('tCommittees as c', 'r.idCommittees', 'c.idCommittees')
+                            ->where('r.idUsers', $userId)
+                            ->where('r.status', 'diterima')
+                            ->select(
+                                'r.idDivisions',
+                                DB::raw('COUNT(r.idRegistrations) as freq'),
+                                DB::raw('MAX(c.end_period) as latest')
+                            )
+                            ->groupBy('r.idDivisions')
+                            ->orderByDesc('freq')
+                            ->orderByDesc('latest')
+                            ->get();
+
+            $rank = count($divisions);
+
+            $matrix[$userId] = [];
+
+            foreach($divisions as $division){
+                $matrix[$userId][$division->idDivisions] = $rank;
+                $rank--;
+            }
         }
 
         return $matrix;
@@ -98,6 +125,13 @@ class UBCFService
 
                 $sim = $this->pearsonSimilarity($ratings1, $ratings2);
 
+                Log::info('=== SIMILARITY ===', [
+                    'user1' => $user1,
+                    'user2' => $user2,
+                    'ratings1' => $ratings1,
+                    'ratings2' => $ratings2,
+                    'similarity' => $sim
+                ]);
 
                 // cuman ambil similarity positif doang
                 if($sim > 0){
@@ -116,69 +150,504 @@ class UBCFService
         return $similarities;
     }
 
-    public function predictRating($idUser, $idItem, $matrix, $similarities){
-        $numerator = 0;
-        $denominator = 0;
+    // public function getUserCommitteeKeywords($idUser)
+    // {
+    //     $committees = DB::table('tEvaluations')
+    //         ->where('evaluator_id', $idUser)
+    //         ->whereNotNull('target_committee')
+    //         ->pluck('target_committee');
+
+    //     return DB::table('tListDivisionKeywords as lk')
+    //         ->join('tListDivisions as ld', function ($join) {
+    //             $join->on('ld.idDivisions', '=', 'lk.idDivisions')
+    //                 ->on('ld.idCommittees', '=', 'lk.idCommittees');
+    //         })
+    //         ->whereIn('ld.idCommittees', $committees)
+    //         ->pluck('lk.idKeywords')
+    //         ->unique()
+    //         ->toArray();
+    // }
+
+    // public function getRecommendedKeywords($idUser)
+    // {
+    //     $ratings = $this->getUserRatings();
+
+    //     $matrix = $this->buildMatrix($ratings);
+
+    //     $similarities = $this->calculateAllSimilarities($matrix);
+
+    //     $keywordScores = [];
+
+    //     // $userKeywords = $this->getUserCommitteeKeywords($idUser);
+
+    //     foreach ($similarities as $sim) {
+
+    //         if ($sim['idUsers1'] != $idUser) {
+    //             continue;
+    //         }
+
+    //         $neighbor = $sim['idUsers2'];
+
+    //         // Ambil committee + divisi yang pernah diikuti neighbor
+    //         $neighborRegistrations = DB::table('tRegistrations')
+    //             ->where('idUsers', $neighbor)
+    //             ->where('status', 'diterima')
+    //             ->select([
+    //                 'idCommittees',
+    //                 'idDivisions'
+    //             ])
+    //             ->get();
+
+    //         foreach ($neighborRegistrations as $registration) {
+
+    //             // Ambil rating neighbor terhadap committee tersebut
+    //             $rating = DB::table('tEvaluations')
+    //                 ->where('evaluator_id', $neighbor)
+    //                 ->where('target_committee', $registration->idCommittees)
+    //                 ->value('ratings');
+
+    //             if (!$rating) {
+    //                 continue;
+    //             }
+
+    //             // Ambil keyword dari divisi yang benar-benar diikuti
+    //             $divisionKeywords = DB::table('tListDivisionKeywords')
+    //                 ->where('idCommittees', $registration->idCommittees)
+    //                 ->where('idDivisions', $registration->idDivisions)
+    //                 ->pluck('idKeywords');
+
+    //             foreach ($divisionKeywords as $keywordId) {
+
+    //                 if (!isset($keywordScores[$keywordId])) {
+    //                     $keywordScores[$keywordId] = 0;
+    //                 }
+
+    //                 $keywordScores[$keywordId] +=
+    //                     $sim['similarity_score'] *
+    //                     $rating;
+    //             }
+    //         }
+    //     }
+
+    //     arsort($keywordScores);
+
+    //     return $keywordScores;
+    // }
+
+    public function getPreferredDivisions($idUser)
+    {
+        $divisions = DB::table('tRegistrations as r')
+            ->join('tCommittees as c', 'r.idCommittees', '=', 'c.idCommittees')
+            ->where('r.idUsers', $idUser)
+            ->where('r.status', 'diterima')
+            ->select(
+                'r.idDivisions',
+                DB::raw('COUNT(*) as freq'),
+                DB::raw('MAX(c.end_period) as latest')
+            )
+            ->groupBy('r.idDivisions')
+            ->orderByDesc('freq')
+            ->orderByDesc('latest')
+            ->get();
+
+        $rank = count($divisions);
+
+        $preferences = [];
+
+        foreach ($divisions as $division) {
+            $preferences[$division->idDivisions] = $rank;
+            $rank--;
+        }
+
+        Log::info('=== USER PREFERENCES ===', [
+            'user' => $idUser,
+            'preferences' => $preferences
+        ]);
+
+        return $preferences;
+    }
+
+    //menghitung skor committee
+    public function getCommitteeScores($idUser)
+    {
+        $matrix = $this->buildMatrix();
+        $similarities = $this->calculateAllSimilarities($matrix);
+
+        $committeeScores = [];
+        $userPreferences = $this->getPreferredDivisions($idUser);
+
+        $userCommittees = DB::table('tRegistrations')
+                            ->where('idUsers', $idUser)
+                            ->where('status', 'diterima')
+                            ->pluck('idCommittees')
+                            ->toArray();
 
         foreach($similarities as $sim){
-            if($sim['idUsers1'] == $idUser){
-                $otherUser = $sim['idUsers2'];
 
-                if(isset($matrix[$otherUser][$idItem])){
-                    $numerator += $sim['similarity_score'] * $matrix[$otherUser][$idItem];
-                    $denominator += abs($sim['similarity_score']);
+            if($sim['idUsers1'] != $idUser)
+                continue;
+
+            $neighbor = $sim['idUsers2'];
+            $neighborCommittees = DB::table('tRegistrations as r')
+                    ->join('tCommittees as c', 'r.idCommittees', '=', 'c.idCommittees')
+                    ->where('r.idUsers', $neighbor)
+                    ->where('r.status', 'diterima')
+                    ->where('c.is_active', 1)
+                    ->where('c.is_published', 1)
+                    ->whereDate('c.end_regis', '>=', now())
+                    ->distinct('r.idCommittees')
+                    ->pluck('r.idCommittees');
+
+            // looping similarity score neighbor per divisi
+            foreach ($similarities as $sim) {
+
+                if ($sim['idUsers1'] != $idUser) {
+                    continue;
+                }
+
+                $neighbor = $sim['idUsers2'];
+
+                $neighborCommittees = DB::table('tRegistrations as r')
+                    ->join('tCommittees as c', 'r.idCommittees', '=', 'c.idCommittees')
+                    ->where('r.idUsers', $neighbor)
+                    ->where('r.status', 'diterima')
+                    ->where('c.is_active', 1)
+                    ->where('c.is_published', 1)
+                    ->distinct()
+                    ->pluck('r.idCommittees');
+
+                foreach ($neighborCommittees as $committeeId) {
+
+                    if (in_array($committeeId, $userCommittees)) {
+                        continue;
+                    }
+
+                    $committeeDivisions = DB::table('tListDivisions')
+                        ->where('idCommittees', $committeeId)
+                        ->pluck('idDivisions')
+                        ->toArray();
+
+                    $matchedWeight = 0;
+
+                    foreach ($committeeDivisions as $divisionId) {
+
+                        if (isset($userPreferences[$divisionId])) {
+
+                            $matchedWeight = max(
+                                $matchedWeight,
+                                $userPreferences[$divisionId]
+                            );
+                        }
+                    }
+
+                    // committee tidak punya divisi sesuai minat user
+                    if ($matchedWeight == 0) {
+                        continue;
+                    }
+
+                    if (!isset($committeeScores[$committeeId])) {
+                        $committeeScores[$committeeId] = 0;
+                    }
+
+                    $contribution =
+                        $sim['similarity_score']
+                        * $matchedWeight;
+
+                    Log::info('=== COMMITTEE CONTRIBUTION ===', [
+                        'committee' => $committeeId,
+                        'neighbor' => $neighbor,
+                        'similarity' => $sim['similarity_score'],
+                        'weight' => $matchedWeight,
+                        'contribution' => $contribution
+                    ]);
+
+                    $committeeScores[$committeeId] +=
+                        $sim['similarity_score']
+                        * $matchedWeight;
                 }
             }
         }
 
-        if($denominator == 0) return 0;
+        Log::info('=== TOTAL COMMITTEE SCORES ===', [
+            'scores' => $committeeScores
+        ]);
 
-        return $numerator / $denominator;
+        arsort($committeeScores);
+
+        Log::info('=== SORTED COMMITTEE SCORES ===', [
+            'scores' => $committeeScores
+        ]);
+
+        return $committeeScores;
     }
 
-    public function generateRecommendations($idUser){
-        // hapus recommendation lama biar nga ke duplicate
+    // nyimpan ke db
+    public function generateRecommendations($idUser)
+    {
         DB::table('tRecommendations')
             ->where('idUsers', $idUser)
             ->delete();
-            
-        $ratings = $this->getUserRatings();
-        $matrix = $this->buildMatrix($ratings);
-        $similarities = $this->calculateAllSimilarities($matrix);
 
-        $items = DB::table('tCommittees')->pluck('idCommittees');
+        $scores = $this->getCommitteeScores($idUser);
 
-        $recommendations = [];
+        $topRecommendations = [];
 
-        foreach($items as $idItem){
-            // klo uda perna nge rating di skip
-            if(!isset($matrix[$idUser][$idItem])){
-                $predicted = $this->predictRating($idUser, $idItem, $matrix, $similarities);
+        $limit = 10; 
 
-                // ambil yg score > 0
-                if ($predicted > 0) {
-                    $recommendations[] = [
-                        'idUsers' => $idUser,
-                        'idCommittees' => $idItem,
-                        'predicted_score' => $predicted,
-                    ];
-                }
-            }
+        foreach (
+            array_slice($scores, 0, $limit, true)
+            as $committeeId => $score
+        ) {
+
+            $topRecommendations[] = [
+                'idUsers' => $idUser,
+                'idCommittees' => $committeeId,
+                'predicted_score' => $score
+            ];
         }
 
-        // sort descending
-        usort($recommendations, function ($a, $b) {
-            return $b['predicted_score'] <=> $a['predicted_score'];
-        });
-
-        // TOP 3
-        $topRecommendations = array_slice($recommendations, 0, 3);
-
-        // insert final result
         if (!empty($topRecommendations)) {
-            DB::table('tRecommendations')->insert($topRecommendations);
+            DB::table('tRecommendations')
+                ->insert($topRecommendations);
         }
+
+        Log::info('=== FINAL RECOMMENDATIONS ===', [
+            'user' => $idUser,
+            'recommendations' => $topRecommendations
+        ]);
 
         return $topRecommendations;
     }
+    
+    // ngambil hasil rekomendasi dr db
+    public function getCommitteeRecommendations($idUser){
+        return DB::table('tRecommendations as r')
+        ->join(
+            'tCommittees as c',
+            'r.idCommittees',
+            '=',
+            'c.idCommittees'
+        )
+        ->where('r.idUsers', $idUser)
+        ->orderByDesc('r.predicted_score')
+        ->select([
+            'c.*',
+            'r.predicted_score'
+        ])
+        ->get();
+    }
+
+    public function getCalculationDetail($idUser)
+    {
+        // $ratings = $this->getUserRatings();
+        $matrix = $this->buildMatrix();
+        $similarities = $this->calculateAllSimilarities($matrix);
+
+        $userPreferences = $this->getPreferredDivisions($idUser);
+        
+        $detail = [];
+
+        $userCommittees = DB::table('tRegistrations')
+            ->where('idUsers', $idUser)
+            ->where('status', 'diterima')
+            ->pluck('idCommittees')
+            ->toArray();
+
+        foreach ($similarities as $sim) {
+
+            if ($sim['idUsers1'] != $idUser) {
+                continue;
+            }
+
+            $neighbor = $sim['idUsers2'];
+
+            $neighborCommittees = DB::table('tRegistrations as r')
+                ->join('tCommittees as c', 'r.idCommittees', '=', 'c.idCommittees')
+                ->where('r.idUsers', $neighbor)
+                ->where('r.status', 'diterima')
+                ->where('c.is_active', 1)
+                ->where('c.is_published', 1)
+                ->distinct('r.idCommittees')
+                ->get(['r.idCommittees']);
+
+            foreach ($neighborCommittees as $committee) {
+
+                if (in_array($committee->idCommittees, $userCommittees)) {
+                    continue;
+                }
+
+                $committeeDivisions = DB::table('tListDivisions')
+                    ->where('idCommittees', $committee->idCommittees)
+                    ->pluck('idDivisions')
+                    ->toArray();
+
+                $matchedWeight = 0;
+                $matchedDivision = null;
+
+                foreach ($committeeDivisions as $divisionId) {
+
+                    if (
+                        isset($userPreferences[$divisionId]) &&
+                        $userPreferences[$divisionId] > $matchedWeight
+                    ) {
+
+                        $matchedWeight = $userPreferences[$divisionId];
+                        $matchedDivision = $divisionId;
+                    }
+                }
+
+                if ($matchedWeight == 0) {
+                    continue;
+                }
+
+                $detail[] = [
+                    'neighbor' => $neighbor,
+                    'committee' => $committee->idCommittees,
+                    'matched_division' => $matchedDivision,
+                    'similarity' => $sim['similarity_score'],
+                    'weight' => $matchedWeight,
+                    'contribution' =>
+                        $sim['similarity_score']
+                        * $matchedWeight
+                ];
+            }
+        }
+
+        return $detail;
+    }
+
+    // public function getCommitteeRecommendations($idUser)
+    // {
+    //     $keywords = $this->getRecommendedKeywords($idUser);
+
+    //     $recommendations = [];
+
+    //     $ratedCommittees = DB::table('tEvaluations')
+    //         ->where('evaluator_id', $idUser)
+    //         ->whereNotNull('target_committee')
+    //         ->pluck('target_committee')
+    //         ->toArray();
+
+    //     $joinedCommittees = DB::table('tRegistrations')
+    //         ->where('idUsers', $idUser)
+    //         ->where('status', 'diterima')
+    //         ->pluck('idCommittees')
+    //         ->toArray();
+
+    //     foreach ($keywords as $keywordId => $score) {
+
+    //         $committees = DB::table('tListDivisionKeywords as lk')
+    //             ->join('tListDivisions as ld', function ($join) {
+    //                 $join->on('ld.idDivisions', '=', 'lk.idDivisions')
+    //                     ->on('ld.idCommittees', '=', 'lk.idCommittees');
+    //             })
+    //             ->join('tCommittees as c', 'c.idCommittees', '=', 'ld.idCommittees')
+    //             ->where('lk.idKeywords', $keywordId)
+    //             ->where('c.is_active', 1)
+    //             ->where('c.is_published', 1)
+    //             ->whereNotIn('c.idCommittees', $ratedCommittees)
+    //             ->whereNotIn('c.idCommittees', $joinedCommittees)
+    //             ->select('c.idCommittees')
+    //             ->distinct()
+    //             ->get();
+
+    //         foreach ($committees as $committee) {
+
+    //             if (!isset($recommendations[$committee->idCommittees])) {
+    //                 $recommendations[$committee->idCommittees] = 0;
+    //             }
+
+    //             $recommendations[$committee->idCommittees] += $score;
+    //         }
+    //     }
+
+    //     arsort($recommendations);
+
+    //     $topCommitteeIds = array_slice(
+    //         array_keys($recommendations),
+    //         0,
+    //         3
+    //     );
+
+    //     $committees = DB::table('tCommittees')
+    //         ->whereIn('idCommittees', $topCommitteeIds)
+    //         ->get()
+    //         ->keyBy('idCommittees');
+
+    //     $result = collect();
+
+    //     foreach ($topCommitteeIds as $id) {
+    //         if(isset($committees[$id])){
+    //             $result->push($committees[$id]);
+    //         }
+    //     }
+
+    //     return $result;
+    // }
+
+    // public function predictRating($idUser, $idItem, $matrix, $similarities){
+    //     $numerator = 0;
+    //     $denominator = 0;
+
+    //     foreach($similarities as $sim){
+    //         if($sim['idUsers1'] == $idUser){
+    //             $otherUser = $sim['idUsers2'];
+
+    //             if(isset($matrix[$otherUser][$idItem])){
+    //                 $numerator += $sim['similarity_score'] * $matrix[$otherUser][$idItem];
+    //                 $denominator += abs($sim['similarity_score']);
+    //             }
+    //         }
+    //     }
+
+    //     if($denominator == 0) return 0;
+
+    //     return $numerator / $denominator;
+    // }
+
+    // public function generateRecommendations($idUser){
+    //     // hapus recommendation lama biar nga ke duplicate
+    //     DB::table('tRecommendations')
+    //         ->where('idUsers', $idUser)
+    //         ->delete();
+            
+    //     $ratings = $this->getUserRatings();
+    //     $matrix = $this->buildMatrix($ratings);
+    //     $similarities = $this->calculateAllSimilarities($matrix);
+
+    //     $items = DB::table('tCommittees')->pluck('idCommittees');
+
+    //     $recommendations = [];
+
+    //     foreach($items as $idItem){
+    //         // klo uda perna nge rating di skip
+    //         if(!isset($matrix[$idUser][$idItem])){
+    //             $predicted = $this->predictRating($idUser, $idItem, $matrix, $similarities);
+
+    //             // ambil yg score > 0
+    //             if ($predicted > 0) {
+    //                 $recommendations[] = [
+    //                     'idUsers' => $idUser,
+    //                     'idCommittees' => $idItem,
+    //                     'predicted_score' => $predicted,
+    //                 ];
+    //             }
+    //         }
+    //     }
+
+    //     // sort descending
+    //     usort($recommendations, function ($a, $b) {
+    //         return $b['predicted_score'] <=> $a['predicted_score'];
+    //     });
+
+    //     // TOP 3
+    //     $topRecommendations = array_slice($recommendations, 0, 3);
+
+    //     // insert final result
+    //     if (!empty($topRecommendations)) {
+    //         DB::table('tRecommendations')->insert($topRecommendations);
+    //     }
+
+    //     return $topRecommendations;
+    // }
 }
