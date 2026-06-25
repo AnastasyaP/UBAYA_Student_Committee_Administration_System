@@ -12,14 +12,61 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\OrganizerUnit;
 use App\Models\Committee;
 
+// use ArielMejiaDev\LarapexCharts\LarapexChart;
+use App\Charts\RegistrationChart;
+
 class SuperAdminController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(RegistrationChart $chart)
     {
-        return view('pages.superadmin.dashboard');
+        $activeCommittee = DB::table('tCommittees')
+                            ->where('is_active', 1)
+                            ->count();
+
+        $disactiveCommittee = DB::table('tCommittees')
+                            ->where('is_active', 0)
+                            ->count();
+
+        $topCommittees = DB::table('tRegistrations as r')
+                            ->join('tCommittees as c', 'r.idCommittees', '=', 'c.idCommittees')
+                            // ->where('c.is_active', 1)
+                            // ->whereDate('c.end_regis', '>=', now())
+                            ->select(
+                                'c.idCommittees',
+                                'c.picture',
+                                'c.name',
+                                'c.is_active',
+                                DB::raw('COUNT(r.idRegistrations) as totalPendaftar')
+                            )
+                            ->groupBy('c.idCommittees', 'c.name', 'c.picture', 'c.is_active')
+                            ->orderByDesc('totalPendaftar')
+                            ->limit(10)
+                            ->get();
+
+        $registrationPerMonth = DB::table('tRegistrations')
+            ->selectRaw('MONTH(created_at) as month, COUNT(*) as total')
+            ->whereYear('created_at', date('Y'))
+            ->groupByRaw('MONTH(created_at)')
+            ->orderByRaw('MONTH(created_at)')
+            ->get();
+
+        $data = array_fill(0, 12, 0);
+
+        foreach ($registrationPerMonth as $item) {
+            $data[$item->month - 1] = $item->total;
+        }
+
+        $registrationChart = $chart->build($data);
+
+        return view('pages.superadmin.dashboard', compact(
+            'activeCommittee',
+            'disactiveCommittee',
+            'topCommittees',
+            'registrationChart'
+        ));
     }
 
     public function admins(){
