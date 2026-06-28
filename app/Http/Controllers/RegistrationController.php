@@ -372,6 +372,26 @@ class RegistrationController extends Controller
 
     }
 
+    function interviewScoreMap(){
+        $labels = [
+                1 => 'Sangat Tidak Baik',
+                2 => 'Tidak Baik',
+                3 => 'Cukup',
+                4 => 'Baik',
+                5 => 'Sangat Baik'
+            ];
+
+            $totalRank = array_sum(array_keys($labels));
+
+            $scores = [];
+
+            foreach ($labels as $rank => $label) {
+                $scores[$rank] = round(($rank / $totalRank) * 100, 2);
+            }
+
+            return $scores;
+    }
+
     /**
      * Display the specified resource.
      */
@@ -438,42 +458,73 @@ class RegistrationController extends Controller
                                 ])
                                 ->get();
 
-        $avgPerAhp = DB::table('tInterviewEvaluations as ie')
-                        ->join('tInterviewEvaluationScores as ies', 'ie.idInterviewEvaluations', '=', 'ies.idInterviewEvaluations')
-                        ->join('tInterviewCriterias as ic', 'ies.idInterviewCriterias', '=', 'ic.idInterviewCriterias')
-                        ->join('tInterviewDivisionAHPCriterias as idc', 'ic.idInterviewCriterias', '=', 'idc.idInterviewCriterias')
-                        ->join('tListDivisionAHPCriterias as ldc', 'idc.idListDivisionAHPCriterias', '=', 'ldc.idListDivisionAHPCriterias')
-                        ->where('ie.idRegistrations', $idRegis)
-                        ->groupBy('ldc.idAHPCriterias')
-                        ->select(
-                            'ldc.idAHPCriterias',
-                            DB::raw('AVG(ies.score) as avg_score')
-                        );
+        // nilai maksimum interview (33.333...)
+        $maxInterviewScore = max($this->interviewScoreMap());
 
-        $ahpCalcs = DB::table('tInterviewEvaluations as ie')
+        /*
+        |--------------------------------------------------------------------------
+        | DETAIL NILAI INTERVIEW
+        | Digunakan hanya untuk ditampilkan pada halaman
+        |--------------------------------------------------------------------------
+        */
+        $interviewDetails = DB::table('tInterviewEvaluations as ie')
+            ->join('tRegistrations as r', 'ie.idRegistrations', '=', 'r.idRegistrations')
             ->join('tInterviewEvaluationScores as ies', 'ie.idInterviewEvaluations', '=', 'ies.idInterviewEvaluations')
             ->join('tInterviewCriterias as ic', 'ies.idInterviewCriterias', '=', 'ic.idInterviewCriterias')
             ->join('tInterviewDivisionAHPCriterias as idc', 'ic.idInterviewCriterias', '=', 'idc.idInterviewCriterias')
             ->join('tListDivisionAHPCriterias as ldc', 'idc.idListDivisionAHPCriterias', '=', 'ldc.idListDivisionAHPCriterias')
             ->join('tAHPCriterias as ac', 'ldc.idAHPCriterias', '=', 'ac.idAHPCriterias')
-            ->joinSub($avgPerAhp, 'avg_table', function ($join) {
-                $join->on('ldc.idAHPCriterias', '=', 'avg_table.idAHPCriterias');
-            })
             ->where('ie.idRegistrations', $idRegis)
-            ->select([
+            ->whereColumn('ldc.idCommittees', 'r.idCommittees')
+            ->whereColumn('ldc.idDivisions', 'r.idDivisions')
+            ->select(
+                'ac.name as ahp',
+                'ic.name as intv_criteria',
+                'ies.score as raw_score'
+            )
+            ->orderBy('ac.name')
+            ->get();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PERHITUNGAN AHP
+        | Harus sama persis dengan store()
+        |--------------------------------------------------------------------------
+        */
+        $ahpCalcs = DB::table('tInterviewEvaluations as ie')
+            ->join('tRegistrations as r', 'ie.idRegistrations', '=', 'r.idRegistrations')
+            ->join('tInterviewEvaluationScores as ies', 'ie.idInterviewEvaluations', '=', 'ies.idInterviewEvaluations')
+            ->join('tInterviewCriterias as ic', 'ies.idInterviewCriterias', '=', 'ic.idInterviewCriterias')
+            ->join('tInterviewDivisionAHPCriterias as idc', 'ic.idInterviewCriterias', '=', 'idc.idInterviewCriterias')
+            ->join('tListDivisionAHPCriterias as ldc', 'idc.idListDivisionAHPCriterias', '=', 'ldc.idListDivisionAHPCriterias')
+            ->join('tAHPCriterias as ac', 'ldc.idAHPCriterias', '=', 'ac.idAHPCriterias')
+            ->where('ie.idRegistrations', $idRegis)
+            ->whereColumn('ldc.idCommittees', 'r.idCommittees')
+            ->whereColumn('ldc.idDivisions', 'r.idDivisions')
+            ->groupBy(
+                'ldc.idAHPCriterias',
+                'ac.name',
+                'ldc.average_weight'
+            )
+            ->select(
                 'ldc.idAHPCriterias',
                 'ac.name as ahp',
                 'ldc.average_weight',
-                'ic.name as intv_criteria',
-                'ies.score as raw_score',
-                'avg_table.avg_score',
-                DB::raw('avg_table.avg_score * ldc.average_weight as score'),
-            ])
-            ->get();
+                DB::raw('AVG(ies.score) as avg_score')
+            )
+            ->get()
+            ->map(function ($row) use ($maxInterviewScore) {
 
-        $final_score = $ahpCalcs
-                        ->unique('idAHPCriterias')
-                        ->sum('score');
+                $row->normalized_score = $row->avg_score / $maxInterviewScore;
+
+                $row->score = $row->normalized_score * $row->average_weight;
+
+                return $row;
+            });
+// dd($ahpCalcs);
+        // final score (persis seperti di store)
+        $final_score = $ahpCalcs->sum('score') * 100;
 
         $criteriasCount = DB::table('tInterviewDivisionAHPCriterias as idc')
                 ->join(
@@ -482,6 +533,7 @@ class RegistrationController extends Controller
                     '=',
                     'ldc.idListDivisionAHPCriterias'
                 )
+                ->where('ldc.idCommittees', $idCommittee)
                 ->where('ldc.idDivisions', $registration->idDivision)
                 ->distinct('idc.idInterviewCriterias')
                 ->count('idc.idInterviewCriterias');
@@ -490,13 +542,17 @@ class RegistrationController extends Controller
                 ->where('idRegistrations', $idRegis)
                 ->value('comment');
 
+        $scoreMap = $this->interviewScoreMap();
+
         return view('pages.registration.view-registrations', compact(
             'registration', 
             'ahpCalcs', 
+            'interviewDetails',
             'final_score', 
             'criteriasCount', 
             'comment',
-            'committeeHistory'
+            'committeeHistory',
+            'scoreMap'
         ));
     }
 

@@ -73,7 +73,9 @@ class InterviewScoringController extends Controller
                         )
                         ->first();
 
-        return view('pages.intvscoring.intvscoring', compact('criterias', 'divisionName', 'mahasiswa'));
+        $scoreMap = $this->interviewScoreMap();
+
+        return view('pages.intvscoring.intvscoring', compact('criterias', 'divisionName', 'mahasiswa', 'scoreMap'));
 
     }
 
@@ -85,6 +87,25 @@ class InterviewScoringController extends Controller
         //
     }
 
+    function interviewScoreMap(){
+        $labels = [
+                1 => 'Sangat Tidak Baik',
+                2 => 'Tidak Baik',
+                3 => 'Cukup',
+                4 => 'Baik',
+                5 => 'Sangat Baik'
+            ];
+
+            $totalRank = array_sum(array_keys($labels));
+
+            $scores = [];
+
+            foreach ($labels as $rank => $label) {
+                $scores[$rank] = round(($rank / $totalRank) * 100, 2);
+            }
+
+            return $scores;
+    }
     /**
      * Store a newly created resource in storage.
      */
@@ -92,8 +113,8 @@ class InterviewScoringController extends Controller
     {
         $request->validate([
             'scores' => 'required|array',
-            'scores.*.score' => 'required|numeric|min:0',
-            'scores.*.idInterviewCriteria' => 'required',
+            'scores.*.score' => 'required|numeric|between:0,100',
+            'scores.*.idInterviewCriteria' => 'required|integer',
             'comment' => 'nullable|string'
         ]);
         
@@ -129,28 +150,34 @@ class InterviewScoringController extends Controller
                     ]);
             }
 
-            $avgScores = DB::table('tInterviewEvaluations as ie')
+           $avgScores = DB::table('tInterviewEvaluations as ie')
+                ->join('tRegistrations as r', 'ie.idRegistrations', '=', 'r.idRegistrations')
                 ->join('tInterviewEvaluationScores as ies', 'ie.idInterviewEvaluations', '=', 'ies.idInterviewEvaluations')
                 ->join('tInterviewCriterias as ic', 'ies.idInterviewCriterias', '=', 'ic.idInterviewCriterias')
                 ->join('tInterviewDivisionAHPCriterias as idac', 'ic.idInterviewCriterias', '=', 'idac.idInterviewCriterias')
                 ->join('tListDivisionAHPCriterias as ldac', 'idac.idListDivisionAHPCriterias', '=', 'ldac.idListDivisionAHPCriterias')
                 ->where('ie.idRegistrations', $request->idRegis)
+                ->whereColumn('ldac.idCommittees', 'r.idCommittees')
+                ->whereColumn('ldac.idDivisions', 'r.idDivisions')
                 ->select(
-                    'ie.idRegistrations',
                     'ldac.idAHPCriterias',
                     'ldac.average_weight',
                     DB::raw('AVG(ies.score) as avg_score')
                 )
                 ->groupBy(
-                    'ie.idRegistrations',
                     'ldac.idAHPCriterias',
                     'ldac.average_weight'
                 )
                 ->get();
 
-            $finalScore = $avgScores->sum(function ($row) {
-                return $row->avg_score * $row->average_weight;
-            });
+            $maxInterviewScore = max($this->interviewScoreMap());
+
+            $finalScore = $avgScores->sum(function ($row) use ($maxInterviewScore) {
+                $normalizedScore = $row->avg_score / $maxInterviewScore;
+
+                return $normalizedScore * $row->average_weight;
+                // return $row->avg_score * $row->average_weight;
+            }) * 100; // dikali 100 karna disimpan dalam bentuk persen
 
             DB::table('tAHPResults')
                 ->updateOrInsert(

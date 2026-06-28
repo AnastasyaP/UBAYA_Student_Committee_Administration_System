@@ -146,47 +146,74 @@
                                                         Kriteria Interview</th>
                                                     <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
                                                         Nilai Kriteria Interview<br>(Raw score)</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="reg-division-body">
+                                                @foreach($interviewDetails as $detail)
+                                                @php
+                                                    $labels = [
+                                                        round($scoreMap[1],2) => 'Sangat Tidak Baik',
+                                                        round($scoreMap[2],2) => 'Tidak Baik',
+                                                        round($scoreMap[3],2) => 'Cukup',
+                                                        round($scoreMap[4],2) => 'Baik',
+                                                        round($scoreMap[5],2) => 'Sangat Baik',
+                                                    ];
+
+                                                    $label = $labels[round($detail->raw_score,2)] ?? '-';
+                                                @endphp
+                                                <tr>
+                                                    <td>
+                                                        <h6 class="mb-0 text-sm">{{ $detail->ahp }}</h6>
+                                                    </td>
+                                                    <td>
+                                                        <h6 class="mb-0 text-sm">{{ $detail->intv_criteria }}</h6>
+                                                    </td>
+                                                    <td>
+                                                        <h6 class="mb-0 text-sm">{{ number_format($detail->raw_score, 2) }}  ({{  $label }})</h6>
+                                                    </td>
+
+                                                </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>            
+                                    </div>
+                                </div>
+                                <div class="col-md-12 mt-3">
+                                <div class="form-group">
+                                    <label class="form-control-label">Perhitungan Nilai Akhir AHP</label>
+                                    <div class="table-responsive p-0">
+                                        <table class="table align-items-center mb-0">
+                                            <thead>
+                                                <tr>
                                                     <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
-                                                        Nilai Rata-rata</th>
+                                                        Kriteria AHP</th>
                                                     <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
-                                                        Bobot Rata-rata</th>
+                                                        Rata-rata Interview</th>
                                                     <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
-                                                        (Nilai Rata-rata x Bobot Rata-rata )</th>
+                                                        Normalisasi</th>
+                                                    <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
+                                                        Bobot</th>
+                                                    <th class="text-uppercase text-secondary text-xs font-weight-bolder opacity-7">
+                                                        Nilai</th>
                                                 </tr>
                                             </thead>
                                             <tbody id="reg-division-body">
                                                 @foreach($ahpCalcs as $calc)
-                                                @php
-                                                    $maxScale = floor(100 / $criteriasCount);
-
-                                                    $scoreLabels = [
-                                                        floor($maxScale * 0.2) => 'Sangat Tidak Baik',
-                                                        floor($maxScale * 0.4) => 'Tidak Baik',
-                                                        floor($maxScale * 0.6) => 'Cukup',
-                                                        floor($maxScale * 0.8) => 'Baik',
-                                                        $maxScale => 'Sangat Baik'
-                                                    ];
-
-                                                    $label = $scoreLabels[$calc->raw_score] ?? '-';
-                                                @endphp
                                                 <tr>
                                                     <td>
                                                         <h6 class="mb-0 text-sm">{{ $calc->ahp }}</h6>
                                                     </td>
                                                     <td>
-                                                        <h6 class="mb-0 text-sm">{{ $calc->intv_criteria }}</h6>
+                                                        <h6 class="mb-0 text-sm">{{ number_format($calc->avg_score, 2) }}</h6>
                                                     </td>
                                                     <td>
-                                                        <h6 class="mb-0 text-sm">{{ $calc->raw_score }}  ({{  $label }})</h6>
+                                                        <h6 class="mb-0 text-sm">{{ number_format($calc->normalized_score, 4) }}</h6>
                                                     </td>
                                                     <td>
-                                                        <h6 class="mb-0 text-sm">{{ $calc->avg_score }}</h6>
+                                                        <h6 class="mb-0 text-sm">{{ number_format($calc->average_weight, 4) }}</h6>
                                                     </td>
                                                     <td>
-                                                        <h6 class="mb-0 text-sm">{{ $calc->average_weight }}</h6>
-                                                    </td>
-                                                    <td>
-                                                        <h6 class="mb-0 text-sm">{{ $calc->score }}</h6>
+                                                        <h6 class="mb-0 text-sm">{{ number_format($calc->score, 4) }}</h6>
                                                     </td>
                                                 </tr>
                                                 @endforeach

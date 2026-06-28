@@ -35,7 +35,7 @@ class LandingPageController extends Controller
             
             $ubcf->generateRecommendations($user);
             // dd($ubcf->getPreferredDivisions(40));
-            // dd($ubcf->getCalculationDetail(43));
+            dd($ubcf->getCalculationDetail(43));
             $recommendations = $ubcf->getCommitteeRecommendations($user);
 
             if ($recommendations->isEmpty() && $hasPreference) {

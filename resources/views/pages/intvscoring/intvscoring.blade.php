@@ -43,10 +43,17 @@ use Illuminate\Support\Str;
                                                 Nilai</th>
                                         </tr>
                                     </thead>
-                                    @php
-                                        $maxScale = $criterias->count() > 0 ? floor(100 / $criterias->count()) : 0;
-                                    @endphp
                                     <tbody>
+                                        @php
+                                            $labels = [
+                                                1 => 'Sangat Tidak Baik',
+                                                2 => 'Tidak Baik',
+                                                3 => 'Cukup',
+                                                4 => 'Baik',
+                                                5 => 'Sangat Baik'
+                                            ];
+                                        @endphp
+
                                         @foreach($criterias as $criteria)
                                         <tr>
                                             <td>
@@ -59,23 +66,6 @@ use Illuminate\Support\Str;
                                             @endphp
                                             <td>
                                                 <div class="d-flex flex-column justify-content-center">
-                                                    @php
-                                                        $labels = [
-                                                            1 => 'Sangat Tidak Baik',
-                                                            2 => 'Tidak Baik',
-                                                            3 => 'Cukup',
-                                                            4 => 'Baik',
-                                                            5 => 'Sangat Baik'
-                                                        ];
-
-                                                        $scoreMap = [
-                                                            1 => floor($maxScale * 0.2),
-                                                            2 => floor($maxScale * 0.4),
-                                                            3 => floor($maxScale * 0.6),
-                                                            4 => floor($maxScale * 0.8),
-                                                            5 => $maxScale
-                                                        ];
-                                                    @endphp
 
                                                      <div class="d-flex justify-content-center gap-4 flex-wrap">
 
@@ -87,13 +77,13 @@ use Illuminate\Support\Str;
                                                                 name="scores[{{ $index }}][score]"
                                                                 value="{{ $scoreMap[$key] }}"
                                                                 id="score_{{ $index }}_{{ $key }}"
-                                                                {{ ($criteria->score ?? 0) == $scoreMap[$key] ? 'checked' : '' }}
+                                                                {{ round($criteria->score ?? 0, 2) == round($scoreMap[$key], 2) ? 'checked' : '' }}
                                                             >
                                                             <label 
                                                                 class="form-check-label"
                                                                 for="score_{{ $index }}_{{ $key }}"
                                                             >
-                                                                {{ $label }} ({{ $scoreMap[$key] }})
+                                                                {{ $label }} ({{ number_format($scoreMap[$key], 2) }})
                                                             </label>
                                                         </div>
 
