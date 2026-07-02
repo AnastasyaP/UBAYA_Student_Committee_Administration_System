@@ -115,7 +115,7 @@ class LandingPageController extends Controller
                         'c.admin'
                     ])
                     ->orderByDesc('match_score')
-                    ->limit(3)
+                    ->limit(5)
                     ->get();
 
         return $committees;

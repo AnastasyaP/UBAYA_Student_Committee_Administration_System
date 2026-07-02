@@ -150,6 +150,128 @@ class UBCFService
         return $similarities;
     }
 
+    public function calculateCommitteeContributions($idUser, $similarities, $userPreferences)
+    {
+        $committeeScores = [];
+        $committeeSimilaritySums = [];
+
+        // Committee yang pernah diikuti user
+        $userCommittees = DB::table('tRegistrations')
+            ->where('idUsers', $idUser)
+            ->where('status', 'diterima')
+            ->pluck('idCommittees')
+            ->toArray();
+
+        foreach ($similarities as $sim) {
+
+            if ($sim['idUsers1'] != $idUser) {
+                continue;
+            }
+
+            $neighbor = $sim['idUsers2'];
+            $similarity = $sim['similarity_score'];
+
+            // Skip similarity <= 0
+            if ($similarity <= 0) {
+                continue;
+            }
+
+            // Ambil committee aktif milik neighbor
+            $neighborCommittees = DB::table('tRegistrations as r')
+                ->join('tCommittees as c', 'r.idCommittees', '=', 'c.idCommittees')
+                ->where('r.idUsers', $neighbor)
+                ->where('r.status', 'diterima')
+                ->where('c.is_active', 1)
+                ->where('c.is_published', 1)
+                ->whereDate('c.end_regis', '>=', now())
+                ->distinct()
+                ->pluck('r.idCommittees');
+
+            foreach ($neighborCommittees as $committeeId) {
+
+                // Jangan rekomendasikan committee yang pernah diikuti user
+                if (in_array($committeeId, $userCommittees)) {
+                    continue;
+                }
+
+                $committeeDivisions = DB::table('tListDivisions')
+                    ->where('idCommittees', $committeeId)
+                    ->pluck('idDivisions')
+                    ->toArray();
+
+                // Cari bobot preferensi terbesar
+                $matchedWeight = 0;
+
+                foreach ($committeeDivisions as $divisionId) {
+
+                    if (isset($userPreferences[$divisionId])) {
+
+                        $matchedWeight = max(
+                            $matchedWeight,
+                            $userPreferences[$divisionId]
+                        );
+                    }
+                }
+
+                // Tidak ada divisi yang cocok
+                if ($matchedWeight == 0) {
+                    continue;
+                }
+
+                if (!isset($committeeScores[$committeeId])) {
+
+                    $committeeScores[$committeeId] = 0;
+                    $committeeSimilaritySums[$committeeId] = 0;
+                }
+
+                // Pembilang
+                $committeeScores[$committeeId] +=
+                    $similarity * $matchedWeight;
+
+                // Penyebut
+                $committeeSimilaritySums[$committeeId] +=
+                    abs($similarity);
+
+                Log::info('Committee Contribution', [
+                    'committee' => $committeeId,
+                    'neighbor' => $neighbor,
+                    'similarity' => $similarity,
+                    'weight' => $matchedWeight,
+                    'contribution' => $similarity * $matchedWeight
+                ]);
+            }
+        }
+
+        return [
+            'scores' => $committeeScores,
+            'similarities' => $committeeSimilaritySums
+        ];
+    }
+
+    public function predictCommitteeScores($committeeData)
+    {
+        $committeeScores = $committeeData['scores'];
+        $committeeSimilaritySums = $committeeData['similarities'];
+
+        foreach ($committeeScores as $committeeId => $score) {
+
+            if ($committeeSimilaritySums[$committeeId] > 0) {
+
+                $committeeScores[$committeeId] =
+                    $score /
+                    $committeeSimilaritySums[$committeeId];
+
+            }
+        }
+
+        arsort($committeeScores);
+
+        Log::info('Final Committee Scores', [
+            'scores' => $committeeScores
+        ]);
+
+        return $committeeScores;
+    }
     // public function getUserCommitteeKeywords($idUser)
     // {
     //     $committees = DB::table('tEvaluations')
@@ -270,115 +392,24 @@ class UBCFService
     //menghitung skor committee
     public function getCommitteeScores($idUser)
     {
-        $matrix = $this->buildMatrix();
-        $similarities = $this->calculateAllSimilarities($matrix);
+         $matrix = $this->buildMatrix();
 
-        $committeeScores = [];
-        $userPreferences = $this->getPreferredDivisions($idUser);
+        $similarities =
+            $this->calculateAllSimilarities($matrix);
 
-        $userCommittees = DB::table('tRegistrations')
-                            ->where('idUsers', $idUser)
-                            ->where('status', 'diterima')
-                            ->pluck('idCommittees')
-                            ->toArray();
+        $userPreferences =
+            $this->getPreferredDivisions($idUser);
 
-        foreach($similarities as $sim){
+        $committeeData =
+            $this->calculateCommitteeScores(
+                $idUser,
+                $similarities,
+                $userPreferences
+            );
 
-            if($sim['idUsers1'] != $idUser)
-                continue;
-
-            $neighbor = $sim['idUsers2'];
-            $neighborCommittees = DB::table('tRegistrations as r')
-                    ->join('tCommittees as c', 'r.idCommittees', '=', 'c.idCommittees')
-                    ->where('r.idUsers', $neighbor)
-                    ->where('r.status', 'diterima')
-                    ->where('c.is_active', 1)
-                    ->where('c.is_published', 1)
-                    ->whereDate('c.end_regis', '>=', now())
-                    ->distinct('r.idCommittees')
-                    ->pluck('r.idCommittees');
-
-            // looping similarity score neighbor per divisi
-            foreach ($similarities as $sim) {
-
-                if ($sim['idUsers1'] != $idUser) {
-                    continue;
-                }
-
-                $neighbor = $sim['idUsers2'];
-
-                $neighborCommittees = DB::table('tRegistrations as r')
-                    ->join('tCommittees as c', 'r.idCommittees', '=', 'c.idCommittees')
-                    ->where('r.idUsers', $neighbor)
-                    ->where('r.status', 'diterima')
-                    ->where('c.is_active', 1)
-                    ->where('c.is_published', 1)
-                    ->distinct()
-                    ->pluck('r.idCommittees');
-
-                foreach ($neighborCommittees as $committeeId) {
-
-                    if (in_array($committeeId, $userCommittees)) {
-                        continue;
-                    }
-
-                    $committeeDivisions = DB::table('tListDivisions')
-                        ->where('idCommittees', $committeeId)
-                        ->pluck('idDivisions')
-                        ->toArray();
-
-                    $matchedWeight = 0;
-
-                    foreach ($committeeDivisions as $divisionId) {
-
-                        if (isset($userPreferences[$divisionId])) {
-
-                            $matchedWeight = max(
-                                $matchedWeight,
-                                $userPreferences[$divisionId]
-                            );
-                        }
-                    }
-
-                    // committee tidak punya divisi sesuai minat user
-                    if ($matchedWeight == 0) {
-                        continue;
-                    }
-
-                    if (!isset($committeeScores[$committeeId])) {
-                        $committeeScores[$committeeId] = 0;
-                    }
-
-                    $contribution =
-                        $sim['similarity_score']
-                        * $matchedWeight;
-
-                    Log::info('=== COMMITTEE CONTRIBUTION ===', [
-                        'committee' => $committeeId,
-                        'neighbor' => $neighbor,
-                        'similarity' => $sim['similarity_score'],
-                        'weight' => $matchedWeight,
-                        'contribution' => $contribution
-                    ]);
-
-                    $committeeScores[$committeeId] +=
-                        $sim['similarity_score']
-                        * $matchedWeight;
-                }
-            }
-        }
-
-        Log::info('=== TOTAL COMMITTEE SCORES ===', [
-            'scores' => $committeeScores
-        ]);
-
-        arsort($committeeScores);
-
-        Log::info('=== SORTED COMMITTEE SCORES ===', [
-            'scores' => $committeeScores
-        ]);
-
-        return $committeeScores;
+        return $this->predictCommitteeScores(
+            $committeeData
+        );
     }
 
     // nyimpan ke db
@@ -439,13 +470,20 @@ class UBCFService
 
     public function getCalculationDetail($idUser)
     {
-        // $ratings = $this->getUserRatings();
         $matrix = $this->buildMatrix();
         $similarities = $this->calculateAllSimilarities($matrix);
-
         $userPreferences = $this->getPreferredDivisions($idUser);
-        
-        $detail = [];
+
+        // Gunakan fungsi yang sudah ada
+        $committeeData = $this->calculateCommitteeScores(
+            $idUser,
+            $similarities,
+            $userPreferences
+        );
+
+        $predictedScores = $this->predictCommitteeScores($committeeData);
+
+        $details = [];
 
         $userCommittees = DB::table('tRegistrations')
             ->where('idUsers', $idUser)
@@ -460,6 +498,11 @@ class UBCFService
             }
 
             $neighbor = $sim['idUsers2'];
+            $similarity = $sim['similarity_score'];
+
+            if ($similarity <= 0) {
+                continue;
+            }
 
             $neighborCommittees = DB::table('tRegistrations as r')
                 ->join('tCommittees as c', 'r.idCommittees', '=', 'c.idCommittees')
@@ -467,17 +510,18 @@ class UBCFService
                 ->where('r.status', 'diterima')
                 ->where('c.is_active', 1)
                 ->where('c.is_published', 1)
-                ->distinct('r.idCommittees')
-                ->get(['r.idCommittees']);
+                ->whereDate('c.end_regis', '>=', now())
+                ->distinct()
+                ->pluck('r.idCommittees');
 
-            foreach ($neighborCommittees as $committee) {
+            foreach ($neighborCommittees as $committeeId) {
 
-                if (in_array($committee->idCommittees, $userCommittees)) {
+                if (in_array($committeeId, $userCommittees)) {
                     continue;
                 }
 
                 $committeeDivisions = DB::table('tListDivisions')
-                    ->where('idCommittees', $committee->idCommittees)
+                    ->where('idCommittees', $committeeId)
                     ->pluck('idDivisions')
                     ->toArray();
 
@@ -500,20 +544,47 @@ class UBCFService
                     continue;
                 }
 
-                $detail[] = [
+                $contribution = $similarity * $matchedWeight;
+
+                $details[] = [
+
                     'neighbor' => $neighbor,
-                    'committee' => $committee->idCommittees,
+
+                    'committee' => $committeeId,
+
                     'matched_division' => $matchedDivision,
-                    'similarity' => $sim['similarity_score'],
+
+                    'similarity' => round($similarity, 4),
+
                     'weight' => $matchedWeight,
-                    'contribution' =>
-                        $sim['similarity_score']
-                        * $matchedWeight
+
+                    'contribution' => round($contribution, 4),
+
+                    // Diambil dari calculateCommitteeScores()
+                    'total_contribution' => round(
+                        $committeeData['scores'][$committeeId],
+                        4
+                    ),
+
+                    'total_similarity' => round(
+                        $committeeData['similarities'][$committeeId],
+                        4
+                    ),
+
+                    // Diambil dari predictCommitteeScores()
+                    'predicted_score' => round(
+                        $predictedScores[$committeeId],
+                        4
+                    )
+
                 ];
             }
         }
 
-        return $detail;
+        return collect($details)
+            ->sortByDesc('predicted_score')
+            ->values()
+            ->all();
     }
 
     // public function getCommitteeRecommendations($idUser)
