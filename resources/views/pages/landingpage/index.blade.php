@@ -65,46 +65,6 @@ use Illuminate\Support\Str;
 
     </section><!-- /Hero Section -->
 
-    <!-- Featured Services Section -->
-    <!-- <section id="featured-services" class="featured-services section">
-
-      <div class="container">
-
-        <div class="row gy-4">
-
-          <div class="col-lg-4 col-md-6 service-item d-flex" data-aos="fade-up" data-aos-delay="100">
-            <div class="icon flex-shrink-0"><i class="fa-solid fa-cart-flatbed"></i></div>
-            <div>
-              <h4 class="title">Lorem Ipsum</h4>
-              <p class="description">Voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident</p>
-              <a href="#" class="readmore stretched-link"><span>Learn More</span><i class="bi bi-arrow-right"></i></a>
-            </div>
-          </div>
-
-          <div class="col-lg-4 col-md-6 service-item d-flex" data-aos="fade-up" data-aos-delay="200">
-            <div class="icon flex-shrink-0"><i class="fa-solid fa-truck"></i></div>
-            <div>
-              <h4 class="title">Dolor Sitema</h4>
-              <p class="description">Minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat tarad limino ata</p>
-              <a href="#" class="readmore stretched-link"><span>Learn More</span><i class="bi bi-arrow-right"></i></a>
-            </div>
-          </div>
-
-          <div class="col-lg-4 col-md-6 service-item d-flex" data-aos="fade-up" data-aos-delay="300">
-            <div class="icon flex-shrink-0"><i class="fa-solid fa-truck-ramp-box"></i></div>
-            <div>
-              <h4 class="title">Sed ut perspiciatis</h4>
-              <p class="description">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur</p>
-              <a href="#" class="readmore stretched-link"><span>Learn More</span><i class="bi bi-arrow-right"></i></a>
-            </div>
-          </div>
-
-        </div>
-
-      </div>
-
-    </section>/Featured Services Section -->
-
     <!-- Pricing Section -->
     <section id="services" class="services section">
 
@@ -138,7 +98,7 @@ use Illuminate\Support\Str;
               </div>
             @else
               <div class="row gy-4">
-                @foreach($recommendations as $committee)
+                @foreach($initialRecommendations  as $committee)
                   <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
                     <a href="{{ route('detail.committee', ['idCommittee' => $committee->idCommittees]) }}">
                       
@@ -154,7 +114,42 @@ use Illuminate\Support\Str;
                     </a>
                   </div>
                 @endforeach
+
+                @if($hasMoreRecommendations)
+                  <div id="moreRecommendations" class="collapse">
+                      <div class="row gy-4">
+                          @foreach($remainingRecommendations as $committee)
+                              <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                                <a href="{{ route('detail.committee', ['idCommittee' => $committee->idCommittees]) }}">
+                                  
+                                  <div class="card committee-card">
+                                    <div class="committee-img-wrapper">
+                                      <img src="{{ $committee->picture ? asset('storage/' . $committee->picture) : asset('/img/profile-default.png') }}" class="committee-img">
+                                    </div>
+
+                                    <h3>{{ $committee->name }}</h3>
+                                    <p>{{ Str::limit($committee->description, 150, '..') }}</p>
+                                  </div>
+
+                                </a>
+                              </div>
+                          @endforeach
+                      </div>
+                  </div>
+
+                  <div class="text-center mt-4">
+                      <button
+                          id="toggleRecommendation"
+                          class="btn btn-outline-secondary btn-sm mt-2"
+                          data-bs-toggle="collapse"
+                          data-bs-target="#moreRecommendations"
+                          data-aos="fade-up" data-aos-delay="100">
+                          Tampilkan {{ $remainingCount }} rekomendasi lainnya
+                      </button>
+                  </div>
+                @endif
               </div>
+              
             @endif
           </div>
 
@@ -163,54 +158,6 @@ use Illuminate\Support\Str;
       </div>
 
     </section><!-- /Pricing Section -->
-
-    <!-- About Section -->
-    <!-- <section id="about" class="about section">
-
-      <div class="container">
-
-        <div class="row gy-4">
-
-          <div class="col-lg-6 position-relative align-self-start order-lg-last order-first" data-aos="fade-up" data-aos-delay="200">
-            <img src="{{ asset('assets_lp/img/about.jpg') }}" class="img-fluid" alt="">
-            <a href="https://www.youtube.com/watch?v=Y7f98aduVJ8" class="glightbox pulsating-play-btn"></a>
-          </div>
-
-          <div class="col-lg-6 content order-last  order-lg-first" data-aos="fade-up" data-aos-delay="100">
-            <h3>About Us</h3>
-            <p>
-              Dolor iure expedita id fuga asperiores qui sunt consequatur minima. Quidem voluptas deleniti. Sit quia molestiae quia quas qui magnam itaque veritatis dolores. Corrupti totam ut eius incidunt reiciendis veritatis asperiores placeat.
-            </p>
-            <ul>
-              <li>
-                <i class="bi bi-diagram-3"></i>
-                <div>
-                  <h5>Ullamco laboris nisi ut aliquip consequat</h5>
-                  <p>Magni facilis facilis repellendus cum excepturi quaerat praesentium libre trade</p>
-                </div>
-              </li>
-              <li>
-                <i class="bi bi-fullscreen-exit"></i>
-                <div>
-                  <h5>Magnam soluta odio exercitationem reprehenderi</h5>
-                  <p>Quo totam dolorum at pariatur aut distinctio dolorum laudantium illo direna pasata redi</p>
-                </div>
-              </li>
-              <li>
-                <i class="bi bi-broadcast"></i>
-                <div>
-                  <h5>Voluptatem et qui exercitationem</h5>
-                  <p>Et velit et eos maiores est tempora et quos dolorem autem tempora incidunt maxime veniam</p>
-                </div>
-              </li>
-            </ul>
-          </div>
-
-        </div>
-
-      </div>
-
-    </section>/About Section -->
 
     <!-- Services Section -->
     <section id="committee-search" class="services section">
@@ -265,111 +212,6 @@ use Illuminate\Support\Str;
 
     </section><!-- /Services Section -->
 
-    <!-- Call To Action Section -->
-    <!-- <section id="call-to-action" class="call-to-action section dark-background">
-
-      <img src="{{ asset('assets_lp/img/cta-bg.jpg') }}" alt="">
-
-      <div class="container">
-        <div class="row justify-content-center" data-aos="zoom-in" data-aos-delay="100">
-          <div class="col-xl-10">
-            <div class="text-center">
-              <h3>Call To Action</h3>
-              <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-              <a class="cta-btn" href="#">Call To Action</a>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </section>/Call To Action Section -->
-
-    <!-- Features Section -->
-    <!-- <section id="features" class="features section">
-
-      
-      <div class="container section-title" data-aos="fade-up">
-        <span>Features</span>
-        <h2>Features</h2>
-        <p>Necessitatibus eius consequatur ex aliquid fuga eum quidem sint consectetur velit</p>
-      </div>
-
-      <div class="container">
-
-        <div class="row gy-4 align-items-center features-item">
-          <div class="col-md-5 d-flex align-items-center" data-aos="zoom-out" data-aos-delay="100">
-            <img src="{{ asset('assets_lp/img/features-1.jpg') }}" class="img-fluid" alt="">
-          </div>
-          <div class="col-md-7" data-aos="fade-up" data-aos-delay="100">
-            <h3>Voluptatem dignissimos provident quasi corporis voluptates sit assumenda.</h3>
-            <p class="fst-italic">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
-              magna aliqua.
-            </p>
-            <ul>
-              <li><i class="bi bi-check"></i><span> Ullamco laboris nisi ut aliquip ex ea commodo consequat.</span></li>
-              <li><i class="bi bi-check"></i> <span>Duis aute irure dolor in reprehenderit in voluptate velit.</span></li>
-              <li><i class="bi bi-check"></i> <span>Ullam est qui quos consequatur eos accusamus.</span></li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="row gy-4 align-items-center features-item">
-          <div class="col-md-5 order-1 order-md-2 d-flex align-items-center" data-aos="zoom-out" data-aos-delay="200">
-            <img src="{{ asset('assets_lp/img/features-2.jpg') }}" class="img-fluid" alt="">
-          </div>
-          <div class="col-md-7 order-2 order-md-1" data-aos="fade-up" data-aos-delay="200">
-            <h3>Corporis temporibus maiores provident</h3>
-            <p class="fst-italic">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
-              magna aliqua.
-            </p>
-            <p>
-              Ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
-              velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-              culpa qui officia deserunt mollit anim id est laborum
-            </p>
-          </div>
-        </div>
-
-        <div class="row gy-4 align-items-center features-item">
-          <div class="col-md-5 d-flex align-items-center" data-aos="zoom-out">
-            <img src="{{ asset('assets_lp/img/features-3.jpg') }}" class="img-fluid" alt="">
-          </div>
-          <div class="col-md-7" data-aos="fade-up">
-            <h3>Sunt consequatur ad ut est nulla consectetur reiciendis animi voluptas</h3>
-            <p>Cupiditate placeat cupiditate placeat est ipsam culpa. Delectus quia minima quod. Sunt saepe odit aut quia voluptatem hic voluptas dolor doloremque.</p>
-            <ul>
-              <li><i class="bi bi-check"></i> <span>Ullamco laboris nisi ut aliquip ex ea commodo consequat.</span></li>
-              <li><i class="bi bi-check"></i><span> Duis aute irure dolor in reprehenderit in voluptate velit.</span></li>
-              <li><i class="bi bi-check"></i> <span>Facilis ut et voluptatem aperiam. Autem soluta ad fugiat</span>.</li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="row gy-4 align-items-center features-item">
-          <div class="col-md-5 order-1 order-md-2 d-flex align-items-center" data-aos="zoom-out">
-            <img src="{{ asset('assets_lp/img/features-4.jpg') }}" class="img-fluid" alt="">
-          </div>
-          <div class="col-md-7 order-2 order-md-1" data-aos="fade-up">
-            <h3>Quas et necessitatibus eaque impedit ipsum animi consequatur incidunt in</h3>
-            <p class="fst-italic">
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
-              magna aliqua.
-            </p>
-            <p>
-              Ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
-              velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-              culpa qui officia deserunt mollit anim id est laborum
-            </p>
-          </div>
-        </div>
-
-      </div>
-
-    </section>/Features Section -->
-
-    
 
     <!-- Testimonials Section -->
     <!-- <section id="testimonials" class="testimonials section dark-background">
@@ -610,5 +452,20 @@ use Illuminate\Support\Str;
                     });
             @endif
         });
+
+        const collapse = document.getElementById('moreRecommendations');
+        const button = document.getElementById('toggleRecommendation');
+
+        if (collapse && button) {
+
+            collapse.addEventListener('show.bs.collapse', function () {
+                button.innerHTML = 'Sembunyikan rekomendasi';
+            });
+
+            collapse.addEventListener('hide.bs.collapse', function () {
+                button.innerHTML = 'Tampilkan {{ $remainingCount }} rekomendasi lainnya';
+            });
+
+        }
     </script>
 @endsection

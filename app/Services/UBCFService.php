@@ -401,7 +401,7 @@ class UBCFService
             $this->getPreferredDivisions($idUser);
 
         $committeeData =
-            $this->calculateCommitteeScores(
+            $this->calculateCommitteeContributions(
                 $idUser,
                 $similarities,
                 $userPreferences
@@ -475,7 +475,7 @@ class UBCFService
         $userPreferences = $this->getPreferredDivisions($idUser);
 
         // Gunakan fungsi yang sudah ada
-        $committeeData = $this->calculateCommitteeScores(
+        $committeeData = $this->calculateCommitteeContributions(
             $idUser,
             $similarities,
             $userPreferences

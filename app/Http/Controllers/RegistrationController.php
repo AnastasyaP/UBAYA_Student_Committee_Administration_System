@@ -522,7 +522,6 @@ class RegistrationController extends Controller
 
                 return $row;
             });
-// dd($ahpCalcs);
         // final score (persis seperti di store)
         $final_score = $ahpCalcs->sum('score') * 100;
 
@@ -638,13 +637,14 @@ class RegistrationController extends Controller
                 'Anda hanya dapat menerima pendaftar pada divisi Anda sendiri.');
         }
 
-        $exist = DB::table('tRegistrations')
+        $otherDivision = DB::table('tRegistrations')
                 ->where('idUsers', '=', $mhs->idUsers)
-                ->where('status','=', 'accepted')
+                ->where('idCommittees', '=', $mhs->idCommittees)
                 ->where('idDivisions', '!=', $mhs->idDivisions)
                 ->first();
+
         
-        if($exist){
+        if($otherDivision && $otherDivision->status == 'diterima'){
             return redirect()->back()->with('warning', "Calon ini sudah diterima di divisi lain!");
         }
 
@@ -664,6 +664,14 @@ class RegistrationController extends Controller
                 DB::table('tRegistrations')
                 ->where('idRegistrations', $idRegis)
                 ->update(['status'=> 'diterima']);
+
+                if ($otherDivision) {
+                    DB::table('tRegistrations')
+                        ->where('idRegistrations', $otherDivision->idRegistrations)
+                        ->update([
+                            'status' => 'ditolak'
+                        ]);
+                }
                 
                 Mail::to($mhs->email)->send(new ApplicationStatusMail($mhs->name, $mhs->committee, $mhs->division, 'diterima'));
 

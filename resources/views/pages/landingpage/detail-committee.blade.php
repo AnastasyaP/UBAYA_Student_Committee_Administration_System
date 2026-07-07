@@ -90,12 +90,26 @@ use Illuminate\Support\Str;
                   <p>{{ $committee->requirements }}</p>
                 </div>
               </li>
+              <li>
+                <i class="bi bi-telephone"></i>
+                <div>
+                  <h5>Kontak Kepanitiaan</h5>
+                  <p>{{ $committee->contact }}</p>
+                </div>
+              </li>
             </ul>
             <div class="d-grid gap-2">
               @if($allowedToRegister)  
                
-                @if(\Carbon\Carbon::parse($committee->end_regis)->isPast())              
-                  <button class="btn btn-primary" disabled>Pendaftaran Berakhir</button>
+                @if(\Carbon\Carbon::parse($committee->start_regis)->isFuture())
+                    <button class="btn btn-secondary" disabled>
+                        Pendaftaran Belum Dimulai
+                    </button>
+
+                @elseif(\Carbon\Carbon::parse($committee->end_regis)->isPast())
+                    <button class="btn btn-secondary" disabled>
+                        Pendaftaran Berakhir
+                    </button>
                 @else
                   <a href="{{ route('regis.committee', ['idCommittee' => $committee->idCommittees]) }}"
                     class="btn btn-primary btn-lg mt-4">

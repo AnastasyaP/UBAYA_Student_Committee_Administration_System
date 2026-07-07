@@ -35,8 +35,13 @@ class LandingPageController extends Controller
             
             $ubcf->generateRecommendations($user);
             // dd($ubcf->getPreferredDivisions(40));
-            dd($ubcf->getCalculationDetail(43));
+            // dd($ubcf->getCalculationDetail(43));
             $recommendations = $ubcf->getCommitteeRecommendations($user);
+
+            $initialRecommendations = $recommendations->take(3);
+            $remainingRecommendations = $recommendations->skip(3);
+            $hasMoreRecommendations = $recommendations->count() > 3;
+            $remainingCount = $remainingRecommendations->count();   
 
             if ($recommendations->isEmpty() && $hasPreference) {
                 $recommendations = $this->getColdStartRecommendations($user);
@@ -77,6 +82,10 @@ class LandingPageController extends Controller
             'committees', 
             'keywords', 
             'recommendations',
+            'initialRecommendations',
+            'remainingRecommendations',
+            'hasMoreRecommendations',
+            'remainingCount',
             'needPreferences', 
             'hasHistory',
             'debugData'
